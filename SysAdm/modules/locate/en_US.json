@@ -1,0 +1,20 @@
+{
+    "login_screen": "Login",
+    "login_title": "Log in to your account",
+    "email_label": "Email",
+    "email_placeholder": "Enter your email",
+    "password_label": "Password",
+    "password_placeholder": "Enter your password",
+    "confirm_password_label": "Confirm your password",
+    "confirm_password_placeholder": "Enter your password again",
+    "remember_me": "Remember me",
+    "login_button": "Login",
+    "no_account": "Don't have an account?",
+    "signup": "Sign up",
+    "signup_title": "Create your account",
+    "name_label": "Name",
+    "name_placeholder": "Enter your name",
+    "signup_button": "Sign up",
+    "already_have_account": "Already have an account?",
+    "login": "Log in"
+  }

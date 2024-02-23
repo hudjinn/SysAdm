@@ -1,0 +1,20 @@
+{
+    "login_screen": "Login",
+    "login_title": "Faça login na sua conta",
+    "email_label": "E-mail",
+    "email_placeholder": "Digite seu e-mail",
+    "password_label": "Senha",
+    "confirm_password_label": "Confirme sua senha",
+    "password_placeholder": "Digite sua senha",
+    "confirm_password_placeholder": "Digite novamente sua senha",
+    "remember_me": "Lembrar-me",
+    "login_button": "Entrar",
+    "no_account": "Não tem uma conta?",
+    "signup": "Cadastre-se",
+    "signup_title": "Crie sua conta",
+    "name_label": "Nome",
+    "name_placeholder": "Digite seu nome",
+    "signup_button": "Cadastrar",
+    "already_have_account": "Já tem uma conta?",
+    "login": "Faça login"
+}

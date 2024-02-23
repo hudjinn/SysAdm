@@ -3,60 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ text.signup_screen }}</title>
+    <title>{{ text.login_screen }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/login_screen.css') }}">
 </head>
 <body>
-    <div class="container">
-       
+    <div class="container">       
         <div class="content">      
-            <!-- FORMULÁRIO DE CADASTRO -->
-            <div id="cadastro">
-                <form method="post" action="" onsubmit="return validarSenha()"> 
-                    <h1>{{ text.signup_title }}</h1> 
-                    
+            <!-- FORMULÁRIO DE LOGIN -->
+            <div id="login">
+                <form method="post" action=""> 
+                    <h1>{{ text.login_title }}</h1> 
                     <p> 
-                        <label for="nome_cad">{{ text.name_label }}</label>
-                        <input id="nome_cad" name="nome_cad" required="required" type="text" placeholder="{{ text.name_placeholder }}" />
+                        <label for="email_login">{{ text.email_label }}</label>
+                        <input id="email_login" name="email_login" required="required" type="text" placeholder="{{ text.email_placeholder }}"/>
                     </p>
                     
                     <p> 
-                        <label for="email_cad">{{ text.email_label }}</label>
-                        <input id="email_cad" name="email_cad" required="required" type="email" placeholder="{{ text.email_placeholder }}"/> 
+                        <label for="senha_login">{{ text.password_label }}</label>
+                        <input id="senha_login" name="senha_login" required="required" type="password" placeholder="{{ text.password_placeholder }}" /> 
                     </p>
                     
                     <p> 
-                        <label for="senha_cad">{{ text.password_label }}</label>
-                        <input id="senha_cad" name="senha_cad" required="required" type="password" placeholder="{{ text.password_placeholder }}"/>
+                        <input type="checkbox" name="manterlogado" id="manterlogado" value="" /> 
+                        <label for="manterlogado">{{ text.remember_me }}</label>
+                    </p>
+                    
+                    <p> 
+                        <input type="submit" value="{{ text.login_button }}" /> 
                     </p>
 
-                    <p> 
-                        <label for="confirma_senha_cad">{{ text.confirm_password_label }}</label>
-                        <input id="confirma_senha_cad" name="confirma_senha_cad" required="required" type="password" placeholder="{{ text.confirm_password_placeholder }}"/>
-                    </p>      
-              
-                    <p> 
-                        <input type="submit" value="{{ text.signup_button }}"/> 
-                    </p>
-                    
                     <p class="link">
-                        {{ text.already_have_account }} <a href="{{ url_for('login_screen') }}">{{ text.login }}</a>
+                        <a href="{{ url_for('recover_password') }}">{{ text.forgot_pwd }}</a>
                     </p>
+
+                    <p class="link">
+                        {{ text.no_account }} <a href="{{ url_for('create_account_screen') }}">{{ text.signup }}</a> 
+                    </p>
+
+
+
                 </form>
             </div>
         </div>
-    </div>
-    <script>
-        function validarSenha() {
-            var senha = document.getElementById("senha_cad").value;
-            var confirmaSenha = document.getElementById("confirma_senha_cad").value;
-
-            if (senha != confirmaSenha) {
-                alert("As senhas digitadas não coincidem!");
-                return false;
-            }
-            return true;
-        }
-    </script>
+    </div> 
 </body>
 </html>

@@ -16,5 +16,7 @@
     "name_placeholder": "Digite seu nome",
     "signup_button": "Cadastrar",
     "already_have_account": "Já tem uma conta?",
-    "login": "Faça login"
+    "login": "Faça login",
+    "wrong_match_pwd": "As senhas digitadas não coincidem!",
+    "forgot_pwd":"Esqueceu a senha?"
 }

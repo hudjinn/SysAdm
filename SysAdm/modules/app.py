@@ -28,6 +28,18 @@ def create_account_screen():
     text = read_translation('pt_BR') 
     return render_template('create_acc_screen.html', text=text)
 
+# Rota para a página de recuperação de senha
+@app.route('/recover_password', methods=['POST'])
+def recover_password():
+    login = request.form['login']
+    birthdate = request.form['birthdate']
+    return render_template('change_password.html', login=login)
+    # # Verificar se o login e a data de nascimento correspondem
+    # if login in users and users[login]['birthdate'] == birthdate:
+    #     # Permitir ao usuário trocar a senha
+    # return render_template('change_password.html', login=login)
+    # else:
+    #     return "Login ou data de nascimento incorretos."
 
 if __name__ == '__main__':
     app.run(debug=True)

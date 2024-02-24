@@ -1,17 +1,23 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import os
-import inspect
 import json
 
 app = Flask(__name__, static_url_path='/static')
+app.secret_key = os.urandom(24)
+
+# Simulação de dados de usuários
+users = {
+    "user1@example.com": {
+        "cpf": "12345678900",
+        "data_nasc": "1990-01-01"
+    }
+}
 
 # Ler arquivo de internacionalização
 def read_translation(language):
-
     file_path = f'modules/locate/{language}.json'
     with open(file_path, 'r', encoding='utf-8') as file:
         translations = json.load(file)
-
     return translations
 
 # Rota para a página de login
@@ -19,6 +25,7 @@ def read_translation(language):
 def login_screen():
     # Implementar leitura de idioma
     text = read_translation('pt_BR') 
+    session['text'] = text  # Armazena os textos na sessão
     return render_template('login_screen.html', text=text)
 
 # Rota para a página de cadastro
@@ -26,20 +33,54 @@ def login_screen():
 def create_account_screen():
     # Implementar leitura de idioma
     text = read_translation('pt_BR') 
+    session['text'] = text  # Armazena os textos na sessão
     return render_template('create_acc_screen.html', text=text)
 
 # Rota para a página de recuperação de senha
-@app.route('/recover_password', methods=['POST'])
+@app.route('/recover_password', methods=['GET', 'POST'])
 def recover_password():
-    login = request.form['login']
-    birthdate = request.form['birthdate']
-    return render_template('change_password.html', login=login)
-    # # Verificar se o login e a data de nascimento correspondem
-    # if login in users and users[login]['birthdate'] == birthdate:
-    #     # Permitir ao usuário trocar a senha
-    # return render_template('change_password.html', login=login)
-    # else:
-    #     return "Login ou data de nascimento incorretos."
+    text = session.get('text')
+    if request.method == 'POST':
+        email = request.form['email_recovery']
+        cpf = request.form['cpf_recovery']
+        data_nasc = request.form['data_nasc_recovery']
+        # Verificar se os dados fornecidos correspondem a um usuário
+        if email in users and users[email]['cpf'] == cpf and users[email]['data_nasc'] == data_nasc:
+            # Renderizar a página de alteração de senha, passando o e-mail como parâmetro
+            return redirect(url_for('change_password', email=email))
+        else:
+            # Se os dados estiverem incorretos, redirecionar de volta para a página de recuperação de senha
+            return redirect(url_for('recover_password'))
+    else:
+        return render_template('recover_password.html', text=text)
 
+# Rota para a página de alteração de senha
+@app.route('/change_password/<email>', methods=['GET', 'POST'])
+def change_password(email):
+    text = read_translation('pt_BR')
+
+    if request.method == 'POST':
+        # Processar o formulário de alteração de senha
+        nova_senha = request.form['nova_senha']
+        confirma_senha = request.form['confirma_senha']
+        # Aqui você pode realizar as operações necessárias para alterar a senha do usuário
+        if nova_senha == confirma_senha:
+            # Senhas coincidem, então a senha pode ser alterada
+            # Retornar uma página de confirmação de senha alterada com sucesso
+            return redirect(url_for('password_changed', email=email))
+
+        else:
+            # Senhas não coincidem, exibir mensagem de erro
+            error_message = "As senhas digitadas não coincidem."
+            return render_template('change_password.html', text=text, error_message=error_message, email=email)
+    else:
+        return render_template('change_password.html', text=text, email=email)
+
+@app.route('/password_changed/<email>')
+def password_changed(email):
+    text = read_translation('pt_BR')
+    return render_template('password_changed.html', text=text, email=email)
+
+    
 if __name__ == '__main__':
     app.run(debug=True)

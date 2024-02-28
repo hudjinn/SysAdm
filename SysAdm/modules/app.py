@@ -63,10 +63,8 @@ def change_password(email):
         # Processar o formulário de alteração de senha
         nova_senha = request.form['nova_senha']
         confirma_senha = request.form['confirma_senha']
-        # Aqui você pode realizar as operações necessárias para alterar a senha do usuário
         if nova_senha == confirma_senha:
-            # Senhas coincidem, então a senha pode ser alterada
-            # Retornar uma página de confirmação de senha alterada com sucesso
+
             return redirect(url_for('password_changed', email=email))
 
         else:
@@ -76,11 +74,18 @@ def change_password(email):
     else:
         return render_template('change_password.html', text=text, email=email)
 
-@app.route('/password_changed/<email>')
+# Rota para a página de sucesso na alteração de senha
+@app.route('/password_changed/<email>', methods=['GET', 'POST'])
 def password_changed(email):
     text = read_translation('pt_BR')
     return render_template('password_changed.html', text=text, email=email)
 
+# Rota para a página de administração do site
+@app.route('/admin_screen')
+def admin_screen():
+    text = session.get('text')
+
+    return render_template('admin_screen.html', text=text)
     
 if __name__ == '__main__':
     app.run(debug=True)

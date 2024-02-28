@@ -11,7 +11,7 @@
         <div class="content">      
             <!-- FORMULÁRIO DE LOGIN -->
             <div id="login">
-                <form method="post" action=""> 
+                <form action="{{ url_for('admin_screen') }}"> <!-- Atualizado o action para admin_screen -->
                     <h1>{{ text.login_title }}</h1> 
                     <p> 
                         <label for="email_login">{{ text.email_label }}</label>
@@ -39,9 +39,6 @@
                     <p class="link">
                         {{ text.no_account }} <a href="{{ url_for('create_account_screen') }}">{{ text.signup }}</a> 
                     </p>
-
-
-
                 </form>
             </div>
         </div>

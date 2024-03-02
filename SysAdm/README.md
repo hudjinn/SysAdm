@@ -15,7 +15,7 @@ Git é um sistema de controle de versão distribuído que permite que você e su
 ### Configuração Inicial
 
 - **Configure seu Git:** Após a instalação, configure seu nome de usuário e endereço de e-mail com os seguintes comandos:
-  ```bash
+```bash
   git config --global user.name "Seu Nome"
   git config --global user.email "seuemail@example.com"
 ```

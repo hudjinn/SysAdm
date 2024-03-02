@@ -24,17 +24,16 @@ Git é um sistema de controle de versão distribuído que permite que você e su
 
 *   **Clonar um Repositório:** Para começar a trabalhar em um projeto existente:
     
-    ```bash
-    
+```bash
     git clone <url-do-repositório>
-    ```
+```
 
 *   **Criar Commits:** Faça pequenos commits que representem uma única funcionalidade ou correção de bug. Use mensagens claras e descritivas:
     
-    ```bash
+```bash
     
     git commit -m "Adiciona funcionalidade de login"
-    ```
+```
         
 
 ### Boas Práticas

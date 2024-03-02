@@ -18,6 +18,7 @@ Git é um sistema de controle de versão distribuído que permite que você e su
   ```bash
   git config --global user.name "Seu Nome"
   git config --global user.email "seuemail@example.com"
+```
 
   ### Trabalhando com Repositórios
 

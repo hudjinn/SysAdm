@@ -41,12 +41,14 @@ def create_account_screen():
 def recover_password():
     text = session.get('text')
     if request.method == 'POST':
+        
         email = request.form['email_recovery']
         cpf = request.form['cpf_recovery']
         data_nasc = request.form['data_nasc_recovery']
-        # Verificar se os dados fornecidos correspondem a um usuário
+        # Verificar se os dados fornecidos correspondem a um usuário no banco
         if email in users and users[email]['cpf'] == cpf and users[email]['data_nasc'] == data_nasc:
             # Renderizar a página de alteração de senha, passando o e-mail como parâmetro
+            # TODO Consulta no banco
             return redirect(url_for('change_password', email=email))
         else:
             # Se os dados estiverem incorretos, redirecionar de volta para a página de recuperação de senha

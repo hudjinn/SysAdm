@@ -24,16 +24,18 @@ Git é um sistema de controle de versão distribuído que permite que você e su
 
 *   **Clonar um Repositório:** Para começar a trabalhar em um projeto existente:
     
-    bashCopy code
+    ```bash
     
-    `git clone <url-do-repositório>`
-    
+    git clone <url-do-repositório>
+    ```
+
 *   **Criar Commits:** Faça pequenos commits que representem uma única funcionalidade ou correção de bug. Use mensagens claras e descritivas:
     
-    bashCopy code
+    ```bash
     
-    `git commit -m "Adiciona funcionalidade de login"`
-    
+    git commit -m "Adiciona funcionalidade de login"
+    ```
+        
 
 ### Boas Práticas
 
@@ -51,11 +53,4 @@ Escrever código de qualidade é essencial para a manutenção e escalabilidade 
 *   **Revisão de Código:** Peça a colegas para revisar seu código, oferecendo e recebendo feedback construtivo.
 *   **Testes:** Escreva testes automatizados para validar a funcionalidade e evitar regressões.
 
-### Ferramentas e Recursos Adicionais
 
-*   Git Documentation
-*   Clean Code by Robert C. Martin
-*   GitHub Flow
-*   Google Style Guides
-
-Esperamos que este guia ajude você a começar sua jornada de desenvolvimento com uma base sólida em boas práticas. Lembre-se, a aprendizagem é um processo contínuo. Continue explorando e não tenha medo de cometer erros. Boa sorte!

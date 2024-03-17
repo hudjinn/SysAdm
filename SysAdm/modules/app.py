@@ -3,6 +3,7 @@ import os
 import json
 
 app = Flask(__name__, static_url_path='/static')
+text_path = '/home/pi_4_engenharia_software/SysAdm/modules/locate'
 app.secret_key = os.urandom(24)
 
 # Simulação de dados de usuários
@@ -15,7 +16,7 @@ users = {
 
 # Ler arquivo de internacionalização
 def read_translation(language):
-    file_path = f'modules/locate/{language}.json'
+    file_path = f'{text_path}/{language}.json'
     with open(file_path, 'r', encoding='utf-8') as file:
         translations = json.load(file)
     return translations

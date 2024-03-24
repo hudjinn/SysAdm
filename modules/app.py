@@ -6,11 +6,18 @@ import requests
 
 
 app = Flask(__name__, static_url_path='/static')
-text_path = '/home/pi_4_engenharia_software/modules/locate'
-app.secret_key = os.urandom(24)
+
+# Caminho absoluto do arquivo em execução
+caminho_absoluto = os.path.abspath(__file__)
+
+# Diretório do arquivo em execução
+root = os.path.dirname(caminho_absoluto)
+
+text_path =  root + '/locate'
 
 #API JAVA
 app.api = 'http://localhost:8080/'
+
 
 @app.before_request
 def before_request():
@@ -57,6 +64,7 @@ def login_screen():
         # Teste
         response.ok = True
 
+        # TODO inserir quantidade de tentativas
         if response.ok:
             # Obter permissões CRUD e enviar POST para admin
             return redirect(url_for('admin_screen'))
@@ -125,7 +133,7 @@ def change_password(email):
         nova_senha = request.form['nova_senha']
         confirma_senha = request.form['confirma_senha']
         if nova_senha == confirma_senha:
-            return redirect(url_for('password_changed', email=email))
+            return redirect(url_for('password_changed', text=session['text'], email=email))
         else:
             # Senhas não coincidem, exibir mensagem de erro
             error_message = "As senhas digitadas não coincidem."

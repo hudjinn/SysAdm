@@ -6,7 +6,7 @@ import requests
 
 
 app = Flask(__name__, static_url_path='/static')
-text_path = '/home/pi_4_engenharia_software/SysAdm/modules/locate'
+text_path = '/home/pi_4_engenharia_software/modules/locate'
 app.secret_key = os.urandom(24)
 
 #API JAVA

@@ -1,12 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ session['language'] }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ text.signup_screen }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/login_screen.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
+
 </head>
 <body>
+    {% include 'language.html' %}
+
+    {% block content %}
     <div class="container">
        
         <div class="content">      
@@ -68,5 +73,6 @@
             return true;
         }
     </script>
+    {% endblock %}
 </body>
 </html>

@@ -1,11 +1,16 @@
-<html lang="en">
+<html lang="{{ session['language'] }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{text.login_screen}}</title>
     <link rel="stylesheet" href="styles/admin.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
+
 </head>
 <body>
+    {% include 'language.html' %}
+
+    {% block content %}
     <header>
         <h1>Painel de Administração</h1>
     </header>
@@ -38,5 +43,6 @@
     <footer>
         <p>© 2024 Nome do Site. Todos os direitos reservados.</p>
     </footer>
+    {% endblock %}
 </body>
 </html>

@@ -1,17 +1,23 @@
+
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ session['language'] }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ text.login_screen }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/login_screen.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
+
 </head>
 <body>
+    {% include 'language.html' %}
+
+    {% block content %}
     <div class="container">       
         <div class="content">      
             <!-- FORMULÁRIO DE LOGIN -->
             <div id="login">
-                <form action="{{ url_for('admin_screen') }}"> <!-- Atualizado o action para admin_screen -->
+                <form action="{{ url_for('admin_screen') }}" method="post">
                     <h1>{{ text.login_title }}</h1> 
                     <p> 
                         <label for="email_login">{{ text.email_label }}</label>
@@ -43,5 +49,7 @@
             </div>
         </div>
     </div> 
+    {% endblock %}
+
 </body>
 </html>

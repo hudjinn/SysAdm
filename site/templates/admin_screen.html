@@ -1,0 +1,48 @@
+<html lang="{{ session['language'] }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{text.login_screen}}</title>
+    <link rel="stylesheet" href="styles/admin.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
+
+</head>
+<body>
+    {% include 'language.html' %}
+
+    {% block content %}
+    <header>
+        <h1>Painel de Administração</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#usuarios">Gerenciar Usuários</a></li>
+            <li><a href="#posts">Gerenciar Posts</a></li>
+            <li><a href="#categorias">Gerenciar Categorias</a></li>
+            <li><a href="#comentarios">Gerenciar Comentários</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section id="usuarios">
+            <h2>Gerenciar Usuários</h2>
+            <!-- Aqui você pode incluir formulários para adicionar, editar ou excluir usuários -->
+        </section>
+        <section id="posts">
+            <h2>Gerenciar Posts</h2>
+            <!-- Aqui você pode incluir formulários para adicionar, editar ou excluir posts -->
+        </section>
+        <section id="categorias">
+            <h2>Gerenciar Categorias</h2>
+            <!-- Aqui você pode incluir formulários para adicionar, editar ou excluir categorias -->
+        </section>
+        <section id="comentarios">
+            <h2>Gerenciar Comentários</h2>
+            <!-- Aqui você pode incluir formulários para moderar comentários -->
+        </section>
+    </main>
+    <footer>
+        <p>© 2024 Nome do Site. Todos os direitos reservados.</p>
+    </footer>
+    {% endblock %}
+</body>
+</html>

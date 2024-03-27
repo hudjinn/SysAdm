@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  site:
+    build: ./site
+    ports:
+      - "5000:5000"
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: sysadmDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5432:5432"
+  api:
+    build: ./api
+    container_name: api
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sysadmDB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 12345
+    ports:
+      - "18080:8080"
+      - "18787:8787"
+    restart: always
+    depends_on:
+      - postgres

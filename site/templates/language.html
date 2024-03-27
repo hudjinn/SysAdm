@@ -1,0 +1,20 @@
+<!-- language.html -->
+<!DOCTYPE html>
+<html lang="{{ session['language'] }}">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
+</head>
+<body>
+    <div id="language-selector">
+        <form action="{{ url_for('set_language') }}" method="post">
+            <select name="language" onchange="this.form.submit()">
+                <option value="en_US" {{ 'selected' if session['language'] == 'en_US' else '' }}>English</option>
+                <option value="pt_BR" {{ 'selected' if session['language'] == 'pt_BR' else '' }}>Português</option>
+            </select>
+        </form>
+    </div>
+
+    {% block content %}{% endblock %}
+
+</body>
+</html>

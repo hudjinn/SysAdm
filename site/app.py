@@ -17,7 +17,7 @@ root = os.path.dirname(caminho_absoluto)
 text_path =  root + '/locate'
 
 #API JAVA
-app.api = 'http://localhost:8080/'
+app.api = 'http://localhost:19000/'
 
 
 @app.before_request

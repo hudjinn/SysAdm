@@ -20,8 +20,8 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 12345
     ports:
-      - "18080:8080"
-      - "18787:8787"
+      - "19000:8080"
+      - "19007:8787"
     restart: always
     depends_on:
       - postgres

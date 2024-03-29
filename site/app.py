@@ -1,3 +1,4 @@
+import datetime
 import os
 import json
 
@@ -14,10 +15,11 @@ caminho_absoluto = os.path.abspath(__file__)
 # Diretório do arquivo em execução
 root = os.path.dirname(caminho_absoluto)
 
+# Diretório dos textos de internacionalização
 text_path =  root + '/locate'
 
 #API JAVA
-app.api = 'http://localhost:19000/'
+app.api = 'http://sysadm-api:8080/usuario'
 
 
 @app.before_request
@@ -59,13 +61,13 @@ def login_screen():
         senha = request.form['senha_login']
         
         # TODO integração com JAVA via API
-
+        # TODO inserir quantidade de tentativas
         response = requests.post( app.api, json={'email': email, 'senha': senha})
 
         # Teste
         response.ok = True
 
-        # TODO inserir quantidade de tentativas
+
         if response.ok:
             # Obter permissões CRUD e enviar POST para admin
             return redirect(url_for('admin_screen'))
@@ -82,25 +84,27 @@ def create_account_screen():
     if request.method == 'POST':
         # Captura os dados do formulário
 
+        data_nasc = request.form['data_nasc_cad']
+        data_nasc_formatted = datetime.datetime.strptime(data_nasc, "%d%m%Y").strftime("%Y-%m-%d")
+
         user_data = {
             "nome": request.form['nome_cad'],
             "email": request.form['email_cad'],
-            "data_nasc": request.form['data_nasc_cad'],
+            "dataNasc": data_nasc_formatted,
             "cpf": request.form['cpf_cad'],
             "senha": request.form['senha_cad']
         }
 
         # Envia os dados do usuário para a API
-        response = requests.post('http://localhost:8080/create', json=user_data)
+        response = requests.post( app.api, json=user_data)
 
         if response.status_code == 201:
             # Usuário criado com sucesso, redirecionar para a tela de login ou outra página
+            flash("Usuário criado com sucesso.")
             return redirect(url_for('login_screen'))
         else:
-            # Trata erros possíveis
-            flash("Erro ao criar usuário: " + response.json().get("mensagem", ""))
-             # Se a API Java responder com erro, retorne à tela de login com uma mensagem de erro
-            return render_template('login_screen.html', text=session['text'], error='Login inválido.')
+            flash(f"Erro ao criar usuário: {response.text}")
+
 
     # Se o método for GET ou se o cadastro falhar, mostra a tela de cadastro novamente
     return render_template('create_acc_screen.html', text=session['text'])
@@ -115,7 +119,7 @@ def recover_password():
         data_nasc = request.form['data_nasc_recovery']
 
         # TODO checar na API validade
-        response = requests.post(app.api + '/check', json={'email': email,
+        response = requests.post(app.api + '/usuario', json={'email': email,
                                                            'cpf': cpf,
                                                            'data_nasc': data_nasc})
         if response.ok:
@@ -123,11 +127,11 @@ def recover_password():
         else:
             return render_template('recover_password.html', text=session['text'], error='Dados inválido.')
 
-    
+    # Se o método for GET ou se o validação falhar, mostra a tela de recuperaçao de senha novamente   
     return render_template('recover_password.html', text=session['text'])
 
 # Rota para a página de alteração de senha
-@app.route('/change_password/<email>', methods=['GET', 'POST'])
+@app.route('/change_password/<email>', methods=['GET', 'POST', 'PUT'])
 def change_password(email):
 
     if request.method == 'POST':
@@ -135,6 +139,7 @@ def change_password(email):
         nova_senha = request.form['nova_senha']
         confirma_senha = request.form['confirma_senha']
         if nova_senha == confirma_senha:
+            # TODO Metodo PUT para alterar usuario
             return redirect(url_for('password_changed', text=session['text'], email=email))
         else:
             # Senhas não coincidem, exibir mensagem de erro
@@ -144,14 +149,14 @@ def change_password(email):
         return render_template('change_password.html', text=session['text'], email=email)
 
 # Rota para a página de sucesso na alteração de senha
-@app.route('/password_changed/<email>', methods=['GET', 'POST'])
+@app.route('/password_changed')
 def password_changed(email):
     return render_template('password_changed.html', text=session['text'], email=email)
 
 # Rota para a página de administração do site
-@app.route('/admin_screen', methods=['GET', 'POST'])
+@app.route('/admin_screen', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def admin_screen():
-    # Enviar permissões possíveis
+    # TODO Enviar permissões possíveis
     return render_template('admin_screen.html', text=session['text'])
     
 if __name__ == '__main__':

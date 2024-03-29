@@ -3,6 +3,9 @@ package br.com.sysadm.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
@@ -20,16 +23,23 @@ public class Usuario {
     @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
+    private LocalDate dataNasc;
+
+    @Column(nullable = false)
+    private LocalDate dataCad;
+
     // Construtor padrão exigido pelo JPA/Hibernate
     public Usuario() {
     }
 
     // Construtor personalizado
-    public Usuario(String cpf, String nome, String senha, String email) {
+    public Usuario(String cpf, String nome, String senha, String email, LocalDate dataNasc) {
         this.cpf = cpf;
         this.nome = nome;
         this.senha = senha;
         this.email = email;
+        this.dataNasc = dataNasc;
     }
 
     // getters e setters
@@ -65,6 +75,18 @@ public class Usuario {
         this.email = email;
     }
 
+    public LocalDate getDataNasc() {
+        return dataNasc;
+    }
+    
+    public void setDataNasc(LocalDate dataNasc) {
+        this.dataNasc = dataNasc;
+    }
+    
+    public LocalDate getDataCad() {
+        return dataCad;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -90,4 +112,8 @@ public class Usuario {
                 ", email='" + email + '\'' +
                 '}';
     }
+    @PrePersist
+    protected void onCreate() {
+        dataCad = LocalDate.now();
+}
 }

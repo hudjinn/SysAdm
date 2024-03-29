@@ -10,7 +10,7 @@
 </head>
 <body>
     {% include 'language.html' %}
-
+    {% include "header.html" %}
     {% block content %}
     <div class="container">
        
@@ -32,7 +32,7 @@
 
                     <p> 
                         <label for="data_nasc_cad">{{ text.dob_label }}</label>
-                        <input id="data_nasc_cad" name="data_nasc_cad" required="required" type="text" placeholder="{{ text.dob_placeholder }}"/> 
+                        <input id="data_nasc_cad" name="data_nasc_cad" required="required" type="date" placeholder="{{ text.dob_placeholder }}"/> 
                     </p>
                     
                     <p> 

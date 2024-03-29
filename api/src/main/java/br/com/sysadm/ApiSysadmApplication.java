@@ -9,5 +9,4 @@ public class ApiSysadmApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ApiSysadmApplication.class, args);
 	}
-
 }

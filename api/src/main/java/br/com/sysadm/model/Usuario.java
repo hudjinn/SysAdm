@@ -115,5 +115,5 @@ public class Usuario {
     @PrePersist
     protected void onCreate() {
         dataCad = LocalDate.now();
-}
+    }
 }

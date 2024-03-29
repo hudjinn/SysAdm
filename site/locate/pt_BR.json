@@ -34,6 +34,7 @@
     "new_password_placeholder": "Digite sua nova senha",
     "confirm_new_password_placeholder": "Confirme sua nova senha",
     "change_password_button": "Alterar Senha",
-    "passwords_do_not_match": "As senhas digitadas não coincidem!"
+    "passwords_do_not_match": "As senhas digitadas não coincidem!",
+    "adm_panel": "Painel de Administração"
     
 }

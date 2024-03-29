@@ -34,5 +34,6 @@
   "new_password_placeholder": "Enter your new password",
   "confirm_new_password_placeholder": "Confirm your new password",
   "change_password_button": "Change Password",
-  "passwords_do_not_match": "The passwords entered do not match!"
+  "passwords_do_not_match": "The passwords entered do not match!",
+  "adm_panel": "Administrator Panel"
 }

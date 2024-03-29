@@ -119,9 +119,9 @@ def recover_password():
         data_nasc = request.form['data_nasc_recovery']
 
         # TODO checar na API validade
-        response = requests.post(app.api + '/usuario', json={'email': email,
-                                                           'cpf': cpf,
-                                                           'data_nasc': data_nasc})
+        response = requests.post(app.api , json={'email': email,
+                                                 'cpf': cpf,
+                                                 'data_nasc': data_nasc})
         if response.ok:
             return redirect(url_for('change_password.html'), text=session['text'])
         else:

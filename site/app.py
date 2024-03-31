@@ -111,7 +111,8 @@ def login_screen():
                 # Reseta as tentativas após login bem-sucedido
                 session.pop('tries', None)
                 session.pop('last_try_time', None)
-                session['user'] = email
+                session['user'] = email # TODO armazenar dados do usuario
+                
                 return redirect(url_for('admin_screen'))
             else:
                 error_message = session['text']['unknown_error']
@@ -145,14 +146,14 @@ def create_account_screen():
         }
 
         # Envia os dados do usuário para a API
-        response = requests.post( app.api + 'cadastrar', json=user_data)
+        response = requests.post( app.api + '/cadastrar', json=user_data)
 
         if response.status_code == 201:
             # Usuário criado com sucesso, redirecionar para a tela de login ou outra página
             flash(session['text']['create_acc_success'], 'success')
             return redirect(url_for('login_screen'))
         else:
-            flash(f"{response.text} {session['text']['create_acc_fail']} ", 'error')
+            flash(f"{session['text']['create_acc_fail']}", 'error')
 
 
     # Se o método for GET ou se o cadastro falhar, mostra a tela de cadastro novamente
@@ -167,49 +168,49 @@ def recover_password():
         email = request.form['email_recovery']
         cpf = request.form['cpf_recovery']
         data_nasc = request.form['data_nasc_recovery']
+        data_nasc_formatted = datetime.strptime(data_nasc, "%Y-%m-%d").strftime("%Y-%m-%d")
 
-        # TODO checar na API validade
-        response = requests.post(app.api , json={'email': email,
-                                                 'cpf': cpf,
-                                                 'data_nasc': data_nasc})
+        response = requests.post(app.api + '/recuperar-senha', json={'email': email, 'cpf': cpf, 'dataNasc': data_nasc_formatted})
         if response.ok:
-            return redirect(url_for('change_password.html'), text=session['text'])
+            return redirect(url_for('change_password', cpf=cpf))
         else:
             error_message = session['text']['form_dont_match']
-            return render_template('recover_password.html', text=session['text'], error=error_message)
+            flash(error_message, 'error')
 
-    # Se o método for GET ou se o validação falhar, mostra a tela de recuperaçao de senha novamente   
     return render_template('recover_password.html', text=session['text'])
 
-# Rota para a página de alteração de senha
-@app.route('/change_password/<email>', methods=['GET', 'POST', 'PUT'])
+
+@app.route('/change_password/<cpf>', methods=['GET', 'POST'])
 @check_api_status
-
-def change_password(email):
-
+def change_password(cpf):
     if request.method == 'POST':
-        # Processar o formulário de alteração de senha
         nova_senha = request.form['nova_senha']
         confirma_senha = request.form['confirma_senha']
-        if nova_senha == confirma_senha:
-            # TODO Metodo PUT para alterar usuario
-            return redirect(url_for('password_changed', text=session['text'], email=email))
-        else:
+
+        if nova_senha != confirma_senha:
             # Senhas não coincidem, exibir mensagem de erro
             error_message = session['text']['passwords_dont_match']
-            return render_template('change_password.html', text=session['text'], error_message=error_message, email=email)
-    else:
-        return render_template('change_password.html', text=session['text'], email=email)
+            flash(error_message, 'error')
+            return render_template('change_password.html', text=session['text'], cpf=cpf)
+        
+        # Aqui você chamaria a API para atualizar a senha, por exemplo:
+        try:
+            response = requests.patch(f'{app.api}/atualizar/{cpf}', json={'cpf': cpf, 'senha': nova_senha})
+            if response.ok:
+                flash(session['text']['password_changed_success'], 'success')
+                return redirect(url_for('login_screen'))
+            else:
+                # Tratamento de erros da API
+                flash(session['text']['password_change_failed'], 'error')
+        except requests.exceptions.RequestException as e:
+            flash(str(e), 'error')
 
-# Rota para a página de sucesso na alteração de senha
-@app.route('/password_changed')
+    # Para método GET ou se ocorreu algum erro no POST, exibe o formulário novamente
+    return render_template('change_password.html', text=session['text'], cpf=cpf)
 
-def password_changed(email):
-    return render_template('password_changed.html', text=session['text'], email=email)
 
 # Rota para a página de administração do site
-
-@app.route('/admin_screen', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@app.route('/admin_screen', methods=['GET', 'POST'])
 @check_api_status
 
 def admin_screen():

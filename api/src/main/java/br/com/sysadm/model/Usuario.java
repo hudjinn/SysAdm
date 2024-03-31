@@ -16,7 +16,7 @@ public class Usuario {
 
     @Column(nullable = false)
     private String nome;
-
+    
     @Column(nullable = false)
     private String senha;
 
@@ -86,7 +86,9 @@ public class Usuario {
     public LocalDate getDataCad() {
         return dataCad;
     }
-
+    public void setDataCad(LocalDate dataCad) {
+        this.dataCad = dataCad;
+    }
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -108,7 +110,6 @@ public class Usuario {
         return "Usuario{" +
                 "cpf='" + cpf + '\'' +
                 ", nome='" + nome + '\'' +
-                ", senha='" + senha + '\'' +
                 ", email='" + email + '\'' +
                 '}';
     }
@@ -116,4 +117,5 @@ public class Usuario {
     protected void onCreate() {
         dataCad = LocalDate.now();
     }
+
 }

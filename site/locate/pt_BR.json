@@ -36,7 +36,7 @@
     "change_password_button": "Alterar Senha",
     "passwords_do_not_match": "As senhas digitadas não coincidem!",
     "adm_panel": "Painel de Administração",
-    "create_acc_sucess": "Usuário criado com sucesso.",
+    "create_acc_success": "Usuário criado com sucesso.",
     "create_acc_fail": "Erro ao criar usuário: ",
     "conn_error": "Não foi possível conectar à API. Por favor, tente novamente mais tarde.",
     "login_failed": "Login inválido.",
@@ -44,6 +44,8 @@
     "unknown_error": "Erro desconhecido",
     "passwords_dont_match": "As senhas digitadas não coincidem.",
     "form_dont_match": "Dados não coincidem, favor verificar.",
-    "wait_before_retry": "Por favor, espere {0} segundos antes de tentar novamente."
-
+    "wait_before_retry": "Por favor, espere {0} segundos antes de tentar novamente.",
+    "password_change_failed": "Falha ao alterar a senha. Tente novamente mais tarde.",
+    "password_changed_success": "Senha alterada com sucesso.",
+    "signup_screen": "Crie sua Conta"
 }

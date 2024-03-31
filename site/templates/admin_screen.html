@@ -1,3 +1,4 @@
+{% import 'flash_msg.html' as flash_msgs %}
 <html lang="{{ session['language'] }}">
 <head>
     <meta charset="UTF-8">
@@ -5,9 +6,10 @@
     <title>{{text.login_screen}}</title>
     <link rel="stylesheet" href="styles/admin.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
-
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
 <body>
+
     {% include 'language.html' %}
     {% include "header.html" %}
     {% block content %}
@@ -44,5 +46,7 @@
         <p>© 2024 SysAdm. Todos os direitos reservados.</p>
     </footer>
     {% endblock %}
+    {{ flash_msgs.render_flash_messages() }}
+
 </body>
 </html>

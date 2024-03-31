@@ -31,6 +31,8 @@ public class UsuarioController {
     public List<Usuario> listarTodos() {
         return usuarioRepository.findAll();
     }
+
+
     @PostMapping
     public ResponseEntity<?> cadastrarUsuario(@RequestBody Usuario usuario) {
         // Verifica se o usuário já existe pela chave primária
@@ -62,4 +64,15 @@ public class UsuarioController {
         }
         return ResponseEntity.notFound().build();
     }
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody Usuario usuario) {
+        Optional<Usuario> usuarioEncontrado = usuarioRepository.findByEmail(usuario.getEmail());
+    
+        if(usuarioEncontrado.isPresent() && usuarioEncontrado.get().getSenha().equals(usuario.getSenha())) {
+            return ResponseEntity.ok("Login bem-sucedido!");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Falha no Login: Usuário ou senha incorretos.");
+        }
+    }
+    
 }

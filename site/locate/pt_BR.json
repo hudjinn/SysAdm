@@ -35,6 +35,15 @@
     "confirm_new_password_placeholder": "Confirme sua nova senha",
     "change_password_button": "Alterar Senha",
     "passwords_do_not_match": "As senhas digitadas não coincidem!",
-    "adm_panel": "Painel de Administração"
-    
+    "adm_panel": "Painel de Administração",
+    "create_acc_sucess": "Usuário criado com sucesso.",
+    "create_acc_fail": "Erro ao criar usuário: ",
+    "conn_error": "Não foi possível conectar à API. Por favor, tente novamente mais tarde.",
+    "login_failed": "Login inválido.",
+    "max_attempts": "Máximo de tentativas alcançado. Por favor, espere {0} segundos antes de tentar novamente.",
+    "unknown_error": "Erro desconhecido",
+    "passwords_dont_match": "As senhas digitadas não coincidem.",
+    "form_dont_match": "Dados não coincidem, favor verificar.",
+    "wait_before_retry": "Por favor, espere {0} segundos antes de tentar novamente."
+
 }

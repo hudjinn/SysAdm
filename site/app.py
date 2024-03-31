@@ -145,7 +145,7 @@ def create_account_screen():
         }
 
         # Envia os dados do usuário para a API
-        response = requests.post( app.api, json=user_data)
+        response = requests.post( app.api + 'cadastrar', json=user_data)
 
         if response.status_code == 201:
             # Usuário criado com sucesso, redirecionar para a tela de login ou outra página

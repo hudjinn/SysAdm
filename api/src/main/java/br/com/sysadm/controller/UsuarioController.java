@@ -33,7 +33,7 @@ public class UsuarioController {
     }
 
 
-    @PostMapping
+    @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrarUsuario(@RequestBody Usuario usuario) {
         // Verifica se o usuário já existe pela chave primária
         Optional<Usuario> usuarioExistente = usuarioRepository.findByCpf(usuario.getCpf());
@@ -46,7 +46,7 @@ public class UsuarioController {
         Usuario novoUsuario = usuarioRepository.save(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
-    @PutMapping("/{cpf}")
+    @PutMapping("/atualizar/{cpf}")
     public ResponseEntity<Usuario> atualizarUsuario(@PathVariable String cpf, @RequestBody Usuario usuarioAtualizado) {
         return usuarioRepository.findByCpf(cpf)
                 .map(usuarioExistente -> {
@@ -56,7 +56,7 @@ public class UsuarioController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
-    @DeleteMapping("/{cpf}")
+    @DeleteMapping("/remover/{cpf}")
     public ResponseEntity<Void> deletarUsuario(@PathVariable String cpf) {
         if (usuarioRepository.existsById(cpf)) {
             usuarioRepository.deleteById(cpf);

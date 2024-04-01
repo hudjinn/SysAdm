@@ -21,6 +21,8 @@
     </div>
     <div id="admin-content">
         <h1>{{ text.adm_panel }}</h1>
+
+
         <table id="user-table">
             <thead>
                 <tr>
@@ -28,6 +30,7 @@
                     <th>Nome</th>
                     <th>Email</th>
                     <th>Data de Nascimento</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,14 +40,31 @@
                     <td>{{ user.nome }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.dataNasc }}</td>
+                    <td class="actions">
+                        <button onclick="editUser('{{ user.cpf }}')" class="edit-btn action-btn">Editar</button>
+                        <button onclick="deleteUser('{{ user.cpf }}')" class="delete-btn action-btn">Remover</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        <button onclick="showCreateUserModal()" class="new-user-btn">+ Novo Cadastro</button>
     </div>
 
     {{ flash_msgs.render_flash_messages() }}
-
+    <script>
+        function showCreateUserModal() {
+            // Lógica para exibir um modal com o formulário de criação de usuário.
+        }
+    
+        function editUser(cpf) {
+            // Lógica para editar o usuário com o CPF fornecido.
+        }
+    
+        function deleteUser(cpf) {
+            // Lógica para deletar o usuário com o CPF fornecido.
+        }
+    </script>
 </body>
 
 </html>

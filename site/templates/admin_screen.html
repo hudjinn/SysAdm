@@ -1,48 +1,50 @@
+{% import 'flash_msg.html' as flash_msgs %}
+<!DOCTYPE html>
 <html lang="{{ session['language'] }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{text.login_screen}}</title>
-    <link rel="stylesheet" href="styles/admin.css">
+    <title>{{ text.adm_panel }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/admin.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
-
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
 <body>
     {% include 'language.html' %}
     {% include "header.html" %}
-    {% block content %}
-    <header>
+    <div class="user-info">
+        {% if session.get('user') %}
+            <span>{{ session['user'].get('nome', 'Usuário Desconhecido') }} ({{ session['user'].get('email', 'Email não disponível') }})</span> | <a href="/" class="btn-logout">Logout</a>
+        {% else %}
+            <span>Usuário não logado | </span><a href="/" class="btn-login">Efetuar Login</a>
+        {% endif %}
+    </div>
+    <div id="admin-content">
         <h1>{{ text.adm_panel }}</h1>
-    </header>
-    <nav>
-        <ul>
-            <li><a href="#usuarios">Gerenciar Usuários</a></li>
-            <li><a href="#posts">Gerenciar Posts</a></li>
-            <li><a href="#categorias">Gerenciar Categorias</a></li>
-            <li><a href="#comentarios">Gerenciar Comentários</a></li>
-        </ul>
-    </nav>
-    <main>
-        <section id="usuarios">
-            <h2>Gerenciar Usuários</h2>
-            <!-- Aqui você pode incluir formulários para adicionar, editar ou excluir usuários -->
-        </section>
-        <section id="posts">
-            <h2>Gerenciar Posts</h2>
-            <!-- Aqui você pode incluir formulários para adicionar, editar ou excluir posts -->
-        </section>
-        <section id="categorias">
-            <h2>Gerenciar Categorias</h2>
-            <!-- Aqui você pode incluir formulários para adicionar, editar ou excluir categorias -->
-        </section>
-        <section id="comentarios">
-            <h2>Gerenciar Comentários</h2>
-            <!-- Aqui você pode incluir formulários para moderar comentários -->
-        </section>
-    </main>
-    <footer>
-        <p>© 2024 SysAdm. Todos os direitos reservados.</p>
-    </footer>
-    {% endblock %}
+        <table id="user-table">
+            <thead>
+                <tr>
+                    <th>CPF</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Data de Nascimento</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.cpf }}</td>
+                    <td>{{ user.nome }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.dataNasc }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {{ flash_msgs.render_flash_messages() }}
+
 </body>
+
 </html>

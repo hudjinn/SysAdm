@@ -1,4 +1,4 @@
-
+{% import 'flash_msg.html' as flash_msgs %}
 <!DOCTYPE html>
 <html lang="{{ session['language'] }}">
 <head>
@@ -7,7 +7,27 @@
     <title>{{ text.login_screen }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/login_screen.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        // Função para carregar o email armazenado quando a página é carregada
+        window.onload = function() {
+            const savedEmail = localStorage.getItem('savedEmail');
+            if (savedEmail) {
+                document.getElementById('email_login').value = savedEmail;
+                document.getElementById('manterlogado').checked = true;
+            }
+        };
 
+        // Função para salvar o email quando o formulário é enviado
+        function saveEmail() {
+            if (document.getElementById('manterlogado').checked) {
+                const email = document.getElementById('email_login').value;
+                localStorage.setItem('savedEmail', email);
+            } else {
+                localStorage.removeItem('savedEmail');
+            }
+        }
+    </script>
 </head>
 <body>
     {% include "header.html" %}
@@ -18,7 +38,7 @@
         <div class="content">      
             <!-- FORMULÁRIO DE LOGIN -->
             <div id="login">
-                <form action="{{ url_for('admin_screen') }}" method="post">
+                <form action="{{ url_for('login_screen') }}" method="post" onsubmit="saveEmail()">
                     <h1>{{ text.login_title }}</h1> 
                     <p> 
                         <label for="email_login">{{ text.email_label }}</label>
@@ -51,6 +71,7 @@
         </div>
     </div> 
     {% endblock %}
+    {{ flash_msgs.render_flash_messages() }}
 
 </body>
 </html>

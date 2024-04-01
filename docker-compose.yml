@@ -1,14 +1,5 @@
 version: '3.8'
 services:
-  site:
-    container_name: sysadm-site
-    build: ./site
-    ports:
-      - "5000:5000"
-    networks:
-      - network
-    # depends_on:
-    #   - sysadm-api
   postgres:
     image: postgres:13
     container_name: sysadm-postgres
@@ -35,5 +26,15 @@ services:
       - postgres
     networks:
       - network
+  site:
+    container_name: sysadm-site
+    build: ./site
+    ports:
+      - "5000:5000"
+    networks:
+      - network
+    depends_on:
+      - api
+    restart: always
 networks:
   network:

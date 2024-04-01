@@ -1,0 +1,15 @@
+{% macro render_flash_messages() %}
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+      swal({
+        title: "{{ category|capitalize }}!",
+        text: "{{ message }}",
+        icon: "{{ category }}",
+        button: "OK",
+      });
+    {% endfor %}
+  });
+</script>
+{% endmacro %}

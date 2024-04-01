@@ -24,14 +24,52 @@ text_path =  root + '/locate'
 app.api = 'http://sysadm-api:8080/usuario'
 
 # Test User
-user_data = {
+usuarios = [{
     "nome": 'Fulano de Tal',
     "email": 'adm@teste.com',
     "dataNasc": '2222-01-01',
     "cpf": '12345678900',
     "senha": '123456'
+    },
+    {
+        "nome": "Ana Beatriz",
+        "email": "ana@teste.com",
+        "dataNasc": "1995-04-22",
+        "cpf": "98765432109",
+        "senha": "senhaSegura"
+    },
+    {
+        "nome": "Roberto Silva",
+        "email": "roberto@teste.com",
+        "dataNasc": "1988-12-15",
+        "cpf": "12312312399",
+        "senha": "outraSenha123"
+    },
+    {
+        "nome": "Carla dos Santos",
+        "email": "carla@teste.com",
+        "dataNasc": "2000-07-03",
+        "cpf": "45645645666",
+        "senha": "carlaSenha"
+    },
+    {
+        "nome": "Pedro Oliveira",
+        "email": "pedro@teste.com",
+        "dataNasc": "1992-02-28",
+        "cpf": "78978978911",
+        "senha": "pedro1234"
+    },
+    {
+        "nome": "Juliana Moraes",
+        "email": "juliana@teste.com",
+        "dataNasc": "1998-11-20",
+        "cpf": "32132132177",
+        "senha": "julianaSenha"
     }
-response = requests.post(app.api + '/cadastrar', json=user_data)
+]
+for user_data in usuarios:
+    print(user_data)
+    response = requests.post(app.api + '/cadastrar', json=user_data)
 
 def check_api_status(f):
     @wraps(f)
@@ -76,6 +114,16 @@ def read_translation(language):
     with open(file_path, 'r', encoding='utf-8') as file:
         translations = json.load(file)
     return translations
+
+def login_required(f):
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash(session['text']['login_title'], 'error')
+            return redirect(url_for('login_screen'))
+    decorated_function.__name__ = f.__name__
+    return decorated_function
 
 # Rota para a página de login
 @app.route('/', methods=['GET', 'POST'])
@@ -122,8 +170,8 @@ def login_screen():
                 session.pop('tries', None)
                 session.pop('last_try_time', None)
                 session['user'] = response.json() 
-                print(session['user'])
-                return redirect(url_for('admin_screen'))
+                session['logged_in'] = True
+                return redirect(url_for('home'))
             else:
                 error_message = session['text']['unknown_error']
                 return render_template('login_screen.html', text=session['text'], error=error_message)
@@ -220,10 +268,10 @@ def change_password(cpf):
 
 
 # Rota para a página de administração do site
-@app.route('/admin_screen', methods=['GET', 'POST'])
+@app.route('/home', methods=['GET', 'POST'])
 @check_api_status
-
-def admin_screen():
+@login_required
+def home():
     # Faz a requisição para a API
     response = requests.get(app.api)
     
@@ -254,6 +302,7 @@ def adm_create_account():
         return jsonify({"message": "Usuário criado com sucesso."}), 201
     else:
         return jsonify({"error": "Falha ao criar usuário."}), 400
+    
     
 if __name__ == '__main__':
 

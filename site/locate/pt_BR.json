@@ -47,5 +47,7 @@
     "wait_before_retry": "Por favor, espere {0} segundos antes de tentar novamente.",
     "password_change_failed": "Falha ao alterar a senha. Tente novamente mais tarde.",
     "password_changed_success": "Senha alterada com sucesso.",
-    "signup_screen": "Crie sua Conta"
+    "signup_screen": "Crie sua Conta",
+    "logged_as": "Logado como: ",
+    "logout": "Desconectar"
 }

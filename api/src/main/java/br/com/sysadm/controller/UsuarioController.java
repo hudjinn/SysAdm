@@ -95,13 +95,22 @@ public class UsuarioController {
         return ResponseEntity.notFound().build();
     }
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioListDTO> login(@RequestBody Usuario usuario) {
         Optional<Usuario> usuarioEncontrado = usuarioRepository.findByEmail(usuario.getEmail());
     
         if(usuarioEncontrado.isPresent() && usuarioEncontrado.get().getSenha().equals(usuario.getSenha())) {
-            return ResponseEntity.ok("Login bem-sucedido!");
+            Usuario usuarioAtual = usuarioEncontrado.get();
+        
+            // Criar e preencher um DTO do usuário
+            UsuarioListDTO usuarioDTO = new UsuarioListDTO();
+            usuarioDTO.setCpf(usuarioAtual.getCpf());
+            usuarioDTO.setNome(usuarioAtual.getNome());
+            usuarioDTO.setEmail(usuarioAtual.getEmail());
+            usuarioDTO.setDataNasc(usuarioAtual.getDataNasc());
+            usuarioDTO.setDataCad(usuarioAtual.getDataCad());
+            return ResponseEntity.ok(usuarioDTO);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Falha no Login: Usuário ou senha incorretos.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
     @PostMapping("/recuperar-senha")
@@ -116,6 +125,6 @@ public class UsuarioController {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
         }
-}
+    }
 
 }

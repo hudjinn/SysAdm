@@ -47,5 +47,8 @@
   "wait_before_retry": "Please wait {0} seconds before trying again.",
   "password_change_failed": "Failed to change password. Please try again later.",
   "password_changed_success": "Password changed successfully.",
-  "signup_screen": "Create your account"
+  "signup_screen": "Create your account",
+  "logged_as": "You are logged as: ",
+  "logout": "Logout"
+
 }

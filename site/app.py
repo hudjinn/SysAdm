@@ -4,7 +4,7 @@ import os
 import json
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session, flash
 import requests
 
 
@@ -20,8 +20,18 @@ root = os.path.dirname(caminho_absoluto)
 # Diretório dos textos de internacionalização
 text_path =  root + '/locate'
 
-#API JAVA
+# API JAVA
 app.api = 'http://sysadm-api:8080/usuario'
+
+# Test User
+user_data = {
+    "nome": 'Fulano de Tal',
+    "email": 'adm@teste.com',
+    "dataNasc": '2222-01-01',
+    "cpf": '12345678900',
+    "senha": '123456'
+    }
+response = requests.post(app.api + '/cadastrar', json=user_data)
 
 def check_api_status(f):
     @wraps(f)
@@ -111,8 +121,8 @@ def login_screen():
                 # Reseta as tentativas após login bem-sucedido
                 session.pop('tries', None)
                 session.pop('last_try_time', None)
-                session['user'] = email # TODO armazenar dados do usuario
-                
+                session['user'] = response.json() 
+                print(session['user'])
                 return redirect(url_for('admin_screen'))
             else:
                 error_message = session['text']['unknown_error']
@@ -214,10 +224,37 @@ def change_password(cpf):
 @check_api_status
 
 def admin_screen():
-    # TODO Enviar permissões possíveis
-    return render_template('admin_screen.html', text=session['text'])
+    # Faz a requisição para a API
+    response = requests.get(app.api)
+    
+    # Verifica se a requisição foi bem-sucedida
+    if response.status_code == 200:
+        # Converte a resposta em JSON
+        users = response.json()
+    else:
+        users = []
+        flash("Não foi possível obter a lista de usuários da API.", "error")
+    
+    # Renderiza o template, passando os dados dos usuários
+    return render_template('admin_screen.html', text=session['text'], users=users)
+
+@app.route('/adm/create_account', methods=['POST'])
+def adm_create_account():
+    data = request.json
+    user_data = {
+        "nome": data['nome'],
+        "email": data['email'],
+        "dataNasc": datetime.strptime(data['dataNasc'], "%Y-%m-%d").strftime("%Y-%m-%d"),
+        "cpf": data['cpf'],
+        "senha": data['senha']
+    }
+
+    response = requests.post(app.api + '/cadastrar', json=user_data)
+    if response.status_code == 201:
+        return jsonify({"message": "Usuário criado com sucesso."}), 201
+    else:
+        return jsonify({"error": "Falha ao criar usuário."}), 400
     
 if __name__ == '__main__':
+
     app.run(debug=True)
-    
-    

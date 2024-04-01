@@ -19,93 +19,244 @@
             <span>Usuário não logado | </span><a href="/" class="btn-login">Efetuar Login</a>
         {% endif %}
     </div>
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('createUserModal')">&times;</span>
+            <h2>Cadastrar Novo Usuário</h2>
+            <form id="createUserForm">
+                <label for="newCpf">CPF:</label>
+                <input type="text" id="newCpf" name="cpf">
+                <label for="newNome">Nome:</label>
+                <input type="text" id="newNome" name="nome">
+                <label for="newEmail">Email:</label>
+                <input type="email" id="newEmail" name="email">
+                <label for="newDataNasc">Data de Nascimento:</label>
+                <input type="date" id="newDataNasc" name="dataNasc">
+                <label for="newSenha">Senha:</label>
+                <input type="password" id="newSenha" name="senha">
+                <button type="button" onclick="submitNewUser()">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <form id="editUserForm">
+                <label for="cpf">CPF:</label>
+                <input type="text" id="editCpf" name="cpf" readonly>
+                <label for="nome">Nome:</label>
+                <input type="text" id="editNome" name="nome">
+                <label for="email">Email:</label>
+                <input type="email" id="editEmail" name="email">
+                <label for="dataNasc">Data de Nascimento:</label>
+                <input type="date" id="editDataNasc" name="dataNasc">
+                <button type="button" onclick="submitEdit()">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+    
     <div id="admin-content">
         <h1>{{ text.adm_panel }}</h1>
-
         <table id="user-table">
             <thead>
                 <tr>
-                    <th>CPF</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Data de Nascimento</th>
+                    <th id="sortCpf" data-sort="asc">CPF</th>
+                    <th id="sortNome" data-sort="asc">Nome</th>
+                    <th id="sortEmail" data-sort="asc">Email</th>
+                    <th id="sortDataNasc" data-sort="asc">Data de Nascimento</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>{{ user.cpf }}</td>
-                    <td>{{ user.nome }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.dataNasc }}</td>
-                    <td class="actions">
-                        <button onclick="editUser('{{ user.cpf }}')" class="edit-btn action-btn">Editar</button>
-                        <button onclick="deleteUser('{{ user.cpf }}')" class="delete-btn action-btn">Remover</button>
-                    </td>
-                </tr>
-                {% endfor %}
+                <!-- Os usuários serão carregados aqui via JavaScript -->
             </tbody>
         </table>
         <button onclick="showCreateUserModal()" class="new-user-btn">+ Novo Cadastro</button>
     </div>
-
     {{ flash_msgs.render_flash_messages() }}
 
-<script>
-    function editUser(cpf) {
-        swal({
-            title: "Editar Usuário",
-            text: "Você deseja editar os dados deste usuário?",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        })
-        .then((willEdit) => {
-            if (willEdit) {
-                // Substitua esta parte pelo código necessário para mostrar um formulário de edição
-                console.log('Abrir formulário de edição para o usuário com CPF:', cpf);
-            }
-        });
-    }
-
-    function deleteUser(cpf) {
-        swal({
-            title: "Tem certeza?",
-            text: "Uma vez removido, você não poderá recuperar os dados deste usuário!",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        })
-        .then((willDelete) => {
-            if (willDelete) {
-                fetch('/remover/' + cpf, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Falha na operação');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    swal("Poof! O usuário foi removido com sucesso!", {
-                        icon: "success",
-                    });
-                    // Adicione aqui a lógica para atualizar a UI, como remover a linha da tabela
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    swal("Erro", "Não foi possível remover o usuário", "error");
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            fetch('/api/usuarios')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#user-table tbody');
+                tbody.innerHTML = ''; // Limpar o corpo da tabela existente
+                data.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-cpf', user.cpf);
+                    tr.innerHTML = `
+                        <td>${user.cpf}</td>
+                        <td class="nome">${user.nome}</td>
+                        <td class="email">${user.email}</td>
+                        <td class="dataNasc">${user.dataNasc}</td>
+                        <td class="actions">
+                            <button onclick="editUser('${user.cpf}')" class="edit-btn action-btn">Editar</button>
+                            <button onclick="deleteUser('${user.cpf}')" class="delete-btn action-btn">Remover</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
                 });
-            } else {
-                swal("A ação de remover foi cancelada!");
-            }
+            })
+            .catch(error => console.error('Erro ao buscar dados:', error));
         });
-    }
-</script>
+        function sortTableByColumn(table, column, asc = true) {
+            const dirModifier = asc ? 1 : -1;
+            const tBody = table.tBodies[0];
+            const rows = Array.from(tBody.querySelectorAll('tr'));
+        
+            // Ordenar cada linha
+            const sortedRows = rows.sort((a, b) => {
+                const aColText = a.querySelector(`td:nth-child(${column})`).textContent.trim();
+                const bColText = b.querySelector(`td:nth-child(${column})`).textContent.trim();
+        
+                return aColText > bColText ? (1 * dirModifier) : (-1 * dirModifier);
+            });
+        
+            // Remover todas as linhas existentes da tabela
+            while (tBody.firstChild) {
+                tBody.removeChild(tBody.firstChild);
+            }
+        
+            // Re-adicionar as linhas já ordenadas na tabela
+            tBody.append(...sortedRows);
+        
+            // Inverter a direção para a próxima ordenação
+            table.querySelectorAll('th').forEach(th => th.setAttribute('data-sort', 'asc'));
+            table.querySelector(`th:nth-child(${column})`).setAttribute('data-sort', asc ? 'desc' : 'asc');
+        }
+        
+        // Listeners para os cabeçalhos da coluna
+        document.querySelector('#sortCpf').addEventListener('click', () => {
+            const tableElement = document.querySelector('#user-table');
+            const headerIndex = 1; // CPF é a primeira coluna
+            const currentIsAscending = document.querySelector('#sortCpf').getAttribute('data-sort') === 'asc';
+            sortTableByColumn(tableElement, headerIndex, currentIsAscending);
+        });
+        function editUser(cpf) {
+            const userRow = document.querySelector(`tr[data-cpf="${cpf}"]`);
+            const nome = userRow.querySelector('.nome').textContent;
+            const email = userRow.querySelector('.email').textContent;
+            const dataNasc = userRow.querySelector('.dataNasc').textContent;
+            
+            document.getElementById('editCpf').value = cpf;
+            document.getElementById('editNome').value = nome;
+            document.getElementById('editEmail').value = email;
+            document.getElementById('editDataNasc').value = dataNasc;
+            
+            document.getElementById('editUserModal').style.display = 'block';
+        }
+    
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+    
+        function submitEdit() {
+            const cpf = document.getElementById('editCpf').value;
+            const nome = document.getElementById('editNome').value;
+            const email = document.getElementById('editEmail').value;
+            const dataNasc = document.getElementById('editDataNasc').value;
+            
+            fetch('/api/atualizar/' + cpf, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({nome, email, dataNasc})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Falha ao atualizar o usuário');
+                }
+                return response.json();
+            })
+            .then(data => {
+                swal("Sucesso!", "Usuário atualizado com sucesso.", "success").then(() => {
+                    window.location.reload();
+                });
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                swal("Erro", "Não foi possível atualizar o usuário", "error");
+            });
+    
+            closeModal('editUserModal');
+        }
+        
+        function deleteUser(cpf) {
+            swal({
+                title: "Tem certeza?",
+                text: "Uma vez removido, você não poderá recuperar os dados deste usuário!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+                    fetch('/api/deletar/' + cpf, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Falha na operação');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        swal("Poof! O usuário foi removido com sucesso!", {
+                            icon: "success",
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        swal("Erro", "Não foi possível remover o usuário", "error");
+                    });
+                }
+            });
+        }
+    
+        function showCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'block';
+        }
+    
+        function submitNewUser() {
+            const cpf = document.getElementById('newCpf').value;
+            const nome = document.getElementById('newNome').value;
+            const email = document.getElementById('newEmail').value;
+            const dataNasc = document.getElementById('newDataNasc').value;
+            const senha = document.getElementById('newSenha').value;
+            
+            fetch('/api/criar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({cpf, nome, email, dataNasc, senha})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Falha ao criar o usuário');
+                }
+                return response.json();
+            })
+            .then(data => {
+                swal("Sucesso!", "Usuário criado com sucesso.", "success").then(() => {
+                    window.location.reload();
+                });
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                swal("Erro", "Não foi possível criar o usuário", "error");
+            });
+    
+            closeModal('createUserModal');
+        }
+    </script>
+    
 </body>
 </html>

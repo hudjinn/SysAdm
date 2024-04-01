@@ -272,22 +272,27 @@ def change_password(cpf):
 @check_api_status
 @login_required
 def home():
-    # Faz a requisição para a API
-    response = requests.get(app.api)
-    
-    # Verifica se a requisição foi bem-sucedida
-    if response.status_code == 200:
-        # Converte a resposta em JSON
-        users = response.json()
-    else:
-        users = []
-        flash("Não foi possível obter a lista de usuários da API.", "error")
-    
     # Renderiza o template, passando os dados dos usuários
-    return render_template('admin_screen.html', text=session['text'], users=users)
+    return render_template('admin_screen.html', text=session['text'])
 
-@app.route('/adm/create_account', methods=['POST'])
-def adm_create_account():
+def obter_usuarios():
+    resposta = requests.get(app.api)
+    if resposta.status_code == 200:
+        dados = resposta.json()
+        return dados
+    else:
+        flash(resposta.status_code, 'error')
+
+@app.route('/api/usuarios')
+def dados_api():
+    dados = obter_usuarios()
+    if isinstance(dados, tuple):  # Verifica se ocorreu um erro
+        mensagem, codigo = dados
+        flash(f'{mensagem}, {codigo}','error')
+    return jsonify(dados)
+
+@app.route('/api/criar', methods=['POST'])
+def api_criar_usuario():
     data = request.json
     user_data = {
         "nome": data['nome'],
@@ -303,7 +308,31 @@ def adm_create_account():
     else:
         return jsonify({"error": "Falha ao criar usuário."}), 400
     
+@app.route('/api/atualizar/<cpf>', methods=['PATCH'])
+def api_atualizar_usuario(cpf):
+    user_data = request.json
+    print(user_data)
+    try:
+        response = requests.patch(f'{app.api}/atualizar/{cpf}', json=user_data)
+        if response.status_code == 200:
+            return jsonify({"message": "Usuário atualizado com sucesso."}), 200
+        else:
+            return jsonify({"error": "Falha ao atualizar usuário."}), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500
     
+@app.route('/api/deletar/<cpf>', methods=['DELETE'])
+def api_deletar_usuario(cpf):
+    
+    try:
+        response = requests.delete(f'{app.api}/deletar/{cpf}')
+        if response.status_code == 200:
+            return jsonify({"message": "Usuário deletado com sucesso."}), 200
+        else:
+            return jsonify({"error": "Falha ao deletar usuário."}), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
 
     app.run(debug=True)

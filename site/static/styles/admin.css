@@ -40,3 +40,43 @@
 #user-table tr:hover {
     background-color: #e1e1e1; /* Um leve cinza para quando passa o mouse por cima das linhas */
 }
+/* Torna os botões transparentes por padrão */
+.action-btn {
+    opacity: 0;
+    transition: opacity 0.3s;
+    /* Restante do seu CSS */
+}
+
+/* Torna os botões opacos quando a linha da tabela está em hover */
+tr:hover .action-btn {
+    opacity: 1;
+}
+
+.new-user-btn {
+    background-color: #007bff; /* Azul */
+    color: white;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background-color: #ffc107; /* Amarelo */
+    color: black;
+    padding: 5px 10px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.delete-btn {
+    background-color: #dc3545; /* Vermelho */
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

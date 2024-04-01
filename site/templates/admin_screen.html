@@ -21,6 +21,7 @@
     </div>
     <div id="admin-content">
         <h1>{{ text.adm_panel }}</h1>
+
         <table id="user-table">
             <thead>
                 <tr>
@@ -28,6 +29,7 @@
                     <th>Nome</th>
                     <th>Email</th>
                     <th>Data de Nascimento</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,14 +39,73 @@
                     <td>{{ user.nome }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.dataNasc }}</td>
+                    <td class="actions">
+                        <button onclick="editUser('{{ user.cpf }}')" class="edit-btn action-btn">Editar</button>
+                        <button onclick="deleteUser('{{ user.cpf }}')" class="delete-btn action-btn">Remover</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        <button onclick="showCreateUserModal()" class="new-user-btn">+ Novo Cadastro</button>
     </div>
 
     {{ flash_msgs.render_flash_messages() }}
 
-</body>
+<script>
+    function editUser(cpf) {
+        swal({
+            title: "Editar Usuário",
+            text: "Você deseja editar os dados deste usuário?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+        .then((willEdit) => {
+            if (willEdit) {
+                // Substitua esta parte pelo código necessário para mostrar um formulário de edição
+                console.log('Abrir formulário de edição para o usuário com CPF:', cpf);
+            }
+        });
+    }
 
+    function deleteUser(cpf) {
+        swal({
+            title: "Tem certeza?",
+            text: "Uma vez removido, você não poderá recuperar os dados deste usuário!",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+        .then((willDelete) => {
+            if (willDelete) {
+                fetch('/remover/' + cpf, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Falha na operação');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    swal("Poof! O usuário foi removido com sucesso!", {
+                        icon: "success",
+                    });
+                    // Adicione aqui a lógica para atualizar a UI, como remover a linha da tabela
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    swal("Erro", "Não foi possível remover o usuário", "error");
+                });
+            } else {
+                swal("A ação de remover foi cancelada!");
+            }
+        });
+    }
+</script>
+</body>
 </html>

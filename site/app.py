@@ -68,7 +68,6 @@ usuarios = [{
     }
 ]
 for user_data in usuarios:
-    print(user_data)
     response = requests.post(app.api + '/cadastrar', json=user_data)
 
 def check_api_status(f):
@@ -79,10 +78,10 @@ def check_api_status(f):
             if response.status_code == 200:
                 return f(*args, **kwargs)
             else:
-                flash(session['text']['conn_error'], 'error')
+                flash(session['flash_text']['conn_error'], 'error')
                 return redirect(url_for('login_screen'))
         except requests.exceptions.RequestException:
-            flash(session['text']['conn_error'], 'error')
+            flash(session['flash_text']['conn_error'], 'error')
             return redirect(url_for('login_screen'))
     return decorated_function
 
@@ -92,8 +91,11 @@ def before_request():
     if 'language' not in session:
         session['language'] = 'pt_BR'
         session['text'] = read_translation(session['language'])
+        session['flash_text'] = read_flash_translations(session['language'])
+
     else:
         session['text'] = read_translation(session['language'])
+        session['flash_text'] = read_flash_translations(session['language'])
 
 
 @app.route('/set_language', methods=['POST'])
@@ -115,12 +117,19 @@ def read_translation(language):
         translations = json.load(file)
     return translations
 
+# Ler arquivo de internacionalização para flash messages
+def read_flash_translations(language):
+    file_path = f'{text_path}/flash_{language}.json'
+    with open(file_path, 'r', encoding='utf-8') as file:
+        translations = json.load(file)
+    return translations
+
 def login_required(f):
     def decorated_function(*args, **kwargs):
         if 'logged_in' in session:
             return f(*args, **kwargs)
         else:
-            flash(session['text']['login_title'], 'error')
+            flash(session['flash_text']['login_title'], 'error')
             return redirect(url_for('login_screen'))
     decorated_function.__name__ = f.__name__
     return decorated_function
@@ -145,7 +154,8 @@ def login_screen():
     time_since_last_try = now_aware - last_try_time
     if time_since_last_try.seconds < wait_time and session['tries'] >= max_tries:
         wait_seconds = wait_time - time_since_last_try.seconds
-        error_message = session['text']['wait_before_retry'].format(wait_seconds)
+        error_message = session['flash_text']['wait_before_retry'].format(wait_seconds)
+        flash(error_message, 'error')
         return render_template('login_screen.html', text=session['text'], error=error_message)
 
     if request.method == 'POST':
@@ -159,9 +169,9 @@ def login_screen():
                 session['tries'] += 1
                 session['last_try_time'] = datetime.now(ZoneInfo("UTC")).isoformat()
                 if session['tries'] >= max_tries:
-                    error_message = session['text']['max_attempts'].format(wait_time)
+                    error_message = session['flash_text']['max_attempts'].format(wait_time)
                 else:
-                    error_message = session['text']['login_failed']
+                    error_message = session['flash_text']['login_failed']
                 flash(error_message, 'error')  
                 return redirect(url_for('login_screen'))
 
@@ -173,11 +183,13 @@ def login_screen():
                 session['logged_in'] = True
                 return redirect(url_for('home'))
             else:
-                error_message = session['text']['unknown_error']
-                return render_template('login_screen.html', text=session['text'], error=error_message)
+                error_message = session['flash_text']['unknown_error']
+                flash(f'{error_message} | Response Code: {response.status_code}', 'error')
+
+                return render_template('login_screen.html', text=session['text'])
         except requests.exceptions.ConnectionError:
             # Captura o caso em que a API está offline ou o hostname não pode ser resolvido
-            flash(session['text']['conn_error'], 'error')
+            flash(session['flash_text']['conn_error'], 'error')
         
         # Redireciona para a página de login novamente ou para onde você achar adequado
         return redirect(url_for('login_screen'))
@@ -208,10 +220,10 @@ def create_account_screen():
 
         if response.status_code == 201:
             # Usuário criado com sucesso, redirecionar para a tela de login ou outra página
-            flash(session['text']['create_acc_success'], 'success')
+            flash(session['flash_text']['create_acc_success'], 'success')
             return redirect(url_for('login_screen'))
         else:
-            flash(f"{session['text']['create_acc_fail']}", 'error')
+            flash(f"{session['flash_text']['create_acc_fail']} | Response Code: {response.status_code}", 'error')
 
 
     # Se o método for GET ou se o cadastro falhar, mostra a tela de cadastro novamente
@@ -232,7 +244,7 @@ def recover_password():
         if response.ok:
             return redirect(url_for('change_password', cpf=cpf))
         else:
-            error_message = session['text']['form_dont_match']
+            error_message = session['flash_text']['form_dont_match']
             flash(error_message, 'error')
 
     return render_template('recover_password.html', text=session['text'])
@@ -255,11 +267,11 @@ def change_password(cpf):
         try:
             response = requests.patch(f'{app.api}/atualizar/{cpf}', json={'cpf': cpf, 'senha': nova_senha})
             if response.ok:
-                flash(session['text']['password_changed_success'], 'success')
+                flash(session['flash_text']['password_changed_success'], 'success')
                 return redirect(url_for('login_screen'))
             else:
                 # Tratamento de erros da API
-                flash(session['text']['password_change_failed'], 'error')
+                flash(session['flash_text']['password_change_failed'], 'error')
         except requests.exceptions.RequestException as e:
             flash(str(e), 'error')
 
@@ -281,17 +293,24 @@ def obter_usuarios():
         dados = resposta.json()
         return dados
     else:
-        flash(resposta.status_code, 'error')
+        flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
 
 @app.route('/api/usuarios')
+@check_api_status
+@login_required
 def dados_api():
     dados = obter_usuarios()
-    if isinstance(dados, tuple):  # Verifica se ocorreu um erro
-        mensagem, codigo = dados
-        flash(f'{mensagem}, {codigo}','error')
-    return jsonify(dados)
+
+    if isinstance(dados, list):
+        return jsonify(dados)
+    else:
+        flash(session['flash_text']['conn_error'], 'error')
+        return redirect(url_for('home'))
+
 
 @app.route('/api/criar', methods=['POST'])
+@check_api_status
+@login_required
 def api_criar_usuario():
     data = request.json
     user_data = {
@@ -309,30 +328,42 @@ def api_criar_usuario():
         return jsonify({"error": "Falha ao criar usuário."}), 400
     
 @app.route('/api/atualizar/<cpf>', methods=['PATCH'])
+@check_api_status
+@login_required
 def api_atualizar_usuario(cpf):
-    user_data = request.json
-    print(user_data)
-    try:
-        response = requests.patch(f'{app.api}/atualizar/{cpf}', json=user_data)
-        if response.status_code == 200:
-            return jsonify({"message": "Usuário atualizado com sucesso."}), 200
-        else:
-            return jsonify({"error": "Falha ao atualizar usuário."}), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/api/deletar/<cpf>', methods=['DELETE'])
-def api_deletar_usuario(cpf):
-    
-    try:
-        response = requests.delete(f'{app.api}/deletar/{cpf}')
-        if response.status_code == 200:
-            return jsonify({"message": "Usuário deletado com sucesso."}), 200
-        else:
-            return jsonify({"error": "Falha ao deletar usuário."}), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({"error": str(e)}), 500
+    if str(session['user']['cpf']) != str(cpf):
+        try:
+            user_data = request.json
+            response = requests.patch(f'{app.api}/atualizar/{cpf}', json=user_data)
+            if response.status_code == 200:
+                return jsonify({"message": "Usuário atualizado com sucesso."}), 200
+            else:
+                return jsonify({"error": "Falha ao atualizar usuário."}), 500
 
+        except Exception as e:
+            flash(str(e), 'error')
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": "Não é possível editar o próprio usuário!"}), 400
+
+    
+@app.route('/api/remover/<cpf>', methods=['DELETE'])
+@check_api_status
+@login_required
+def api_deletar_usuario(cpf):
+
+    if str(session['user']['cpf']) != str(cpf):
+        try:
+            response = requests.delete(f'{app.api}/remover/{cpf}')
+            if response.status_code == 200:
+                return jsonify({"message": "Usuário deletado com sucesso."}), 200
+            else:
+                return jsonify({"error": "Falha ao remover usuário."}), 500
+        except requests.exceptions.RequestException as e:
+            flash(str(e), 'error')
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": "Não é possível deletar o próprio usuário!"})
 if __name__ == '__main__':
 
     app.run(debug=True)

@@ -100,3 +100,39 @@ tr:hover .action-btn {
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
 }
+/* Estilos dos modais */
+.modal {
+    display: none; /* Oculto por padrão */
+    position: fixed; /* Ficar fixo */
+    z-index: 1; /* Ficar no topo */
+    left: 0;
+    top: 0;
+    width: 100%; /* Largura total */
+    height: 100%; /* Altura total */
+    overflow: auto; /* Habilitar rolagem se necessário */
+    background-color: rgba(0, 0, 0, 0.4); /* Cor de fundo com opacidade */
+}
+
+.modal-content {
+    background-color: #fefefe; /* Cor de fundo do conteúdo do modal */
+    margin: 15% auto; /* Margem superior 15% e centralizado */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Largura do conteúdo do modal */
+    border-radius: 8px; /* Bordas arredondadas */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+}
+
+.close-button {
+    color: #888;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}

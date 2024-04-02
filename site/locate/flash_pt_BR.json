@@ -1,0 +1,15 @@
+{
+    "conn_error": "Erro de conexão com a API. Por favor, tente novamente mais tarde.",
+    "login_title": "Erro de login",
+    "wait_before_retry": "Muitas tentativas de login. Por favor, espere {0} segundos antes de tentar novamente.",
+    "login_failed": "Falha no login. Verifique suas credenciais e tente novamente.",
+    "max_attempts": "Você excedeu o número máximo de tentativas de login. Por favor, aguarde {0} segundos e tente novamente.",
+    "unknown_error": "Ocorreu um erro desconhecido. Por favor, tente novamente mais tarde.",
+    "create_acc_success": "Conta criada com sucesso. Faça o login para acessar sua conta.",
+    "create_acc_fail": "Falha ao criar a conta. Por favor, verifique os dados e tente novamente.",
+    "form_dont_match": "Os dados fornecidos não correspondem aos registros. Por favor, verifique e tente novamente.",
+    "passwords_dont_match": "As senhas fornecidas não coincidem. Por favor, tente novamente.",
+    "password_changed_success": "Senha alterada com sucesso. Faça o login com sua nova senha.",
+    "password_change_failed": "Falha ao alterar a senha. Por favor, tente novamente."
+  }
+  

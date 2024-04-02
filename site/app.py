@@ -25,12 +25,12 @@ app.api = 'http://sysadm-api:8080/usuario'
 
 # Test User
 usuarios = [{
-    "nome": 'Fulano de Tal',
-    "email": 'adm@teste.com',
-    "dataNasc": '2222-01-01',
-    "cpf": '12345678900',
-    "senha": '123456',
-    "ativo": True
+		"nome": 'Fulano de Tal',
+		"email": 'adm@teste.com',
+		"dataNasc": '2222-01-01',
+		"cpf": '12345678900',
+		"senha": '123456',
+		"ativo": True
     },
     {
         "nome": "Ana Beatriz",

@@ -1,6 +1,6 @@
 {% import 'flash_msg.html' as flash_msgs %}
 <!DOCTYPE html>
-<html lang="{{ session['language'] }}">
+<html lang="{{ session['language'] }}" data-session-cpf="{{ session['user'].get('cpf', '') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,57 +14,199 @@
     {% include "header.html" %}
     <div class="user-info">
         {% if session.get('user') %}
-            <span>{{ session['user'].get('nome', 'Usuário Desconhecido') }} ({{ session['user'].get('email', 'Email não disponível') }})</span> | <a href="/" class="btn-logout">Logout</a>
+            <span>{{ session['user'].get('nome', text.unknown_user) }} ({{ session['user'].get('email', text.email_not_available) }})</span> | <a href="/" class="btn-logout">{{ text.logout }}</a>
         {% else %}
-            <span>Usuário não logado | </span><a href="/" class="btn-login">Efetuar Login</a>
+            <span>{{ text.user_not_logged_in }} | </span><a href="/" class="btn-login">{{ text.dologin }}</a>
         {% endif %}
     </div>
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('createUserModal')">&times;</span>
+            <h3>{{ text.create_new_user }}</h3>
+            <form id="createUserForm">
+                <label for="newCpf">{{ text.cpf }}</label>
+                <input type="text" id="newCpf" name="cpf">
+                <label for="newNome">{{ text.name }}</label>
+                <input type="text" id="newNome" name="nome">
+                <label for="newEmail">{{ text.email }}</label>
+                <input type="email" id="newEmail" name="email">
+                <label for="newDataNasc">{{ text.date_of_birth }}</label>
+                <input type="date" id="newDataNasc" name="dataNasc">
+                <label for="newSenha">{{ text.password }}</label>
+                <input type="password" id="newSenha" name="senha">
+                <button type="button" onclick="submitNewUser()">{{ text.create }}</button>
+            </form>
+        </div>
+    </div>
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('editUserModal')">&times;</span>
+            <form id="editUserForm">
+                <h3>{{ text.edit_user }}</h3>
+                <label for="editCpf">{{ text.cpf }}</label>
+                <input type="text" id="editCpf" name="cpf" readonly>
+                <label for="editNome">{{ text.name }}</label>
+                <input type="text" id="editNome" name="nome">
+                <label for="editEmail">{{ text.email }}</label>
+                <input type="email" id="editEmail" name="email">
+                <label for="editDataNasc">{{ text.date_of_birth }}</label>
+                <input type="date" id="editDataNasc" name="dataNasc">
+                <label for="editAtivo">{{ text.activity }}</label>
+                <select id="editAtivo" name="ativo">
+                    <option value="true">{{ text.active }}</option>
+                    <option value="false">{{ text.inactive }}</option>
+                </select>
+                <button type="button" onclick="submitEdit()">{{ text.save_changes }}</button>
+            </form>
+        </div>
+    </div>
+    
     <div id="admin-content">
         <h1>{{ text.adm_panel }}</h1>
-
-
         <table id="user-table">
             <thead>
                 <tr>
-                    <th>CPF</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Data de Nascimento</th>
-                    <th>Ações</th>
+                    <th id="sortDataCad" data-sort="asc">{{ text.registration_date }}</th>
+                    <th id="sortCpf" data-sort="asc">{{ text.cpf }}</th>
+                    <th id="sortNome" data-sort="asc">{{ text.name }}</th>
+                    <th id="sortEmail" data-sort="asc">{{ text.email }}</th>
+                    <th id="sortDataNasc" data-sort="asc">{{ text.date_of_birth }}</th>
+                    <th id="sortAtivo" data-sort="asc">{{ text.activity }}</th>
+                    <th>{{ text.actions }}</th>
                 </tr>
             </thead>
             <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>{{ user.cpf }}</td>
-                    <td>{{ user.nome }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.dataNasc }}</td>
-                    <td class="actions">
-                        <button onclick="editUser('{{ user.cpf }}')" class="edit-btn action-btn">Editar</button>
-                        <button onclick="deleteUser('{{ user.cpf }}')" class="delete-btn action-btn">Remover</button>
-                    </td>
-                </tr>
-                {% endfor %}
+                <!-- Os usuários serão carregados aqui via JavaScript -->
             </tbody>
         </table>
-        <button onclick="showCreateUserModal()" class="new-user-btn">+ Novo Cadastro</button>
+        <button onclick="showCreateUserModal()" class="new-user-btn">{{ text.new_registration }}</button>
     </div>
-
     {{ flash_msgs.render_flash_messages() }}
+
     <script>
-        function showCreateUserModal() {
-            // Lógica para exibir um modal com o formulário de criação de usuário.
-        }
+        window.addEventListener('DOMContentLoaded', (event) => {
+            fetch('/api/usuarios')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#user-table tbody');
+                tbody.innerHTML = ''; // Limpar o corpo da tabela existente
+                data.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-cpf', user.cpf);
+                    tr.innerHTML = `
+                        <td> ${user.dataCad}</td>
+                        <td>${user.cpf}</td>
+                        <td class="nome">${user.nome}</td>
+                        <td class="email">${user.email}</td>
+                        <td class="dataNasc">${user.dataNasc}</td>
+                        <td class="ativo">${user.ativo ? "{{ text.active }}" : "{{ text.inactive }}"}</td>
+                        <td class="actions">
+                            <button onclick="editUser('${user.cpf}')" class="edit-btn action-btn">{{ text.edit }}</button>
+                            <button onclick="deleteUser('${user.cpf}')" class="delete-btn action-btn">{{ text.delete }}</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            })
+            .catch(error => console.error('Erro ao buscar dados:', error));
+        });
     
         function editUser(cpf) {
-            // Lógica para editar o usuário com o CPF fornecido.
+            const userRow = document.querySelector(`tr[data-cpf="${cpf}"]`);
+            const nome = userRow.querySelector('.nome').textContent;
+            const email = userRow.querySelector('.email').textContent;
+            const dataNasc = userRow.querySelector('.dataNasc').textContent;
+            const ativo = userRow.querySelector('.ativo').textContent === "{{ text.active }}"; // Verifica se está ativo
+            document.getElementById('editCpf').value = cpf;
+            document.getElementById('editNome').value = nome;
+            document.getElementById('editEmail').value = email;
+            document.getElementById('editDataNasc').value = dataNasc;
+            document.getElementById('editAtivo').value = ativo; 
+            document.getElementById('editUserModal').style.display = 'block';
         }
-    
+        function submitEdit() {
+            const cpf = document.getElementById('editCpf').value;
+            const nome = document.getElementById('editNome').value;
+            const email = document.getElementById('editEmail').value;
+            const dataNasc = document.getElementById('editDataNasc').value;
+            const ativo = document.getElementById('editAtivo').value === "true"; // Obtém o valor booleano da caixa de seleção
+
+            fetch('/api/atualizar/' + cpf, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ nome, email, dataNasc, ativo }) // Inclui o valor de ativo no corpo da requisição
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+            });
+
+            closeModal('editUserModal');
+        }
         function deleteUser(cpf) {
-            // Lógica para deletar o usuário com o CPF fornecido.
+            fetch('/api/remover/' + cpf, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+            });
+        }
+        function submitNewUser() {
+            const cpf = document.getElementById('newCpf').value;
+            const nome = document.getElementById('newNome').value;
+            const email = document.getElementById('newEmail').value;
+            const dataNasc = document.getElementById('newDataNasc').value;
+            const senha = document.getElementById('newSenha').value;
+            
+            fetch('/api/criar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({cpf, nome, email, dataNasc, senha})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+            });
+
+            closeModal('createUserModal');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
     </script>
+    
 </body>
-
 </html>

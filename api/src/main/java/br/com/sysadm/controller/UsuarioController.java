@@ -36,7 +36,7 @@ public class UsuarioController {
     public List<UsuarioListDTO> listarTodos() {
         List<Usuario> usuarios = usuarioRepository.findAll();
         return usuarios.stream()
-                       .map(usuario -> new UsuarioListDTO(usuario.getCpf(), usuario.getNome(), usuario.getEmail(), usuario.getDataNasc(), usuario.getDataCad()))
+                       .map(usuario -> new UsuarioListDTO(usuario.getCpf(), usuario.getNome(), usuario.getEmail(), usuario.getDataNasc(), usuario.getDataCad(), usuario.isAtivo()))
                        .collect(Collectors.toList());
     }
 
@@ -76,6 +76,10 @@ public class UsuarioController {
                         if (valor instanceof String) // Aqui você deve converter o String para LocalDate
                             usuario.setDataNasc(LocalDate.parse((String) valor));
                         break;
+                    case "ativo":
+                        if (valor instanceof Boolean) 
+                            usuario.setAtivo((Boolean) valor);
+                        break;
                 }
             });
 
@@ -90,7 +94,7 @@ public class UsuarioController {
     public ResponseEntity<Void> deletarUsuario(@PathVariable String cpf) {
         if (usuarioRepository.existsById(cpf)) {
             usuarioRepository.deleteById(cpf);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
     }

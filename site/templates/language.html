@@ -11,6 +11,7 @@
             <select name="language" onchange="this.form.submit()">
                 <option value="en_US" {{ 'selected' if session['language'] == 'en_US' else '' }}>English</option>
                 <option value="pt_BR" {{ 'selected' if session['language'] == 'pt_BR' else '' }}>Português</option>
+                <option value="es" {{ 'selected' if session['language'] == 'es' else '' }}>Español</option>
             </select>
         </form>
     </div>

@@ -29,65 +29,65 @@ public class Usuario {
     @Column(nullable = false)
     private LocalDate dataCad;
 
+    @Column(nullable = false)
+    private boolean ativo;
+
     // Construtor padrão exigido pelo JPA/Hibernate
     public Usuario() {
     }
 
     // Construtor personalizado
-    public Usuario(String cpf, String nome, String senha, String email, LocalDate dataNasc) {
+    public Usuario(String cpf, String nome, String senha, String email, LocalDate dataNasc, boolean ativo) {
         this.cpf = cpf;
         this.nome = nome;
         this.senha = senha;
         this.email = email;
         this.dataNasc = dataNasc;
+        this.ativo = ativo;
     }
 
     // getters e setters
     public String getCpf() {
         return cpf;
     }
-
     public void setCpf(String cpf) {
         this.cpf = cpf;
     }
-
     public String getNome() {
         return nome;
     }
-
     public void setNome(String nome) {
         this.nome = nome;
     }
-
     public String getSenha() {
         return senha;
     }
-
     public void setSenha(String senha) {
         this.senha = senha;
     }
-
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-
     public LocalDate getDataNasc() {
         return dataNasc;
     }
-    
     public void setDataNasc(LocalDate dataNasc) {
         this.dataNasc = dataNasc;
     }
-    
     public LocalDate getDataCad() {
         return dataCad;
     }
     public void setDataCad(LocalDate dataCad) {
         this.dataCad = dataCad;
+    }
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
+    }
+    public boolean isAtivo() {
+        return ativo;
     }
     @Override
     public boolean equals(Object obj) {
@@ -111,6 +111,7 @@ public class Usuario {
                 "cpf='" + cpf + '\'' +
                 ", nome='" + nome + '\'' +
                 ", email='" + email + '\'' +
+                ", ativo='" + ativo + '\'' +
                 '}';
     }
     @PrePersist

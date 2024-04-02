@@ -25,50 +25,56 @@ app.api = 'http://sysadm-api:8080/usuario'
 
 # Test User
 usuarios = [{
-    "nome": 'Fulano de Tal',
-    "email": 'adm@teste.com',
-    "dataNasc": '2222-01-01',
-    "cpf": '12345678900',
-    "senha": '123456'
+		"nome": 'Fulano de Tal',
+		"email": 'adm@teste.com',
+		"dataNasc": '2222-01-01',
+		"cpf": '12345678900',
+		"senha": '123456',
+		"ativo": True
     },
     {
         "nome": "Ana Beatriz",
         "email": "ana@teste.com",
         "dataNasc": "1995-04-22",
         "cpf": "98765432109",
-        "senha": "senhaSegura"
+        "senha": "senhaSegura",
+        "ativo": True
     },
     {
         "nome": "Roberto Silva",
         "email": "roberto@teste.com",
         "dataNasc": "1988-12-15",
         "cpf": "12312312399",
-        "senha": "outraSenha123"
+        "senha": "outraSenha123",
+        "ativo": True
     },
     {
         "nome": "Carla dos Santos",
         "email": "carla@teste.com",
         "dataNasc": "2000-07-03",
         "cpf": "45645645666",
-        "senha": "carlaSenha"
+        "senha": "carlaSenha",
+        "ativo": True
     },
     {
         "nome": "Pedro Oliveira",
         "email": "pedro@teste.com",
         "dataNasc": "1992-02-28",
         "cpf": "78978978911",
-        "senha": "pedro1234"
+        "senha": "pedro1234",
+        "ativo": False
+
     },
     {
         "nome": "Juliana Moraes",
         "email": "juliana@teste.com",
         "dataNasc": "1998-11-20",
         "cpf": "32132132177",
-        "senha": "julianaSenha"
+        "senha": "julianaSenha",
+        "ativo": True
     }
 ]
 for user_data in usuarios:
-    print(user_data)
     response = requests.post(app.api + '/cadastrar', json=user_data)
 
 def check_api_status(f):
@@ -79,10 +85,10 @@ def check_api_status(f):
             if response.status_code == 200:
                 return f(*args, **kwargs)
             else:
-                flash(session['text']['conn_error'], 'error')
+                flash(session['flash_text']['conn_error'], 'error')
                 return redirect(url_for('login_screen'))
         except requests.exceptions.RequestException:
-            flash(session['text']['conn_error'], 'error')
+            flash(session['flash_text']['conn_error'], 'error')
             return redirect(url_for('login_screen'))
     return decorated_function
 
@@ -92,8 +98,11 @@ def before_request():
     if 'language' not in session:
         session['language'] = 'pt_BR'
         session['text'] = read_translation(session['language'])
+        session['flash_text'] = read_flash_translations(session['language'])
+
     else:
         session['text'] = read_translation(session['language'])
+        session['flash_text'] = read_flash_translations(session['language'])
 
 
 @app.route('/set_language', methods=['POST'])
@@ -115,12 +124,19 @@ def read_translation(language):
         translations = json.load(file)
     return translations
 
+# Ler arquivo de internacionalização para flash messages
+def read_flash_translations(language):
+    file_path = f'{text_path}/flash_{language}.json'
+    with open(file_path, 'r', encoding='utf-8') as file:
+        translations = json.load(file)
+    return translations
+
 def login_required(f):
     def decorated_function(*args, **kwargs):
         if 'logged_in' in session:
             return f(*args, **kwargs)
         else:
-            flash(session['text']['login_title'], 'error')
+            flash(session['flash_text']['login_title'], 'error')
             return redirect(url_for('login_screen'))
     decorated_function.__name__ = f.__name__
     return decorated_function
@@ -145,7 +161,8 @@ def login_screen():
     time_since_last_try = now_aware - last_try_time
     if time_since_last_try.seconds < wait_time and session['tries'] >= max_tries:
         wait_seconds = wait_time - time_since_last_try.seconds
-        error_message = session['text']['wait_before_retry'].format(wait_seconds)
+        error_message = session['flash_text']['wait_before_retry'].format(wait_seconds)
+        flash(error_message, 'error')
         return render_template('login_screen.html', text=session['text'], error=error_message)
 
     if request.method == 'POST':
@@ -159,9 +176,9 @@ def login_screen():
                 session['tries'] += 1
                 session['last_try_time'] = datetime.now(ZoneInfo("UTC")).isoformat()
                 if session['tries'] >= max_tries:
-                    error_message = session['text']['max_attempts'].format(wait_time)
+                    error_message = session['flash_text']['max_attempts'].format(wait_time)
                 else:
-                    error_message = session['text']['login_failed']
+                    error_message = session['flash_text']['login_failed']
                 flash(error_message, 'error')  
                 return redirect(url_for('login_screen'))
 
@@ -173,11 +190,13 @@ def login_screen():
                 session['logged_in'] = True
                 return redirect(url_for('home'))
             else:
-                error_message = session['text']['unknown_error']
-                return render_template('login_screen.html', text=session['text'], error=error_message)
+                error_message = session['flash_text']['unknown_error']
+                flash(f'{error_message} | Response Code: {response.status_code}', 'error')
+
+                return render_template('login_screen.html', text=session['text'])
         except requests.exceptions.ConnectionError:
             # Captura o caso em que a API está offline ou o hostname não pode ser resolvido
-            flash(session['text']['conn_error'], 'error')
+            flash(session['flash_text']['conn_error'], 'error')
         
         # Redireciona para a página de login novamente ou para onde você achar adequado
         return redirect(url_for('login_screen'))
@@ -200,7 +219,8 @@ def create_account_screen():
             "email": request.form['email_cad'],
             "dataNasc": data_nasc_formatted,
             "cpf": request.form['cpf_cad'],
-            "senha": request.form['senha_cad']
+            "senha": request.form['senha_cad'],
+            "ativo": True
         }
 
         # Envia os dados do usuário para a API
@@ -208,10 +228,10 @@ def create_account_screen():
 
         if response.status_code == 201:
             # Usuário criado com sucesso, redirecionar para a tela de login ou outra página
-            flash(session['text']['create_acc_success'], 'success')
+            flash(session['flash_text']['create_acc_success'], 'success')
             return redirect(url_for('login_screen'))
         else:
-            flash(f"{session['text']['create_acc_fail']}", 'error')
+            flash(f"{session['flash_text']['create_acc_fail']} | Response Code: {response.status_code}", 'error')
 
 
     # Se o método for GET ou se o cadastro falhar, mostra a tela de cadastro novamente
@@ -232,7 +252,7 @@ def recover_password():
         if response.ok:
             return redirect(url_for('change_password', cpf=cpf))
         else:
-            error_message = session['text']['form_dont_match']
+            error_message = session['flash_text']['form_dont_match']
             flash(error_message, 'error')
 
     return render_template('recover_password.html', text=session['text'])
@@ -255,57 +275,116 @@ def change_password(cpf):
         try:
             response = requests.patch(f'{app.api}/atualizar/{cpf}', json={'cpf': cpf, 'senha': nova_senha})
             if response.ok:
-                flash(session['text']['password_changed_success'], 'success')
+                flash(session['flash_text']['password_changed_success'], 'success')
                 return redirect(url_for('login_screen'))
             else:
                 # Tratamento de erros da API
-                flash(session['text']['password_change_failed'], 'error')
+                flash(session['flash_text']['password_change_failed'], 'error')
         except requests.exceptions.RequestException as e:
             flash(str(e), 'error')
 
     # Para método GET ou se ocorreu algum erro no POST, exibe o formulário novamente
     return render_template('change_password.html', text=session['text'], cpf=cpf)
 
-
 # Rota para a página de administração do site
 @app.route('/home', methods=['GET', 'POST'])
 @check_api_status
 @login_required
 def home():
-    # Faz a requisição para a API
-    response = requests.get(app.api)
-    
-    # Verifica se a requisição foi bem-sucedida
-    if response.status_code == 200:
-        # Converte a resposta em JSON
-        users = response.json()
-    else:
-        users = []
-        flash("Não foi possível obter a lista de usuários da API.", "error")
-    
-    # Renderiza o template, passando os dados dos usuários
-    return render_template('admin_screen.html', text=session['text'], users=users)
+    # Renderiza o template, passando os dados dos usuários e as mensagens de flash
+    return render_template('admin_screen.html', text=session['text'], flash_text=session.pop('flash_text', None))
 
-@app.route('/adm/create_account', methods=['POST'])
-def adm_create_account():
+
+def obter_usuarios():
+    resposta = requests.get(app.api)
+    if resposta.status_code == 200:
+        dados = resposta.json()
+        return dados
+    else:
+        flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
+        return redirect(url_for('home'))
+
+
+@app.route('/api/usuarios')
+@check_api_status
+@login_required
+def dados_api():
+    dados = obter_usuarios()
+
+    if isinstance(dados, list):
+        return jsonify(dados)
+    else:
+        flash(session['flash_text']['conn_error'], 'error')
+        return redirect(url_for('home'))
+
+
+@app.route('/api/criar', methods=['POST'])
+@check_api_status
+@login_required
+def api_criar_usuario():
     data = request.json
     user_data = {
         "nome": data['nome'],
         "email": data['email'],
         "dataNasc": datetime.strptime(data['dataNasc'], "%Y-%m-%d").strftime("%Y-%m-%d"),
         "cpf": data['cpf'],
-        "senha": data['senha']
+        "senha": data['senha'],
+        "ativo": True
     }
 
     response = requests.post(app.api + '/cadastrar', json=user_data)
     if response.status_code == 201:
-        return jsonify({"message": "Usuário criado com sucesso."}), 201
+        flash(session['flash_text']['create_user_success'], 'success')
     else:
-        return jsonify({"error": "Falha ao criar usuário."}), 400
-    
-    
+        flash(session['flash_text']['create_user_fail'], 'error')
+    return str(response.status_code)
+
+
+@app.route('/api/atualizar/<cpf>', methods=['PATCH'])
+@check_api_status
+@login_required
+def api_atualizar_usuario(cpf):
+    if str(session['user']['cpf']) != str(cpf):
+        try:
+            user_data = request.json
+            response = requests.patch(f'{app.api}/atualizar/{cpf}', json=user_data)
+
+            if response.status_code == 200:
+                flash(session['flash_text']['update_user_success'], 'success')
+            else:
+                flash(session['flash_text']['update_user_fail'], 'error')
+            return str(response.status_code)
+
+        except Exception as e:
+            flash(session['flash_text']['unknown_error'], 'error')
+            return '500'
+
+    else:
+        flash(session['flash_text']['self_edit_error'], 'error')
+        return '403'
+
+
+@app.route('/api/remover/<cpf>', methods=['DELETE'])
+@check_api_status
+@login_required
+def api_deletar_usuario(cpf):
+
+    if str(session['user']['cpf']) != str(cpf):
+        try:
+            response = requests.delete(f'{app.api}/remover/{cpf}')
+
+            if response.status_code == 200:
+                flash(session['flash_text']['delete_user_success'], 'success')
+            else:
+                flash(session['flash_text']['delete_user_fail'], 'error')
+            return str(response.status_code)
+        except requests.exceptions.RequestException as e:
+            flash(session['flash_text']['conn_error'], 'error')
+            return '500'
+    else:
+        flash(session['flash_text']['self_delete_error'], 'error')
+        return '403'
 
 
 if __name__ == '__main__':
-
     app.run(debug=True)

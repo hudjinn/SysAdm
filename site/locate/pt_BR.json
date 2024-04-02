@@ -75,5 +75,8 @@
     "delete_user_success": "Usuário excluído com sucesso",
     "delete_user_error": "Erro ao excluir o usuário",
     "create_user_fail": "Falha ao criar o usuário",
-    "create_user_error": "Erro ao criar o usuário"
+    "create_user_error": "Erro ao criar o usuário",
+    "activity": "Situação Cadastral",
+    "active": "Ativa",
+    "inactive": "Inativa"
 }

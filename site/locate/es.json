@@ -75,6 +75,9 @@
     "delete_user_success": "Usuario eliminado correctamente",
     "delete_user_error": "Error al eliminar usuario",
     "create_user_fail": "Error al crear usuario",
-    "create_user_error": "Error al crear usuario"
+    "create_user_error": "Error al crear usuario",
+    "activity": "Estado del Registro",
+    "active": "Activo",
+    "inactive": "Inactivo"
   }
   

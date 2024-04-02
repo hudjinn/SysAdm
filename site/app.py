@@ -29,42 +29,49 @@ usuarios = [{
     "email": 'adm@teste.com',
     "dataNasc": '2222-01-01',
     "cpf": '12345678900',
-    "senha": '123456'
+    "senha": '123456',
+    "ativo": True
     },
     {
         "nome": "Ana Beatriz",
         "email": "ana@teste.com",
         "dataNasc": "1995-04-22",
         "cpf": "98765432109",
-        "senha": "senhaSegura"
+        "senha": "senhaSegura",
+        "ativo": True
     },
     {
         "nome": "Roberto Silva",
         "email": "roberto@teste.com",
         "dataNasc": "1988-12-15",
         "cpf": "12312312399",
-        "senha": "outraSenha123"
+        "senha": "outraSenha123",
+        "ativo": True
     },
     {
         "nome": "Carla dos Santos",
         "email": "carla@teste.com",
         "dataNasc": "2000-07-03",
         "cpf": "45645645666",
-        "senha": "carlaSenha"
+        "senha": "carlaSenha",
+        "ativo": True
     },
     {
         "nome": "Pedro Oliveira",
         "email": "pedro@teste.com",
         "dataNasc": "1992-02-28",
         "cpf": "78978978911",
-        "senha": "pedro1234"
+        "senha": "pedro1234",
+        "ativo": False
+
     },
     {
         "nome": "Juliana Moraes",
         "email": "juliana@teste.com",
         "dataNasc": "1998-11-20",
         "cpf": "32132132177",
-        "senha": "julianaSenha"
+        "senha": "julianaSenha",
+        "ativo": True
     }
 ]
 for user_data in usuarios:
@@ -212,7 +219,8 @@ def create_account_screen():
             "email": request.form['email_cad'],
             "dataNasc": data_nasc_formatted,
             "cpf": request.form['cpf_cad'],
-            "senha": request.form['senha_cad']
+            "senha": request.form['senha_cad'],
+            "ativo": True
         }
 
         # Envia os dados do usuário para a API
@@ -278,14 +286,14 @@ def change_password(cpf):
     # Para método GET ou se ocorreu algum erro no POST, exibe o formulário novamente
     return render_template('change_password.html', text=session['text'], cpf=cpf)
 
-
 # Rota para a página de administração do site
 @app.route('/home', methods=['GET', 'POST'])
 @check_api_status
 @login_required
 def home():
-    # Renderiza o template, passando os dados dos usuários
-    return render_template('admin_screen.html', text=session['text'])
+    # Renderiza o template, passando os dados dos usuários e as mensagens de flash
+    return render_template('admin_screen.html', text=session['text'], flash_text=session.pop('flash_text', None))
+
 
 def obter_usuarios():
     resposta = requests.get(app.api)
@@ -294,6 +302,8 @@ def obter_usuarios():
         return dados
     else:
         flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
+        return redirect(url_for('home'))
+
 
 @app.route('/api/usuarios')
 @check_api_status
@@ -318,15 +328,18 @@ def api_criar_usuario():
         "email": data['email'],
         "dataNasc": datetime.strptime(data['dataNasc'], "%Y-%m-%d").strftime("%Y-%m-%d"),
         "cpf": data['cpf'],
-        "senha": data['senha']
+        "senha": data['senha'],
+        "ativo": True
     }
 
     response = requests.post(app.api + '/cadastrar', json=user_data)
     if response.status_code == 201:
-        return jsonify({"message": "Usuário criado com sucesso."}), 201
+        flash(session['flash_text']['create_user_success'], 'success')
     else:
-        return jsonify({"error": "Falha ao criar usuário."}), 400
-    
+        flash(session['flash_text']['create_user_fail'], 'error')
+    return str(response.status_code)
+
+
 @app.route('/api/atualizar/<cpf>', methods=['PATCH'])
 @check_api_status
 @login_required
@@ -335,18 +348,22 @@ def api_atualizar_usuario(cpf):
         try:
             user_data = request.json
             response = requests.patch(f'{app.api}/atualizar/{cpf}', json=user_data)
+
             if response.status_code == 200:
-                return jsonify({"message": "Usuário atualizado com sucesso."}), 200
+                flash(session['flash_text']['update_user_success'], 'success')
             else:
-                return jsonify({"error": "Falha ao atualizar usuário."}), 500
+                flash(session['flash_text']['update_user_fail'], 'error')
+            return str(response.status_code)
 
         except Exception as e:
-            flash(str(e), 'error')
-            return jsonify({"error": str(e)}), 500
-    else:
-        return jsonify({"error": "Não é possível editar o próprio usuário!"}), 400
+            flash(session['flash_text']['unknown_error'], 'error')
+            return '500'
 
-    
+    else:
+        flash(session['flash_text']['self_edit_error'], 'error')
+        return '403'
+
+
 @app.route('/api/remover/<cpf>', methods=['DELETE'])
 @check_api_status
 @login_required
@@ -355,15 +372,19 @@ def api_deletar_usuario(cpf):
     if str(session['user']['cpf']) != str(cpf):
         try:
             response = requests.delete(f'{app.api}/remover/{cpf}')
-            if response.status_code == 200:
-                return jsonify({"message": "Usuário deletado com sucesso."}), 200
-            else:
-                return jsonify({"error": "Falha ao remover usuário."}), 500
-        except requests.exceptions.RequestException as e:
-            flash(str(e), 'error')
-            return jsonify({"error": str(e)}), 500
-    else:
-        return jsonify({"error": "Não é possível deletar o próprio usuário!"})
-if __name__ == '__main__':
 
+            if response.status_code == 200:
+                flash(session['flash_text']['delete_user_success'], 'success')
+            else:
+                flash(session['flash_text']['delete_user_fail'], 'error')
+            return str(response.status_code)
+        except requests.exceptions.RequestException as e:
+            flash(session['flash_text']['conn_error'], 'error')
+            return '500'
+    else:
+        flash(session['flash_text']['self_delete_error'], 'error')
+        return '403'
+
+
+if __name__ == '__main__':
     app.run(debug=True)

@@ -75,5 +75,8 @@
   "delete_user_success": "User deleted successfully",
   "delete_user_error": "Error deleting user",
   "create_user_fail": "Failed to create user",
-  "create_user_error": "Error creating user"
+  "create_user_error": "Error creating user",
+  "activity": "Account Status",
+  "active": "Active",
+  "inactive": "Inactive"
 }

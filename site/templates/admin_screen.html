@@ -43,14 +43,19 @@
             <span class="close-button" onclick="closeModal('editUserModal')">&times;</span>
             <form id="editUserForm">
                 <h3>{{ text.edit_user }}</h3>
-                <label for="cpf">{{ text.cpf }}</label>
+                <label for="editCpf">{{ text.cpf }}</label>
                 <input type="text" id="editCpf" name="cpf" readonly>
-                <label for="nome">{{ text.name }}</label>
+                <label for="editNome">{{ text.name }}</label>
                 <input type="text" id="editNome" name="nome">
-                <label for="email">{{ text.email }}</label>
+                <label for="editEmail">{{ text.email }}</label>
                 <input type="email" id="editEmail" name="email">
-                <label for="dataNasc">{{ text.date_of_birth }}</label>
+                <label for="editDataNasc">{{ text.date_of_birth }}</label>
                 <input type="date" id="editDataNasc" name="dataNasc">
+                <label for="editAtivo">{{ text.activity }}</label>
+                <select id="editAtivo" name="ativo">
+                    <option value="true">{{ text.active }}</option>
+                    <option value="false">{{ text.inactive }}</option>
+                </select>
                 <button type="button" onclick="submitEdit()">{{ text.save_changes }}</button>
             </form>
         </div>
@@ -66,6 +71,7 @@
                     <th id="sortNome" data-sort="asc">{{ text.name }}</th>
                     <th id="sortEmail" data-sort="asc">{{ text.email }}</th>
                     <th id="sortDataNasc" data-sort="asc">{{ text.date_of_birth }}</th>
+                    <th id="sortAtivo" data-sort="asc">{{ text.activity }}</th>
                     <th>{{ text.actions }}</th>
                 </tr>
             </thead>
@@ -93,6 +99,7 @@
                         <td class="nome">${user.nome}</td>
                         <td class="email">${user.email}</td>
                         <td class="dataNasc">${user.dataNasc}</td>
+                        <td class="ativo">${user.ativo ? "{{ text.active }}" : "{{ text.inactive }}"}</td>
                         <td class="actions">
                             <button onclick="editUser('${user.cpf}')" class="edit-btn action-btn">{{ text.edit }}</button>
                             <button onclick="deleteUser('${user.cpf}')" class="delete-btn action-btn">{{ text.delete }}</button>
@@ -109,47 +116,43 @@
             const nome = userRow.querySelector('.nome').textContent;
             const email = userRow.querySelector('.email').textContent;
             const dataNasc = userRow.querySelector('.dataNasc').textContent;
-            
+            const ativo = userRow.querySelector('.ativo').textContent === "{{ text.active }}"; // Verifica se está ativo
             document.getElementById('editCpf').value = cpf;
             document.getElementById('editNome').value = nome;
             document.getElementById('editEmail').value = email;
             document.getElementById('editDataNasc').value = dataNasc;
-            
+            document.getElementById('editAtivo').value = ativo; 
             document.getElementById('editUserModal').style.display = 'block';
         }
-    
         function submitEdit() {
             const cpf = document.getElementById('editCpf').value;
             const nome = document.getElementById('editNome').value;
             const email = document.getElementById('editEmail').value;
             const dataNasc = document.getElementById('editDataNasc').value;
-            
+            const ativo = document.getElementById('editAtivo').value === "true"; // Obtém o valor booleano da caixa de seleção
+
             fetch('/api/atualizar/' + cpf, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({nome, email, dataNasc})
+                body: JSON.stringify({ nome, email, dataNasc, ativo }) // Inclui o valor de ativo no corpo da requisição
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(text.update_user_fail);
+                    throw new Error(response.statusText);
                 }
                 return response.json();
             })
             .then(data => {
-                swal("Sucesso!", text.update_user_success, "success").then(() => {
-                    window.location.reload(); 
-                });
+                window.location.reload();
             })
             .catch(error => {
                 console.error('Erro:', error);
-                swal("Erro", text.update_user_error, "error");
             });
-    
+
             closeModal('editUserModal');
         }
-    
         function deleteUser(cpf) {
             fetch('/api/remover/' + cpf, {
                 method: 'DELETE',
@@ -159,21 +162,17 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(text.delete_user_fail);
+                    throw new Error(response.statusText);
                 }
                 return response.json();
             })
             .then(data => {
-                swal("Sucesso!", text.delete_user_success, "success").then(() => {
-                    window.location.reload();
-                });
+                window.location.reload();
             })
             .catch(error => {
                 console.error('Erro:', error);
-                swal("Erro", text.delete_user_error, "error");
             });
         }
-    
         function submitNewUser() {
             const cpf = document.getElementById('newCpf').value;
             const nome = document.getElementById('newNome').value;
@@ -190,7 +189,7 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(text.create_user_fail);
+                    throw new Error(response.statusText);
                 }
                 return response.json();
             })
@@ -199,12 +198,11 @@
             })
             .catch(error => {
                 console.error('Erro:', error);
-                swal("Erro", text.create_user_error, "error");
             });
-    
+
             closeModal('createUserModal');
         }
-    
+
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }

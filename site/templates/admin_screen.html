@@ -11,12 +11,14 @@
 </head>
 <body>
     {% include 'language.html' %}
-    {% include "header.html" %}
+    <img src="/static/img/sysadm_logo.png" alt="sysadm_logo" class="logo">
+
     <div class="user-info">
+
         {% if session.get('user') %}
-            <span>{{ session['user'].get('nome', text.unknown_user) }} ({{ session['user'].get('email', text.email_not_available) }})</span> | <a href="/" class="btn-logout">{{ text.logout }}</a>
+            <span>{{ session['user'].get('nome', text.unknown_user) }} ({{ session['user'].get('email', text.email_not_available) }}) | </span><a href="/" class="btn-logout">{{ text.logout }}</a>
         {% else %}
-            <span>{{ text.user_not_logged_in }} | </span><a href="/" class="btn-login">{{ text.dologin }}</a>
+            <span>{{ text.user_not_logged_in }}</span><a href="/" class="btn-login">{{ text.dologin }}</a>
         {% endif %}
     </div>
     <div id="createUserModal" class="modal">
@@ -62,7 +64,9 @@
     </div>
     
     <div id="admin-content">
-        <h1>{{ text.adm_panel }}</h1>
+        <h2>{{ text.adm_panel }}</h2>
+        <button onclick="showCreateUserModal()" class="new-user-btn">{{ text.new_registration }}</button>
+
         <table id="user-table">
             <thead>
                 <tr>
@@ -79,7 +83,6 @@
                 <!-- Os usuários serão carregados aqui via JavaScript -->
             </tbody>
         </table>
-        <button onclick="showCreateUserModal()" class="new-user-btn">{{ text.new_registration }}</button>
     </div>
     {{ flash_msgs.render_flash_messages() }}
 
@@ -110,7 +113,48 @@
             })
             .catch(error => console.error('Erro ao buscar dados:', error));
         });
-    
+        // Adiciona eventos de clique a todos os cabeçalhos das colunas
+        document.querySelectorAll('th').forEach(th => {
+            th.addEventListener('click', () => {
+                const columnName = th.id.slice(4); // Remove "sort" do ID para obter o nome da coluna
+                const tableElement = document.querySelector('#user-table');
+                const headerIndex = Array.from(tableElement.querySelectorAll('thead th')).findIndex(header => header.id === `sort${columnName}`);
+                const currentIsAscending = th.getAttribute('data-sort') === 'asc';
+                sortTableByColumn(tableElement, headerIndex + 1, currentIsAscending);
+            });
+        });
+        function sortColumn(columnName) {
+            const tableElement = document.querySelector('#user-table');
+            const headerIndex = Array.from(tableElement.querySelectorAll('thead th')).findIndex(th => th.id === `sort${columnName.charAt(0).toUpperCase() + columnName.slice(1)}`);
+            const currentIsAscending = document.querySelector(`#sort${columnName}`).getAttribute('data-sort') === 'asc';
+            sortTableByColumn(tableElement, headerIndex + 1, currentIsAscending);
+        }
+        function sortTableByColumn(table, column, asc = true) {
+            const dirModifier = asc ? 1 : -1;
+            const tBody = table.tBodies[0];
+            const rows = Array.from(tBody.querySelectorAll('tr'));
+
+            // Ordenar cada linha
+            const sortedRows = rows.sort((a, b) => {
+                const aColText = a.querySelector(`td:nth-child(${column})`).textContent.trim();
+                const bColText = b.querySelector(`td:nth-child(${column})`).textContent.trim();
+
+                return aColText > bColText ? (1 * dirModifier) : (-1 * dirModifier);
+            });
+
+            // Remover todas as linhas existentes da tabela
+            while (tBody.firstChild) {
+                tBody.removeChild(tBody.firstChild);
+            }
+
+            // Re-adicionar as linhas já ordenadas na tabela
+            tBody.append(...sortedRows);
+
+            // Inverter a direção para a próxima ordenação
+            table.querySelectorAll('th').forEach(th => th.setAttribute('data-sort', 'asc'));
+            table.querySelector(`th:nth-child(${column})`).setAttribute('data-sort', asc ? 'desc' : 'asc');
+        }
+
         function editUser(cpf) {
             const userRow = document.querySelector(`tr[data-cpf="${cpf}"]`);
             const nome = userRow.querySelector('.nome').textContent;
@@ -154,23 +198,33 @@
             closeModal('editUserModal');
         }
         function deleteUser(cpf) {
-            fetch('/api/remover/' + cpf, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
+            swal({
+                title: "{{ text.delete_confirmation_title }}",
+                text: "{{ text.delete_confirmation_text }}",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    fetch('/api/remover/' + cpf, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                    });
                 }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Erro:', error);
             });
         }
         function submitNewUser() {
@@ -206,6 +260,10 @@
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
+        function showCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'block';
+        }
+
     </script>
     
 </body>

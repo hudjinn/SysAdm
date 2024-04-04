@@ -78,5 +78,8 @@
     "create_user_error": "Erro ao criar o usuário",
     "activity": "Situação Cadastral",
     "active": "Ativa",
-    "inactive": "Inativa"
+    "inactive": "Inativa",
+    "delete_confirmation_title": "Tem certeza?",
+    "delete_confirmation_text": "Uma vez removido, você não poderá recuperar os dados deste usuário!"
+    
 }

@@ -1,6 +1,6 @@
 {
   "conn_error": "API connection error. Please try again later.",
-  "login_title": "Login error",
+  "login_required": "You need to be logged in to view this page",
   "wait_before_retry": "Too many login attempts. Please wait {0} seconds before trying again.",
   "login_failed": "Login failed. Please check your credentials and try again.",
   "max_attempts": "You have exceeded the maximum number of login attempts. Please wait {0} seconds and try again.",

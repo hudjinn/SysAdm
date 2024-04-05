@@ -136,7 +136,7 @@ def login_required(f):
         if 'logged_in' in session:
             return f(*args, **kwargs)
         else:
-            flash(session['flash_text']['login_title'], 'error')
+            flash(session['flash_text']['login_required'], 'error')
             return redirect(url_for('login_screen'))
     decorated_function.__name__ = f.__name__
     return decorated_function
@@ -256,6 +256,7 @@ def recover_password():
             flash(error_message, 'error')
 
     return render_template('recover_password.html', text=session['text'])
+
 
 
 @app.route('/change_password/<cpf>', methods=['GET', 'POST'])
@@ -384,6 +385,13 @@ def api_deletar_usuario(cpf):
     else:
         flash(session['flash_text']['self_delete_error'], 'error')
         return '403'
+
+@app.route("/logout")
+@login_required
+def logout():
+    del session['logged_in']
+    return redirect(url_for('login_screen'))
+
 
 
 if __name__ == '__main__':

@@ -16,7 +16,7 @@
     <div class="user-info">
 
         {% if session.get('user') %}
-            <span>{{ session['user'].get('nome', text.unknown_user) }} ({{ session['user'].get('email', text.email_not_available) }}) | </span><a href="/" class="btn-logout">{{ text.logout }}</a>
+            <span>{{ session['user'].get('nome', text.unknown_user) }} ({{ session['user'].get('email', text.email_not_available) }}) | </span><a href="/logout" class="btn-logout">{{ text.logout }}</a>
         {% else %}
             <span>{{ text.user_not_logged_in }}</span><a href="/" class="btn-login">{{ text.dologin }}</a>
         {% endif %}

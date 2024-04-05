@@ -78,5 +78,7 @@
   "create_user_error": "Error creating user",
   "activity": "Account Status",
   "active": "Active",
-  "inactive": "Inactive"
+  "inactive": "Inactive",
+  "delete_confirmation_title": "Are you sure?",
+  "delete_confirmation_text": "Once deleted, you will not be able to recover this user's data!"
 }

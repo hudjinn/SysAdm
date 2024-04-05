@@ -1,7 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+* {
+  font-family: 'Roboto', sans-serif;
+}
 .user-info span {
-    color: #0d3b66; /* Um tom escuro de azul do logo */
+    color: #e9e9e9; /* Um tom escuro de azul do logo */
 }
 
+.user-info {
+    margin-top: 10px;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    background-color: #598491;
+    height: max-content;
+    padding: 5px;
+    gap: 5px
+    
+}
+.logo {
+    position: absolute;
+    top: -20px;
+    left: 15px;
+    width: 110px;
+    height: auto;
+}
 .btn-logout, .btn-login {
     background-color: #31a2ac; /* Um azul turquesa do logo */
     color: white;
@@ -44,7 +67,6 @@
 .action-btn {
     opacity: 0;
     transition: opacity 0.3s;
-    /* Restante do seu CSS */
 }
 
 /* Torna os botões opacos quando a linha da tabela está em hover */

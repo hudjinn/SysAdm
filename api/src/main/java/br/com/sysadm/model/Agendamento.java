@@ -1,15 +1,6 @@
 package br.com.sysadm.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,17 +19,20 @@ public class Agendamento {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusAgendamento status;
+    private StatusAgendamento status = StatusAgendamento.AGENDADO;  // Inicializa como AGENDADO por padrão
 
-    // Construtores, getters e setters
+    // Construtores
     public Agendamento() {
+        // O status é inicializado por padrão no campo
     }
 
     public Agendamento(HorarioAtendimento horarioAtendimento, LocalDateTime dataHoraAgendamento, StatusAgendamento status, String observacoes) {
         this.horarioAtendimento = horarioAtendimento;
         this.dataHoraAgendamento = dataHoraAgendamento;
-        this.status = status;    }
+        this.status = status;
+    }
 
+    // Getters e setters
     public Long getId() {
         return id;
     }

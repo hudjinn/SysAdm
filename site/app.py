@@ -21,7 +21,7 @@ root = os.path.dirname(caminho_absoluto)
 text_path =  root + '/locate'
 
 # API JAVA
-app.api = 'http://sysadm-api:8080/usuario'
+app.api = 'http://sysadm-api:8080/'
 
 # Test User
 usuarios = [{
@@ -75,13 +75,13 @@ usuarios = [{
     }
 ]
 for user_data in usuarios:
-    response = requests.post(app.api + '/cadastrar', json=user_data)
+    response = requests.post(app.api + 'usuario/cadastrar', json=user_data)
 
 def check_api_status(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         try:
-            response = requests.get(app.api)  # Supondo que app.api é sua URL base da API
+            response = requests.get(app.api + 'usuario')  # Supondo que app.api é sua URL base da API
             if response.status_code == 200:
                 return f(*args, **kwargs)
             else:
@@ -141,8 +141,12 @@ def login_required(f):
     decorated_function.__name__ = f.__name__
     return decorated_function
 
+@app.route('/')
+def index():
+    return render_template('index.html', text=session['text'])
+
 # Rota para a página de login
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login_screen():
     max_tries = 3
     wait_time = 60  # Tempo de espera em segundos
@@ -171,7 +175,7 @@ def login_screen():
         senha = request.form['senha_login']
         
         try:
-            response = requests.post(app.api + '/login', json={'email': email, 'senha': senha})
+            response = requests.post(app.api + 'usuario/login', json={'email': email, 'senha': senha})
             if not response.ok:
                 session['tries'] += 1
                 session['last_try_time'] = datetime.now(ZoneInfo("UTC")).isoformat()
@@ -224,7 +228,7 @@ def create_account_screen():
         }
 
         # Envia os dados do usuário para a API
-        response = requests.post( app.api + '/cadastrar', json=user_data)
+        response = requests.post( app.api + 'usuario/cadastrar', json=user_data)
 
         if response.status_code == 201:
             # Usuário criado com sucesso, redirecionar para a tela de login ou outra página
@@ -248,7 +252,7 @@ def recover_password():
         data_nasc = request.form['data_nasc_recovery']
         data_nasc_formatted = datetime.strptime(data_nasc, "%Y-%m-%d").strftime("%Y-%m-%d")
 
-        response = requests.post(app.api + '/recuperar-senha', json={'email': email, 'cpf': cpf, 'dataNasc': data_nasc_formatted})
+        response = requests.post(app.api + 'usuario/recuperar-senha', json={'email': email, 'cpf': cpf, 'dataNasc': data_nasc_formatted})
         if response.ok:
             return redirect(url_for('change_password', cpf=cpf))
         else:
@@ -274,7 +278,7 @@ def change_password(cpf):
         
         # Aqui você chamaria a API para atualizar a senha, por exemplo:
         try:
-            response = requests.patch(f'{app.api}/atualizar/{cpf}', json={'cpf': cpf, 'senha': nova_senha})
+            response = requests.patch(f'{app.api}usuario/atualizar/{cpf}', json={'cpf': cpf, 'senha': nova_senha})
             if response.ok:
                 flash(session['flash_text']['password_changed_success'], 'success')
                 return redirect(url_for('login_screen'))
@@ -288,23 +292,21 @@ def change_password(cpf):
     return render_template('change_password.html', text=session['text'], cpf=cpf)
 
 # Rota para a página de administração do site
-@app.route('/home', methods=['GET', 'POST'])
+@app.route('/admin', methods=['GET', 'POST'])
 @check_api_status
 @login_required
 def home():
     # Renderiza o template, passando os dados dos usuários e as mensagens de flash
     return render_template('admin_screen.html', text=session['text'], flash_text=session.pop('flash_text', None))
 
-
 def obter_usuarios():
-    resposta = requests.get(app.api)
+    resposta = requests.get(app.api + 'usuario')
     if resposta.status_code == 200:
         dados = resposta.json()
         return dados
     else:
         flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
         return redirect(url_for('home'))
-
 
 @app.route('/api/usuarios')
 @check_api_status
@@ -333,7 +335,7 @@ def api_criar_usuario():
         "ativo": True
     }
 
-    response = requests.post(app.api + '/cadastrar', json=user_data)
+    response = requests.post(app.api + 'usuario/cadastrar', json=user_data)
     if response.status_code == 201:
         flash(session['flash_text']['create_user_success'], 'success')
     else:
@@ -348,7 +350,7 @@ def api_atualizar_usuario(cpf):
     if str(session['user']['cpf']) != str(cpf):
         try:
             user_data = request.json
-            response = requests.patch(f'{app.api}/atualizar/{cpf}', json=user_data)
+            response = requests.patch(f'{app.api}usuario/atualizar/{cpf}', json=user_data)
 
             if response.status_code == 200:
                 flash(session['flash_text']['update_user_success'], 'success')
@@ -372,7 +374,7 @@ def api_deletar_usuario(cpf):
 
     if str(session['user']['cpf']) != str(cpf):
         try:
-            response = requests.delete(f'{app.api}/remover/{cpf}')
+            response = requests.delete(f'{app.api}usuario/remover/{cpf}')
 
             if response.status_code == 200:
                 flash(session['flash_text']['delete_user_success'], 'success')
@@ -391,7 +393,6 @@ def api_deletar_usuario(cpf):
 def logout():
     del session['logged_in']
     return redirect(url_for('login_screen'))
-
 
 
 if __name__ == '__main__':

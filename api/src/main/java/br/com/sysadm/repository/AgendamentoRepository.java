@@ -23,4 +23,10 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
 
     // Encontrar agendamentos para um médico em um intervalo de datas
     List<Agendamento> findByHorarioAtendimento_Medico_IdAndDataHoraAgendamentoBetween(String medicoId, LocalDateTime start, LocalDateTime end);
+    
+    // Encotrar agendamentos pelo nome do Paciente
+    List<Agendamento> findByNomePacienteContaining(String nomePaciente);
+    
+    //Encontrar agendamentos pelo email do Paciente
+    List<Agendamento> findByEmailPaciente(String emailPaciente);
 }

@@ -37,14 +37,30 @@ public class AgendamentoController {
         return new ResponseEntity<>(novoAgendamento, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Agendamento> atualizarAgendamento(@PathVariable Long id, @RequestBody Agendamento agendamentoAtualizado) {
         return agendamentoRepository.findById(id)
-            .map(agendamento -> {
-                agendamento.setDataHoraAgendamento(agendamentoAtualizado.getDataHoraAgendamento());
-                agendamento.setStatus(agendamentoAtualizado.getStatus());
-                agendamentoRepository.save(agendamento);
-                return new ResponseEntity<>(agendamento, HttpStatus.OK);
+            .map(existingAgendamento -> {
+                if (agendamentoAtualizado.getNomePaciente() != null) {
+                    existingAgendamento.setNomePaciente(agendamentoAtualizado.getNomePaciente());
+                }
+                if (agendamentoAtualizado.getEmailPaciente() != null) {
+                    existingAgendamento.setEmailPaciente(agendamentoAtualizado.getEmailPaciente());
+                }
+                if (agendamentoAtualizado.getTelefonePaciente() != null) {
+                    existingAgendamento.setTelefonePaciente(agendamentoAtualizado.getTelefonePaciente());
+                }
+                if (agendamentoAtualizado.getHorarioAtendimento() != null) {
+                    existingAgendamento.setHorarioAtendimento(agendamentoAtualizado.getHorarioAtendimento());
+                }
+                if (agendamentoAtualizado.getDataHoraAgendamento() != null) {
+                    existingAgendamento.setDataHoraAgendamento(agendamentoAtualizado.getDataHoraAgendamento());
+                }
+                if (agendamentoAtualizado.getStatus() != null) {
+                    existingAgendamento.setStatus(agendamentoAtualizado.getStatus());
+                }
+                agendamentoRepository.save(existingAgendamento);
+                return ResponseEntity.ok(existingAgendamento);
             })
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -58,7 +74,6 @@ public class AgendamentoController {
         return ResponseEntity.notFound().build();
     }
 
-    // Método adicional para buscar agendamentos por status
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Agendamento>> buscarPorStatus(@PathVariable String status) {
         List<Agendamento> agendamentos = agendamentoRepository.findByStatus(status);

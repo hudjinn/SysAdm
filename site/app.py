@@ -140,9 +140,11 @@ def login_required(f):
     decorated_function.__name__ = f.__name__
     return decorated_function
 
+# TODO Aqui vai entrar a Página de Agendamento
 @app.route('/')
 def home():
     # return render_template('home.html', text=session['text'])
+    # Aqui vai entrar a 
     return '<p>Hello, World!</p>'
 
 # Rota para a página de login
@@ -261,8 +263,6 @@ def recover_password():
 
     return render_template('recover_password.html', text=session['text'])
 
-
-
 @app.route('/change_password/<cpf>', methods=['GET', 'POST'])
 @check_api_status
 def change_password(cpf):
@@ -291,6 +291,7 @@ def change_password(cpf):
     # Para método GET ou se ocorreu algum erro no POST, exibe o formulário novamente
     return render_template('change_password.html', text=session['text'], cpf=cpf)
 
+# TODO Aqui a gente precisa incluir o CRUD para Clinicas, Medicos e Agendamentos. Inserir abas para selecionar qual crud será carregados, vamos estudar as possibilidades
 # Rota para a página de administração do site
 @app.route('/admin', methods=['GET', 'POST'])
 @check_api_status

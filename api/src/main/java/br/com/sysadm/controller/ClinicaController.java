@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.sysadm.model.Clinica;
+import br.com.sysadm.model.Medico;
 import br.com.sysadm.repository.ClinicaRepository;
+import br.com.sysadm.repository.MedicoRepository;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -18,6 +20,9 @@ public class ClinicaController {
 
     @Autowired
     private ClinicaRepository clinicaRepository;
+
+    @Autowired
+    private MedicoRepository medicoRepository;
 
     @GetMapping
     public List<Clinica> listarTodas() {
@@ -64,4 +69,22 @@ public class ClinicaController {
         List<Clinica> clinicas = clinicaRepository.findByNome(nome);
         return ResponseEntity.ok(clinicas);  // Sempre retorna 200 OK, mesmo para lista vazia
     }
+    @PostMapping("/{clinicaId}/medicos/{medicoCpf}")
+    public ResponseEntity<?> adicionarMedicoAClinica(@PathVariable Long clinicaId, @PathVariable String medicoCpf) {
+        Clinica clinica = clinicaRepository.findById(clinicaId).orElseThrow(() -> new RuntimeException("Clinica não encontrada"));
+        Medico medico = medicoRepository.findById(medicoCpf).orElseThrow(() -> new RuntimeException("Medico não encontrado"));
+        clinica.getMedicos().add(medico);
+        clinicaRepository.save(clinica);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{clinicaId}/medicos/{medicoCpf}")
+    public ResponseEntity<?> removerMedicoDaClinica(@PathVariable Long clinicaId, @PathVariable String medicoCpf) {
+        Clinica clinica = clinicaRepository.findById(clinicaId).orElseThrow(() -> new RuntimeException("Clinica não encontrada"));
+        Medico medico = medicoRepository.findById(medicoCpf).orElseThrow(() -> new RuntimeException("Medico não encontrado"));
+        clinica.getMedicos().remove(medico);
+        clinicaRepository.save(clinica);
+        return ResponseEntity.ok().build();
+    }
+
 }

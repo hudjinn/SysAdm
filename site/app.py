@@ -23,7 +23,7 @@ text_path =  root + '/locate'
 # API JAVA
 app.api = 'http://sysadm-api:8080/'
 
-# Test User
+# Usuários de teste
 usuarios = [{
 		"nome": 'Fulano de Tal',
 		"email": 'adm@teste.com',
@@ -81,7 +81,7 @@ def check_api_status(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         try:
-            response = requests.get(app.api + 'usuario')  # Supondo que app.api é sua URL base da API
+            response = requests.get(app.api + 'usuario')
             if response.status_code == 200:
                 return f(*args, **kwargs)
             else:
@@ -118,7 +118,6 @@ def set_language():
 
 # Ler arquivo de internacionalização
 def read_translation(language):
-
     file_path = f'{text_path}/{language}.json'
     with open(file_path, 'r', encoding='utf-8') as file:
         translations = json.load(file)
@@ -142,8 +141,9 @@ def login_required(f):
     return decorated_function
 
 @app.route('/')
-def index():
-    return render_template('index.html', text=session['text'])
+def home():
+    # return render_template('home.html', text=session['text'])
+    return '<p>Hello, World!</p>'
 
 # Rota para a página de login
 @app.route('/login', methods=['GET', 'POST'])
@@ -192,7 +192,7 @@ def login_screen():
                 session.pop('last_try_time', None)
                 session['user'] = response.json() 
                 session['logged_in'] = True
-                return redirect(url_for('home'))
+                return redirect(url_for('admin'))
             else:
                 error_message = session['flash_text']['unknown_error']
                 flash(f'{error_message} | Response Code: {response.status_code}', 'error')
@@ -295,7 +295,7 @@ def change_password(cpf):
 @app.route('/admin', methods=['GET', 'POST'])
 @check_api_status
 @login_required
-def home():
+def admin():
     # Renderiza o template, passando os dados dos usuários e as mensagens de flash
     return render_template('admin_screen.html', text=session['text'], flash_text=session.pop('flash_text', None))
 
@@ -306,7 +306,7 @@ def obter_usuarios():
         return dados
     else:
         flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
-        return redirect(url_for('home'))
+        return redirect(url_for('admin'))
 
 @app.route('/api/usuarios')
 @check_api_status
@@ -318,7 +318,7 @@ def dados_api():
         return jsonify(dados)
     else:
         flash(session['flash_text']['conn_error'], 'error')
-        return redirect(url_for('home'))
+        return redirect(url_for('admin'))
 
 
 @app.route('/api/criar', methods=['POST'])

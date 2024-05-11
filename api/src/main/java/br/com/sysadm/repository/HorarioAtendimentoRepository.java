@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface HorarioAtendimentoRepository extends JpaRepository<HorarioAtendimento, Long> {
     // Encontrar horários por médico
-    List<HorarioAtendimento> findByMedico_Id(String medicoId);
+    List<HorarioAtendimento> findByMedico_Cpf(String cpf);
 
     // Encontrar horários por clínica
     List<HorarioAtendimento> findByClinica_Id(Long clinicaId);
@@ -19,7 +19,7 @@ public interface HorarioAtendimentoRepository extends JpaRepository<HorarioAtend
     List<HorarioAtendimento> findByDiaSemana(DayOfWeek diaSemana);
 
     // Encontrar horários por médico e dia da semana
-    List<HorarioAtendimento> findByMedico_IdAndDiaSemana(String medicoId, DayOfWeek diaSemana);
+    List<HorarioAtendimento> findByMedico_CpfAndDiaSemana(String cpf, DayOfWeek diaSemana);
 
     // Encontrar horários por clínica e dia da semana
     List<HorarioAtendimento> findByClinica_IdAndDiaSemana(Long clinicaId, DayOfWeek diaSemana);

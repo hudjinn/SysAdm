@@ -27,7 +27,7 @@ public class Medico {
     @Column(nullable = false)
     private LocalDate dataCad;
 
-    @ManyToMany(mappedBy = "medico")
+    @ManyToMany(mappedBy = "medicos")
     private Set<Clinica> clinicas = new HashSet<>();
 
     @OneToMany(mappedBy = "medico", fetch = FetchType.LAZY)

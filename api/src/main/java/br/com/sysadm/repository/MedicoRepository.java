@@ -10,6 +10,6 @@ import br.com.sysadm.model.Medico;
 
 @Repository
 public interface MedicoRepository extends JpaRepository<Medico, String> {
-    Optional<Medico> findByCpf(String cpf); 
+    Optional<Medico> findById(String cpf); 
     List<Medico> findByEspecialidade(String especialidade); 
 }

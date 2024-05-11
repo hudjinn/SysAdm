@@ -37,7 +37,7 @@ public class MedicoController {
 
     @PostMapping
     public ResponseEntity<?> cadastrarMedico(@RequestBody Medico medico) {
-        Optional<Medico> medicoExistente = medicoRepository.findByCpf(medico.getCpf());
+        Optional<Medico> medicoExistente = medicoRepository.findById(medico.getCpf());
         if (medicoExistente.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Médico com este CPF já cadastrado.");
         }

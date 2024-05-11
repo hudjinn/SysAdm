@@ -13,7 +13,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     List<Agendamento> findByStatus(String status);
 
     // Encontrar agendamentos por médico
-    List<Agendamento> findByHorarioAtendimento_Medico_Id(String medicoId);
+    List<Agendamento> findByHorarioAtendimento_Medico_cpf(String medicoCpf);
 
     // Encontrar agendamentos por clínica
     List<Agendamento> findByHorarioAtendimento_Clinica_Id(Long clinicaId);
@@ -22,7 +22,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     List<Agendamento> findByDataHoraAgendamentoBetween(LocalDateTime start, LocalDateTime end);
 
     // Encontrar agendamentos para um médico em um intervalo de datas
-    List<Agendamento> findByHorarioAtendimento_Medico_IdAndDataHoraAgendamentoBetween(String medicoId, LocalDateTime start, LocalDateTime end);
+    List<Agendamento> findByHorarioAtendimento_Medico_cpfAndDataHoraAgendamentoBetween(String medicoId, LocalDateTime start, LocalDateTime end);
     
     // Encotrar agendamentos pelo nome do Paciente
     List<Agendamento> findByNomePacienteContaining(String nomePaciente);

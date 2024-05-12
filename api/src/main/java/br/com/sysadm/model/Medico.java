@@ -10,9 +10,17 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.util.HashSet;
 
 @Entity
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class, 
+  property = "cpf")
 public class Medico {
 
     @Id
@@ -27,6 +35,7 @@ public class Medico {
     @Column(nullable = false)
     private LocalDate dataCad;
 
+    @JsonBackReference("medicoClinica")
     @ManyToMany(mappedBy = "medicos")
     private Set<Clinica> clinicas = new HashSet<>();
 

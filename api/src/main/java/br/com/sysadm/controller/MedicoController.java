@@ -1,5 +1,7 @@
 package br.com.sysadm.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.sysadm.model.Medico;
+import br.com.sysadm.model.Usuario;
 import br.com.sysadm.repository.MedicoRepository;
 
 @RestController
@@ -35,7 +38,7 @@ public class MedicoController {
     }
     
 
-    @PostMapping
+    @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrarMedico(@RequestBody Medico medico) {
         Optional<Medico> medicoExistente = medicoRepository.findById(medico.getCpf());
         if (medicoExistente.isPresent()) {
@@ -44,8 +47,35 @@ public class MedicoController {
         Medico novoMedico = medicoRepository.save(medico);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoMedico);
     }
+    @PostMapping("/cadastrar/lote")
+    public ResponseEntity<?> cadastrarLoteUsuario(@RequestBody List<Medico> medicos) {
+        List<Medico> medicosCadastrados = new ArrayList<>();
+        List<String> erros = new ArrayList<>();
 
-    @PatchMapping("/{cpf}")
+        for (Medico medico : medicos) {
+            // Verifica se o médico já existe pela chave primária
+            Optional<Medico> medicoExistente = medicoRepository.findById(medico.getCpf());
+            if (medicoExistente.isPresent()) {
+                // Adiciona erro na lista de erros
+                erros.add("Médico com CPF " + medico.getCpf() + " já cadastrado.");
+                continue;  // Continua para o próximo usuário na lista
+            }
+            
+            // Se não existir, salva o novo usuário
+            Medico novoMedico = medicoRepository.save(medico);
+            medicosCadastrados.add(novoMedico);
+        }
+
+        // Cria um objeto de resposta contendo os usuários cadastrados e qualquer erro que tenha ocorrido
+        Map<String, Object> resposta = new HashMap<>();
+        resposta.put("medicosCadastrados", medicosCadastrados);
+        resposta.put("erros", erros);
+
+        // Retorna a lista de usuários cadastrados e os erros
+        return ResponseEntity.ok(resposta);
+    }
+
+    @PatchMapping("/atualizar/{cpf}")
     public ResponseEntity<?> atualizarMedico(@PathVariable String cpf, @RequestBody Map<String, Object> updates) {
         Optional<Medico> medicoOptional = medicoRepository.findById(cpf);
         if (medicoOptional.isPresent()) {
@@ -68,7 +98,7 @@ public class MedicoController {
         }
     }
 
-    @DeleteMapping("/{cpf}")
+    @DeleteMapping("/remover/{cpf}")
     public ResponseEntity<Void> deletarMedico(@PathVariable String cpf) {
         if (medicoRepository.existsById(cpf)) {
             medicoRepository.deleteById(cpf);

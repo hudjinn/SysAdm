@@ -74,14 +74,55 @@ usuarios = [{
         "ativo": True
     }
 ]
-for user_data in usuarios:
-    response = requests.post(app.api + 'usuario/cadastrar', json=user_data)
+
+clinicas = [
+    {
+        "nome": "Clínica Saúde",
+        "endereco": "Rua da Saúde, 123"
+    },
+    {
+        "nome": "Clínica Bem-Estar",
+        "endereco": "Avenida do Bem, 321"
+    }
+]
+medicos = [{
+        "cpf": "12345678901",
+        "nome": "Dr. João Silva",
+        "especialidade": "Cardiologia"
+    },
+    {
+        "cpf": "98765432109",
+        "nome": "Dra. Maria Oliveira",
+        "especialidade": "Endocrinologia"
+    },
+    {
+        "cpf": "19283746501",
+        "nome": "Dr. Carlos Prado",
+        "especialidade": "Dermatologia"
+    }]
+
+response = requests.post(app.api + 'usuarios/cadastrar/lote', json=usuarios)
+response = requests.post(app.api + 'medicos/cadastrar/lote', json=medicos)
+response = requests.post(app.api + 'clinicas/cadastrar/lote', json=clinicas)
+
+clinica_medico = [{
+    1: ["12345678901","98765432109"],
+    2: ["19283746501"]}]
+
+for clinica_dict in clinica_medico:
+    for clinica_id, medicos_cpf in clinica_dict.items():
+        for medico_cpf in medicos_cpf:
+            # Montar a URL para cada médico e clínica
+            url = f'{app.api}clinicas/{clinica_id}/medicos/{medico_cpf}'
+            # Fazer a requisição POST para adicionar médico à clínica
+            response = requests.post(url)
+
 
 def check_api_status(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         try:
-            response = requests.get(app.api + 'usuario')
+            response = requests.get(app.api + 'usuarios')
             if response.status_code == 200:
                 return f(*args, **kwargs)
             else:
@@ -177,7 +218,7 @@ def login_screen():
         senha = request.form['senha_login']
         
         try:
-            response = requests.post(app.api + 'usuario/login', json={'email': email, 'senha': senha})
+            response = requests.post(app.api + 'usuarios/login', json={'email': email, 'senha': senha})
             if not response.ok:
                 session['tries'] += 1
                 session['last_try_time'] = datetime.now(ZoneInfo("UTC")).isoformat()
@@ -230,7 +271,7 @@ def create_account_screen():
         }
 
         # Envia os dados do usuário para a API
-        response = requests.post( app.api + 'usuario/cadastrar', json=user_data)
+        response = requests.post( app.api + 'usuarios/cadastrar', json=user_data)
 
         if response.status_code == 201:
             # Usuário criado com sucesso, redirecionar para a tela de login ou outra página
@@ -254,7 +295,7 @@ def recover_password():
         data_nasc = request.form['data_nasc_recovery']
         data_nasc_formatted = datetime.strptime(data_nasc, "%Y-%m-%d").strftime("%Y-%m-%d")
 
-        response = requests.post(app.api + 'usuario/recuperar-senha', json={'email': email, 'cpf': cpf, 'dataNasc': data_nasc_formatted})
+        response = requests.post(app.api + 'usuarios/recuperar-senha', json={'email': email, 'cpf': cpf, 'dataNasc': data_nasc_formatted})
         if response.ok:
             return redirect(url_for('change_password', cpf=cpf))
         else:
@@ -301,7 +342,7 @@ def admin():
     return render_template('admin_screen.html', text=session['text'], flash_text=session.pop('flash_text', None))
 
 def obter_usuarios():
-    resposta = requests.get(app.api + 'usuario')
+    resposta = requests.get(app.api + 'usuarios')
     if resposta.status_code == 200:
         dados = resposta.json()
         return dados
@@ -336,7 +377,7 @@ def api_criar_usuario():
         "ativo": True
     }
 
-    response = requests.post(app.api + 'usuario/cadastrar', json=user_data)
+    response = requests.post(app.api + 'usuarios/cadastrar', json=user_data)
     if response.status_code == 201:
         flash(session['flash_text']['create_user_success'], 'success')
     else:

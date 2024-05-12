@@ -1,6 +1,9 @@
 package br.com.sysadm.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +39,42 @@ public class ClinicaController {
                       .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    @PostMapping("/cadastrar")
     public ResponseEntity<Clinica> cadastrarClinica(@RequestBody Clinica clinica) {
         Clinica novaClinica = clinicaRepository.save(clinica);
         return new ResponseEntity<>(novaClinica, HttpStatus.CREATED);
     }
+    @PostMapping("/cadastrar/lote")
+    public ResponseEntity<?> cadastrarLoteClinicas(@RequestBody List<Clinica> clinicas) {
+        List<Clinica> clinicasCadastradas = new ArrayList<>();
+        List<String> erros = new ArrayList<>();
+    
+        for (Clinica clinica : clinicas) {
+            try {
+                // Tenta salvar a clínica e adiciona na lista de cadastradas
+                Clinica clinicaSalva = clinicaRepository.save(clinica);
+                clinicasCadastradas.add(clinicaSalva);
+            } catch (Exception e) {
+                // Adiciona uma mensagem de erro indicando o problema com a clínica específica
+                erros.add("Falha ao cadastrar clínica com nome: " + clinica.getNome() + "; Erro: " + e.getMessage());
+            }
+        }
+    
+        // Cria um objeto de resposta contendo as clínicas cadastradas e qualquer erro que tenha ocorrido
+        Map<String, Object> resposta = new HashMap<String, Object>();
+        resposta.put("clinicasCadastradas", clinicasCadastradas);
+        resposta.put("erros", erros);
+    
+        // Verifica se houve erros e retorna a resposta apropriada
+        if (erros.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
+        } else {
+            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(resposta);
+        }
+    }
+    
 
-    @PutMapping("/{id}")
+    @PutMapping("/atualizar/{id}")
     public ResponseEntity<Clinica> atualizarClinica(@PathVariable Long id, @RequestBody Clinica clinicaAtualizada) {
         return clinicaRepository.findById(id)
             .map(clinica -> {
@@ -54,7 +86,7 @@ public class ClinicaController {
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/remover/{id}")
     public ResponseEntity<Void> deletarClinica(@PathVariable Long id) {
         if (clinicaRepository.existsById(id)) {
             clinicaRepository.deleteById(id);

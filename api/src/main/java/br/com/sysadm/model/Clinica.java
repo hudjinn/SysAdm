@@ -11,9 +11,17 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.JoinColumn;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.util.HashSet;
 
 @Entity
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class, 
+  property = "id")
 public class Clinica {
 
     @Id
@@ -32,6 +40,7 @@ public class Clinica {
         joinColumns = @JoinColumn(name = "clinica_id"),
         inverseJoinColumns = @JoinColumn(name = "medico_id")
     )
+    @JsonManagedReference("medicoClinica")
     private Set<Medico> medicos = new HashSet<>();
 
     @OneToMany(mappedBy = "clinica", fetch = FetchType.LAZY)

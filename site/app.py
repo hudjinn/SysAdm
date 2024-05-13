@@ -1,10 +1,11 @@
+import time
 from zoneinfo import ZoneInfo
 from datetime import datetime
 import os
 import json
 from functools import wraps
 
-from flask import Flask, jsonify, render_template, request, redirect, url_for, session, flash
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session, flash, g
 import requests
 
 
@@ -23,100 +24,6 @@ text_path =  root + '/locate'
 # API JAVA
 app.api = 'http://sysadm-api:8080/'
 
-# Usuários de teste
-usuarios = [{
-		"nome": 'Fulano de Tal',
-		"email": 'adm@teste.com',
-		"dataNasc": '2222-01-01',
-		"cpf": '12345678900',
-		"senha": '123456',
-		"ativo": True
-    },
-    {
-        "nome": "Ana Beatriz",
-        "email": "ana@teste.com",
-        "dataNasc": "1995-04-22",
-        "cpf": "98765432109",
-        "senha": "senhaSegura",
-        "ativo": True
-    },
-    {
-        "nome": "Roberto Silva",
-        "email": "roberto@teste.com",
-        "dataNasc": "1988-12-15",
-        "cpf": "12312312399",
-        "senha": "outraSenha123",
-        "ativo": True
-    },
-    {
-        "nome": "Carla dos Santos",
-        "email": "carla@teste.com",
-        "dataNasc": "2000-07-03",
-        "cpf": "45645645666",
-        "senha": "carlaSenha",
-        "ativo": True
-    },
-    {
-        "nome": "Pedro Oliveira",
-        "email": "pedro@teste.com",
-        "dataNasc": "1992-02-28",
-        "cpf": "78978978911",
-        "senha": "pedro1234",
-        "ativo": False
-
-    },
-    {
-        "nome": "Juliana Moraes",
-        "email": "juliana@teste.com",
-        "dataNasc": "1998-11-20",
-        "cpf": "32132132177",
-        "senha": "julianaSenha",
-        "ativo": True
-    }
-]
-
-clinicas = [
-    {
-        "nome": "Clínica Saúde",
-        "endereco": "Rua da Saúde, 123"
-    },
-    {
-        "nome": "Clínica Bem-Estar",
-        "endereco": "Avenida do Bem, 321"
-    }
-]
-medicos = [{
-        "cpf": "12345678901",
-        "nome": "Dr. João Silva",
-        "especialidade": "Cardiologia"
-    },
-    {
-        "cpf": "98765432109",
-        "nome": "Dra. Maria Oliveira",
-        "especialidade": "Endocrinologia"
-    },
-    {
-        "cpf": "19283746501",
-        "nome": "Dr. Carlos Prado",
-        "especialidade": "Dermatologia"
-    }]
-
-response = requests.post(app.api + 'usuarios/cadastrar/lote', json=usuarios)
-response = requests.post(app.api + 'medicos/cadastrar/lote', json=medicos)
-response = requests.post(app.api + 'clinicas/cadastrar/lote', json=clinicas)
-
-clinica_medico = [{
-    1: ["12345678901","98765432109"],
-    2: ["19283746501"]}]
-
-for clinica_dict in clinica_medico:
-    for clinica_id, medicos_cpf in clinica_dict.items():
-        for medico_cpf in medicos_cpf:
-            # Montar a URL para cada médico e clínica
-            url = f'{app.api}clinicas/{clinica_id}/medicos/{medico_cpf}'
-            # Fazer a requisição POST para adicionar médico à clínica
-            response = requests.post(url)
-
 
 def check_api_status(f):
     @wraps(f)
@@ -132,6 +39,27 @@ def check_api_status(f):
             flash(session['flash_text']['conn_error'], 'error')
             return redirect(url_for('login_screen'))
     return decorated_function
+
+def wait_for_api(api_url, timeout=300, interval=10):
+    """
+    Espera até que a API esteja disponível ou o timeout seja alcançado.
+
+    :param api_url: URL da API a ser verificada.
+    :param timeout: Tempo máximo de espera em segundos.
+    :param interval: Intervalo entre as verificações em segundos.
+    """
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            response = requests.get(api_url)
+            if response.status_code == 200:
+                print("API está online.")
+                return True
+        except requests.exceptions.RequestException as e:
+            print(f"API não disponível, tentando novamente em {interval} segundos... Erro: {e}")
+        time.sleep(interval)
+    print("Timeout alcançado, a API não está disponível.")
+    return False
 
 @app.before_request
 def before_request():
@@ -436,6 +364,148 @@ def logout():
     del session['logged_in']
     return redirect(url_for('login_screen'))
 
+if wait_for_api(app.api + 'usuarios'):
+    usuarios = [
+        {
+            "nome": 'Fulano de Tal',
+            "email": 'adm@teste.com',
+            "dataNasc": '2222-01-01',
+            "cpf": '12345678900',
+            "senha": '123456',
+            "ativo": True
+        },
+        {
+            "nome": "Ana Beatriz",
+            "email": "ana@teste.com",
+            "dataNasc": "1995-04-22",
+            "cpf": "98765432109",
+            "senha": "senhaSegura",
+            "ativo": True
+        },
+        {
+            "nome": "Roberto Silva",
+            "email": "roberto@teste.com",
+            "dataNasc": "1988-12-15",
+            "cpf": "12312312399",
+            "senha": "outraSenha123",
+            "ativo": True
+        },
+        {
+            "nome": "Carla dos Santos",
+            "email": "carla@teste.com",
+            "dataNasc": "2000-07-03",
+            "cpf": "45645645666",
+            "senha": "carlaSenha",
+            "ativo": True
+        },
+        {
+            "nome": "Pedro Oliveira",
+            "email": "pedro@teste.com",
+            "dataNasc": "1992-02-28",
+            "cpf": "78978978911",
+            "senha": "pedro1234",
+            "ativo": False
+        },
+        {
+            "nome": "Juliana Moraes",
+            "email": "juliana@teste.com",
+            "dataNasc": "1998-11-20",
+            "cpf": "32132132177",
+            "senha": "julianaSenha",
+            "ativo": True
+        }
+    ]
+
+    clinicas = [
+        {
+            "nome": "Clínica Saúde",
+            "endereco": "Rua da Saúde, 123"
+        },
+        {
+            "nome": "Clínica Bem-Estar",
+            "endereco": "Avenida do Bem, 321"
+        }
+    ]
+
+    medicos = [
+        {
+            "cpf": "12345678901",
+            "nome": "Dr. João Silva",
+            "especialidade": "Cardiologia"
+        },
+        {
+            "cpf": "98765432109",
+            "nome": "Dra. Maria Oliveira",
+            "especialidade": "Endocrinologia"
+        },
+        {
+            "cpf": "19283746501",
+            "nome": "Dr. Carlos Prado",
+            "especialidade": "Dermatologia"
+        }
+    ]
+
+
+    response = requests.post(app.api + 'usuarios/cadastrar/lote', json=usuarios)
+    if not response.ok:
+        print("Erro ao inserir usuários:", response.text)
+    else:
+        print(f"Sucesso ao inserir Usuários")
+
+    response = requests.post(app.api + 'medicos/cadastrar/lote', json=medicos)
+    if not response.ok:
+        print("Erro ao inserir médicos:", response.text)
+    else:
+        print(f"Sucesso ao inserir Médicos")
+
+    response = requests.post(app.api + 'clinicas/cadastrar/lote', json=clinicas)
+    if not response.ok:
+        print("Erro ao inserir clínicas:", response.text)
+    else:
+        print(f"Sucesso ao inserir Clínicas")
+
+    clinica_medico = [{
+        1: {
+            "12345678901": {
+                "MONDAY": ["07:00", "12:00"],
+                "WEDNESDAY": ["13:00", "18:00"]
+            },
+            "98765432109": {
+                "TUESDAY": ["08:00", "11:00"],
+                "THURSDAY": ["14:00", "17:00"]
+            }
+        },
+        2: {
+            "19283746501": {
+                "MONDAY": ["09:00", "15:00"],
+                "FRIDAY": ["10:00", "16:00"]
+            },
+            "98765432109": {
+                "FRIDAY": ["08:00", "11:00"],
+                "MONDAY": ["07:00", "17:00"]
+            }
+        }
+    }]
+
+
+    # Iterar sobre cada clínica e seus respectivos médicos e horários
+    for clinica_dict in clinica_medico:
+        for clinica_id, medicos_info in clinica_dict.items():
+            for medico_cpf, horarios in medicos_info.items():
+                url = f'{app.api}clinicas/{clinica_id}/medicos'
+                data = {
+                    "medicoCpf": medico_cpf,
+                    "horarios": horarios
+                }
+                # Fazer a requisição POST para adicionar médico à clínica
+                response = requests.post(url, json=data)
+                if not response.ok:
+                    print(f"Erro ao inserir médico {medico_cpf} na clínica {clinica_id}: {response.text}")
+                else:
+                    print(f"Sucesso ao inserir médico {medico_cpf} na clínica {clinica_id}")
+else:
+    print("Falha ao acessar a API.")
 
 if __name__ == '__main__':
     app.run(debug=True)
+

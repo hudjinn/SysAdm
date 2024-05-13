@@ -2,11 +2,12 @@ package br.com.sysadm.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -18,7 +19,7 @@ public class HorarioAtendimento {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medico_id")
+    @JoinColumn(name = "medico_cpf")
     private Medico medico;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,7 +33,6 @@ public class HorarioAtendimento {
     // Construtores, getters e setters
     public HorarioAtendimento() {
     }
-
     public HorarioAtendimento(Medico medico, Clinica clinica, DayOfWeek diaSemana, LocalTime horaInicio, LocalTime horaFim) {
         this.medico = medico;
         this.clinica = clinica;
@@ -40,10 +40,12 @@ public class HorarioAtendimento {
         this.horaInicio = horaInicio;
         this.horaFim = horaFim;
     }
-
-    // Getters e setters...
+    
     public Long getId() {
         return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
     }
     public Medico getMedico() {
         return medico;

@@ -13,15 +13,12 @@ import jakarta.persistence.JoinColumn;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.util.HashSet;
 
 @Entity
-@JsonIdentityInfo(
-  generator = ObjectIdGenerators.PropertyGenerator.class, 
-  property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Clinica {
 
     @Id
@@ -37,14 +34,31 @@ public class Clinica {
     @ManyToMany
     @JoinTable(
         name = "clinica_medico",
-        joinColumns = @JoinColumn(name = "clinica_id"),
-        inverseJoinColumns = @JoinColumn(name = "medico_id")
+        joinColumns = @JoinColumn(name = "clinica_id"),  // Esta parte está correta
+        inverseJoinColumns = @JoinColumn(name = "medico_cpf")  // Deve referenciar CPF que é String
     )
-    @JsonManagedReference("medicoClinica")
     private Set<Medico> medicos = new HashSet<>();
 
-    @OneToMany(mappedBy = "clinica", fetch = FetchType.LAZY)
-    private Set<HorarioAtendimento> horarios = new HashSet<>();
+    @OneToMany(mappedBy = "clinica")
+    private Set<MedicoClinicaHorario> medicoHorarios = new HashSet<>();
+
+    public Set<Medico> getMedicos() {
+        return medicos;
+    }
+
+    public void setMedicos(Set<Medico> medicos) {
+        this.medicos = medicos;
+    }
+
+    public void addMedico(Medico medico) {
+        this.medicos.add(medico);
+        medico.getClinicas().add(this);
+    }
+
+    public void removeMedico(Medico medico) {
+        this.medicos.remove(medico);
+        medico.getClinicas().remove(this);
+    }
 
     public Clinica() {
     }
@@ -77,20 +91,5 @@ public class Clinica {
     public void setEndereco(String endereco) {
         this.endereco = endereco;
     }
-
-    public Set<Medico> getMedicos() {
-        return medicos;
-    }
-
-    public void setMedicos(Set<Medico> medicos) {
-        this.medicos = medicos;
-    }
-
-    public Set<HorarioAtendimento> getHorarios() {
-        return horarios;
-    }
-
-    public void setHorarios(Set<HorarioAtendimento> horarios) {
-        this.horarios = horarios;
-    }
+    
 }

@@ -12,12 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.sysadm.model.Medico;
-import br.com.sysadm.model.Usuario;
 import br.com.sysadm.repository.MedicoRepository;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/medicos")
+
 public class MedicoController {
 
     @Autowired

@@ -3,7 +3,6 @@ package br.com.sysadm.model;
 import java.time.LocalDate;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -38,8 +37,8 @@ public class Medico {
     @ManyToMany
     @JoinTable(
         name = "clinica_medico",
-        joinColumns = @JoinColumn(name = "medico_cpf"),  // Correto, refere-se ao CPF
-        inverseJoinColumns = @JoinColumn(name = "clinica_id")  // Deve referenciar o ID da clínica que é Long
+        joinColumns = @JoinColumn(name = "medico_cpf"), 
+        inverseJoinColumns = @JoinColumn(name = "clinica_id")  
     )
     @JsonIgnore
     private Set<Clinica> clinicas = new HashSet<>();

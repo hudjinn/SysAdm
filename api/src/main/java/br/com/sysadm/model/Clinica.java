@@ -1,7 +1,6 @@
 package br.com.sysadm.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,8 +33,8 @@ public class Clinica {
     @ManyToMany
     @JoinTable(
         name = "clinica_medico",
-        joinColumns = @JoinColumn(name = "clinica_id"),  // Esta parte está correta
-        inverseJoinColumns = @JoinColumn(name = "medico_cpf")  // Deve referenciar CPF que é String
+        joinColumns = @JoinColumn(name = "clinica_id"), 
+        inverseJoinColumns = @JoinColumn(name = "medico_cpf") 
     )
     private Set<Medico> medicos = new HashSet<>();
 

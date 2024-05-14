@@ -1,20 +1,24 @@
 package br.com.sysadm.controller;
 
-import br.com.sysadm.model.Agendamento;
-import br.com.sysadm.model.Clinica;
-import br.com.sysadm.model.Medico;
-import br.com.sysadm.repository.AgendamentoRepository;
-import br.com.sysadm.repository.ClinicaRepository;
-import br.com.sysadm.repository.MedicoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import br.com.sysadm.model.Agendamento;
+import br.com.sysadm.model.Horario;
+import br.com.sysadm.repository.AgendamentoRepository;
+import br.com.sysadm.repository.ClinicaRepository;
+import br.com.sysadm.repository.HorarioRepository;
+import br.com.sysadm.repository.MedicoRepository;
+
 @RestController
-@RequestMapping("/agendamentos")
 public class AgendamentoController {
 
     @Autowired
@@ -26,66 +30,118 @@ public class AgendamentoController {
     @Autowired
     private MedicoRepository medicoRepository;
 
-    @GetMapping("/clinica/{clinicaId}/medico/{medicoId}")
-    public ResponseEntity<List<Agendamento>> getAgendamentos(
-            @PathVariable Long clinicaId, 
-            @PathVariable Long medicoId, 
-            @RequestParam("start") LocalDateTime start, 
-            @RequestParam("end") LocalDateTime end) {
-        
-        Clinica clinica = clinicaRepository.findById(clinicaId).orElse(null);
-        Medico medico = medicoRepository.findById(medicoId).orElse(null);
+    @Autowired
+    private HorarioRepository horarioRepository;
 
-        if (clinica == null || medico == null) {
-            return ResponseEntity.notFound().build();
+    /**
+     * Lista todos os agendamentos, incluindo id da clínica, id do médico, id do agendamento, data e hora,
+     * status do agendamento, id do paciente, nome do paciente e email do paciente.
+     */
+    @GetMapping("/agendamentos")
+    public ResponseEntity<List<Agendamento>> getAgendamentos(
+            @RequestParam(value = "clinicaId", required = false) Long clinicaId,
+            @RequestParam(value = "medicoId", required = false) Long medicoId,
+            @RequestParam(value = "dia", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dia) {
+
+        List<Agendamento> agendamentos = agendamentoRepository.findAll();
+        
+        if (clinicaId != null && medicoId != null && dia != null) {
+            agendamentos = agendamentoRepository.findByClinicaIdAndMedicoIdAndDataHoraAgendamentoBetween(
+                    clinicaId, medicoId,
+                    dia.atStartOfDay(),
+                    dia.atTime(LocalTime.MAX));
         }
 
-        List<Agendamento> agendamentos = agendamentoRepository.findByClinicaAndMedicoAndDataHoraAgendamentoBetween(clinica, medico, start, end);
         return ResponseEntity.ok(agendamentos);
     }
 
-    @GetMapping
-    public List<Agendamento> getAllAgendamentos() {
-        return agendamentoRepository.findAll();
+    /**
+     * Cria um novo agendamento com os parâmetros fornecidos: id da clínica, id do médico, dia, hora, id do paciente,
+     * nome do paciente e email do paciente.
+     */
+    @PostMapping("/agendamentos")
+    public ResponseEntity<Agendamento> criarAgendamento(@RequestBody Agendamento agendamento) {
+        Agendamento novoAgendamento = agendamentoRepository.save(agendamento);
+        return ResponseEntity.ok(novoAgendamento);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Agendamento> getAgendamentoById(@PathVariable Long id) {
-        return agendamentoRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    /**
+     * Atualiza um agendamento existente com base no id do agendamento.
+     */
+    @PatchMapping("/agendamentos/{id}")
+    public ResponseEntity<Agendamento> atualizarAgendamento(@PathVariable Long id, @RequestBody Agendamento agendamento) {
+        Agendamento agendamentoExistente = agendamentoRepository.findById(id).orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+        agendamentoExistente.setStatus(agendamento.getStatus());
+        agendamentoExistente.setNomePaciente(agendamento.getNomePaciente());
+        agendamentoExistente.setEmailPaciente(agendamento.getEmailPaciente());
+        agendamentoExistente.setDataHoraAgendamento(agendamento.getDataHoraAgendamento());
+        agendamentoExistente.setClinica(agendamento.getClinica());
+        agendamentoExistente.setMedico(agendamento.getMedico());
+        Agendamento agendamentoAtualizado = agendamentoRepository.save(agendamentoExistente);
+        return ResponseEntity.ok(agendamentoAtualizado);
     }
 
-    @PostMapping
-    public Agendamento createAgendamento(@RequestBody Agendamento agendamento) {
-        return agendamentoRepository.save(agendamento);
+    /**
+     * Deleta um agendamento existente com base no id do agendamento.
+     */
+    @DeleteMapping("/agendamentos/{id}")
+    public ResponseEntity<Void> deletarAgendamento(@PathVariable Long id) {
+        Agendamento agendamentoExistente = agendamentoRepository.findById(id).orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+        agendamentoRepository.delete(agendamentoExistente);
+        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Agendamento> updateAgendamento(@PathVariable Long id, @RequestBody Agendamento agendamentoDetails) {
-        return agendamentoRepository.findById(id)
-                .map(agendamento -> {
-                    agendamento.setDataHoraAgendamento(agendamentoDetails.getDataHoraAgendamento());
-                    agendamento.setEmailPaciente(agendamentoDetails.getEmailPaciente());
-                    agendamento.setNomePaciente(agendamentoDetails.getNomePaciente());
-                    agendamento.setTelefonePaciente(agendamentoDetails.getTelefonePaciente());
-                    agendamento.setStatus(agendamentoDetails.getStatus());
-                    agendamento.setHorario(agendamentoDetails.getHorario());
-                    agendamento.setClinica(agendamentoDetails.getClinica());
-                    agendamento.setMedico(agendamentoDetails.getMedico());
-                    Agendamento updatedAgendamento = agendamentoRepository.save(agendamento);
-                    return ResponseEntity.ok(updatedAgendamento);
-                })
-                .orElse(ResponseEntity.notFound().build());
+    /**
+     * Obtém a lista de horários disponíveis para uma clínica e um médico em um dia específico.
+     */
+    @GetMapping("/agendamentos/horarios-disponiveis")
+    public ResponseEntity<List<Horario>> getHorariosDisponiveis(
+            @RequestParam("clinicaId") Long clinicaId,
+            @RequestParam("medicoId") Long medicoId,
+            @RequestParam("dia") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dia) {
+
+        DayOfWeek diaSemana = dia.getDayOfWeek();
+
+        List<Horario> horariosDisponiveis = new ArrayList<>();
+        List<Horario> horarios = horarioRepository.findByClinicaIdAndMedicoId(clinicaId, medicoId);
+
+        for (Horario horario : horarios) {
+            if (horario.getDiaSemana().equals(diaSemana)) {
+                LocalTime inicio = horario.getHorarioInicio();
+                LocalTime fim = horario.getHorarioFim();
+                while (inicio.isBefore(fim)) {
+                    LocalDateTime dataHoraInicio = LocalDateTime.of(dia, inicio);
+                    LocalDateTime dataHoraFim = dataHoraInicio.plusMinutes(30);
+                    if (dataHoraFim.isAfter(LocalDateTime.of(dia, fim))) {
+                        dataHoraFim = LocalDateTime.of(dia, fim);
+                    }
+                    Horario novoHorario = new Horario();
+                    novoHorario.setDiaSemana(diaSemana);
+                    novoHorario.setHorarioInicio(inicio);
+                    novoHorario.setHorarioFim(dataHoraFim.toLocalTime());
+                    horariosDisponiveis.add(novoHorario);
+                    inicio = inicio.plusMinutes(30);
+                }
+            }
+        }
+
+        return ResponseEntity.ok(horariosDisponiveis);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAgendamento(@PathVariable Long id) {
-        return agendamentoRepository.findById(id)
-                .map(agendamento -> {
-                    agendamentoRepository.delete(agendamento);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElse(ResponseEntity.notFound().build());
+    /**
+     * Obtém os dias da semana disponíveis para agendamentos com base na clínica e no médico fornecidos.
+     */
+    @GetMapping("/agendamentos/dias-disponiveis")
+    public ResponseEntity<List<DayOfWeek>> getDiasDisponiveis(
+            @RequestParam("clinicaId") Long clinicaId,
+            @RequestParam("medicoId") Long medicoId) {
+
+        List<Horario> horarios = horarioRepository.findByClinicaIdAndMedicoId(clinicaId, medicoId);
+        List<DayOfWeek> diasDisponiveis = horarios.stream()
+                .map(Horario::getDiaSemana)
+                .distinct()
+                .toList();
+
+        return ResponseEntity.ok(diasDisponiveis);
     }
 }

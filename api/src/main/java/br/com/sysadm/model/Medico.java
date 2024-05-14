@@ -1,5 +1,6 @@
 package br.com.sysadm.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +23,8 @@ public class Medico {
     private Long id;
 
     private String nome;
+
+    @Column(unique = true, nullable = false)
     private String cpf;
     private String especialidade;
 

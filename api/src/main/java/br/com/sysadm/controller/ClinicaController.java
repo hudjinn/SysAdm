@@ -1,30 +1,21 @@
 package br.com.sysadm.controller;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import br.com.sysadm.dto.MedicoComHorariosDTO;
 import br.com.sysadm.model.Clinica;
-import br.com.sysadm.model.HorarioAtendimento;
+import br.com.sysadm.model.Horario;
 import br.com.sysadm.model.Medico;
 import br.com.sysadm.repository.ClinicaRepository;
-import br.com.sysadm.repository.HorarioAtendimentoRepository;
+import br.com.sysadm.repository.HorarioRepository;
 import br.com.sysadm.repository.MedicoRepository;
-import jakarta.transaction.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/clinicas")
 public class ClinicaController {
 
@@ -35,135 +26,236 @@ public class ClinicaController {
     private MedicoRepository medicoRepository;
 
     @Autowired
-    private HorarioAtendimentoRepository horarioAtendimentoRepository;
+    private HorarioRepository horarioRepository;
 
     @GetMapping
-    public List<Clinica> listarTodas() {
+    public List<Clinica> getAllClinicas() {
         return clinicaRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Clinica> buscarClinicaComMedicosEHorarios(@PathVariable Long id) {
-        return clinicaRepository.findClinicaWithMedicosById(id)
-            .map(clinica -> ResponseEntity.ok(clinica))
-            .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Clinica> getClinicaById(@PathVariable Long id) {
+        Optional<Clinica> clinica = clinicaRepository.findById(id);
+        return clinica.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Cadastro de clínica sem médicos
     @PostMapping("/cadastrar")
-    public ResponseEntity<?> cadastrarClinica(@RequestBody Clinica clinica) {
-        Clinica novaClinica = clinicaRepository.save(clinica);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novaClinica);
+    public Clinica createClinica(@RequestBody Clinica clinica) {
+        return clinicaRepository.save(clinica);
     }
 
-    @PostMapping("/cadastrar/lote")
-    public ResponseEntity<?> cadastrarLoteClinicas(@RequestBody List<Clinica> clinicas) {
-        List<Clinica> clinicasCadastradas = new ArrayList<>();
-        List<String> erros = new ArrayList<>();
-
-        for (Clinica clinica : clinicas) {
-            try {
-                Clinica clinicaSalva = clinicaRepository.save(clinica);
-                clinicasCadastradas.add(clinicaSalva);
-            } catch (DataIntegrityViolationException e) {
-                erros.add("Falha ao cadastrar clínica com nome: " + clinica.getNome() + "; Erro: integridade de dados.");
-            } catch (Exception e) {
-                erros.add("Erro desconhecido ao cadastrar clínica com nome: " + clinica.getNome());
+    @PatchMapping("/atualizar/{id}")
+    public ResponseEntity<Clinica> partialUpdateClinica(@PathVariable Long id, @RequestBody Clinica clinicaDetails) {
+        Optional<Clinica> clinica = clinicaRepository.findById(id);
+        if (clinica.isPresent()) {
+            Clinica updatedClinica = clinica.get();
+            if (clinicaDetails.getNome() != null) {
+                updatedClinica.setNome(clinicaDetails.getNome());
             }
-        }
-
-        Map<String, Object> resposta = new HashMap<>();
-        resposta.put("clinicasCadastradas", clinicasCadastradas);
-        resposta.put("erros", erros);
-
-        if (erros.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
+            if (clinicaDetails.getEndereco() != null) {
+                updatedClinica.setEndereco(clinicaDetails.getEndereco());
+            }
+            return ResponseEntity.ok(clinicaRepository.save(updatedClinica));
         } else {
-            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(resposta);
+            return ResponseEntity.notFound().build();
         }
-    }   
-
-    @PutMapping("/atualizar/{id}")
-    public ResponseEntity<Clinica> atualizarClinica(@PathVariable Long id, @RequestBody Clinica clinicaAtualizada) {
-        return clinicaRepository.findById(id)
-            .map(clinica -> {
-                clinica.setNome(clinicaAtualizada.getNome());
-                clinica.setEndereco(clinicaAtualizada.getEndereco());
-                clinicaRepository.save(clinica);
-                return new ResponseEntity<>(clinica, HttpStatus.OK);
-            })
-            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/remover/{id}")
-    public ResponseEntity<Void> deletarClinica(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteClinica(@PathVariable Long id) {
         if (clinicaRepository.existsById(id)) {
             clinicaRepository.deleteById(id);
             return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    // Método para buscar clínicas por nome (adicional)
-    @GetMapping("/nome/{nome}")
-    public ResponseEntity<List<Clinica>> buscarPorNome(@PathVariable String nome) {
-        List<Clinica> clinicas = clinicaRepository.findByNome(nome);
-        return ResponseEntity.ok(clinicas);  // Sempre retorna 200 OK, mesmo para lista vazia
-    }
-    // Adicionar médico e horários a uma clínica
-    @PostMapping("/{clinicaId}/medicos")
-    @Transactional
-    public ResponseEntity<?> adicionarMedicoEHorariosAClinica(@PathVariable Long clinicaId, @RequestBody MedicoComHorariosDTO medicoHorarios) {
-        try {
-            Optional<Clinica> clinicaOpt = clinicaRepository.findById(clinicaId);
-            Optional<Medico> medicoOpt = medicoRepository.findById(medicoHorarios.getMedicoCpf());
-            
-            if (!clinicaOpt.isPresent() || !medicoOpt.isPresent()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Clínica ou Médico não encontrado.");
-            }
-
-            Clinica clinica = clinicaOpt.get();
-            Medico medico = medicoOpt.get();
-
-            // Processa os horários recebidos no DTO
-            medicoHorarios.getHorarios().forEach((dia, intervalos) -> {
-                DayOfWeek dayOfWeek = DayOfWeek.valueOf(dia.toUpperCase());
-                LocalTime inicio = LocalTime.parse(intervalos[0]);
-                LocalTime fim = LocalTime.parse(intervalos[1]);
-
-                // Cria um horário de atendimento e o associa com o médico e a clínica
-                HorarioAtendimento novoHorario = new HorarioAtendimento(medico, clinica, dayOfWeek, inicio, fim);
-                horarioAtendimentoRepository.save(novoHorario);
-            });
-
-            clinica.getMedicos().add(medico);  // Adiciona o médico à clínica
-            clinicaRepository.save(clinica);  // Salva a clínica com o novo médico e horários
-
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao processar a requisição: " + e.getMessage());
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
-    @DeleteMapping("/{clinicaId}/medicos/{medicoCpf}")
-    public ResponseEntity<?> removerMedicoDaClinica(@PathVariable Long clinicaId, @PathVariable String medicoCpf) {
-        Optional<Clinica> clinicaOpt = clinicaRepository.findById(clinicaId);
-        Optional<Medico> medicoOpt = medicoRepository.findById(medicoCpf);
-    
+
+    @GetMapping("/{id}/medicos")
+    public ResponseEntity<Set<Medico>> getMedicosByClinicaId(@PathVariable Long id) {
+        Optional<Clinica> clinica = clinicaRepository.findById(id);
+        return clinica.map(value -> ResponseEntity.ok(value.getMedicos())).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    /**
+     * Get a specific Medico in a Clinica by IDs
+     * 
+     * GET /clinicas/{id}/medicos/{id_medico}
+     * 
+     * Response:
+     * {
+     *   "id": 1,
+     *   "nome": "Dr. John Doe",
+     *   "especialidade": "Cardiologia"
+     * }
+     */
+    @GetMapping("/{id}/medicos/{id_medico}")
+    public ResponseEntity<Medico> getMedicoInClinica(
+            @PathVariable Long id,
+            @PathVariable Long id_medico) {
+        Optional<Clinica> clinicaOpt = clinicaRepository.findById(id);
+        Optional<Medico> medicoOpt = medicoRepository.findById(id_medico);
+
         if (clinicaOpt.isPresent() && medicoOpt.isPresent()) {
             Clinica clinica = clinicaOpt.get();
             Medico medico = medicoOpt.get();
-    
-            if (clinica.getMedicos().contains(medico)) {
-                clinica.getMedicos().remove(medico); // Remove o médico da clínica
-                horarioAtendimentoRepository.deleteByMedicoAndClinica(medico, clinica); // Remove os horários de atendimento associados
-                clinicaRepository.save(clinica); // Salva as alterações
-    
-                return ResponseEntity.ok().build(); // Retorna 200 OK se o médico foi removido com sucesso
+            Set<Medico> medicos = clinica.getMedicos();
+
+            if (medicos.contains(medico)) {
+                return ResponseEntity.ok(medico);
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Médico não está nesta clínica.");
+                return ResponseEntity.status(404).body(null);
             }
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Clínica ou Médico não encontrado.");
+            return ResponseEntity.status(404).body(null);
         }
+    }
+    @PostMapping("/{id}/medicos/{id_medico}")
+    public ResponseEntity<Clinica> addMedicoToClinica(@PathVariable Long id, @PathVariable Long id_medico) {
+        Optional<Clinica> clinica = clinicaRepository.findById(id);
+        Optional<Medico> medico = medicoRepository.findById(id_medico);
+        if (clinica.isPresent() && medico.isPresent()) {
+            Clinica updatedClinica = clinica.get();
+            Set<Medico> medicos = updatedClinica.getMedicos();
+            medicos.add(medico.get());
+            updatedClinica.setMedicos(medicos);
+            return ResponseEntity.ok(clinicaRepository.save(updatedClinica));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/{clinicaId}/medicos/cpf/{medicoCpf}/horarios")
+    public ResponseEntity<String> addHorarioToMedicoByCpf(
+            @PathVariable Long clinicaId, 
+            @PathVariable String medicoCpf, 
+            @RequestBody Horario horario) {
+        Optional<Medico> medicoOpt = medicoRepository.findByCpf(medicoCpf);
+        if (!medicoOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("Médico não encontrado com o CPF fornecido.");
+        }
+        Optional<Clinica> clinicaOpt = clinicaRepository.findById(clinicaId);
+        if (!clinicaOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("Clínica não encontrada com o ID fornecido.");
+        }
+        Medico medico = medicoOpt.get();
+        Clinica clinica = clinicaOpt.get();
+        horario.setMedico(medico);
+        horario.setClinica(clinica);
+        horarioRepository.save(horario);
+        return ResponseEntity.ok("Horário adicionado com sucesso.");
+    }
+
+    @PostMapping("/{clinicaId}/medicos/cpf/{medicoCpf}")
+    public ResponseEntity<String> addMedicoToClinica(
+            @PathVariable Long clinicaId,
+            @PathVariable String medicoCpf) {
+        Optional<Medico> medicoOpt = medicoRepository.findByCpf(medicoCpf);
+        if (!medicoOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("Médico não encontrado com o CPF fornecido.");
+        }
+        Optional<Clinica> clinicaOpt = clinicaRepository.findById(clinicaId);
+        if (!clinicaOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("Clínica não encontrada com o ID fornecido.");
+        }
+        Medico medico = medicoOpt.get();
+        Clinica clinica = clinicaOpt.get();
+
+        if (medico.getClinicas().contains(clinica)) {
+            return ResponseEntity.badRequest().body("Médico já está associado a esta clínica.");
+        }
+
+        medico.getClinicas().add(clinica);
+        medicoRepository.save(medico);
+        return ResponseEntity.ok("Médico adicionado à clínica com sucesso.");
+    }
+
+    @DeleteMapping("/{clinicaId}/medicos/cpf/{medicoCpf}")
+    public ResponseEntity<String> removeMedicoFromClinica(
+            @PathVariable Long clinicaId,
+            @PathVariable String medicoCpf) {
+        Optional<Medico> medicoOpt = medicoRepository.findByCpf(medicoCpf);
+        if (!medicoOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("Médico não encontrado com o CPF fornecido.");
+        }
+        Optional<Clinica> clinicaOpt = clinicaRepository.findById(clinicaId);
+        if (!clinicaOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("Clínica não encontrada com o ID fornecido.");
+        }
+        Medico medico = medicoOpt.get();
+        Clinica clinica = clinicaOpt.get();
+
+        if (!medico.getClinicas().contains(clinica)) {
+            return ResponseEntity.badRequest().body("Médico não está associado a esta clínica.");
+        }
+
+        medico.getClinicas().remove(clinica);
+        medicoRepository.save(medico);
+        return ResponseEntity.ok("Médico removido da clínica com sucesso.");
+    }
+
+    @PatchMapping("/{id}/medicos/{id_medico}")
+    public ResponseEntity<Clinica> updateMedicoInClinica(@PathVariable Long id, @PathVariable Long id_medico, @RequestBody Medico medicoDetails) {
+        Optional<Clinica> clinica = clinicaRepository.findById(id);
+        Optional<Medico> medico = medicoRepository.findById(id_medico);
+        if (clinica.isPresent() && medico.isPresent()) {
+            Medico updatedMedico = medico.get();
+            if (medicoDetails.getNome() != null) {
+                updatedMedico.setNome(medicoDetails.getNome());
+            }
+            if (medicoDetails.getEspecialidade() != null) {
+                updatedMedico.setEspecialidade(medicoDetails.getEspecialidade());
+            }
+            medicoRepository.save(updatedMedico);
+            return ResponseEntity.ok(clinica.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}/medicos/{id_medico}")
+    public ResponseEntity<Void> removeMedicoFromClinica(@PathVariable Long id, @PathVariable Long id_medico) {
+        Optional<Clinica> clinica = clinicaRepository.findById(id);
+        Optional<Medico> medico = medicoRepository.findById(id_medico);
+        if (clinica.isPresent() && medico.isPresent()) {
+            Clinica updatedClinica = clinica.get();
+            Set<Medico> medicos = updatedClinica.getMedicos().stream()
+                .filter(m -> !m.getId().equals(id_medico))
+                .collect(Collectors.toSet());
+            updatedClinica.setMedicos(medicos);
+            clinicaRepository.save(updatedClinica);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{id}/especialidades")
+    public ResponseEntity<List<String>> getEspecialidadesByClinicaId(@PathVariable Long id) {
+        Optional<Clinica> clinica = clinicaRepository.findById(id);
+        if (clinica.isPresent()) {
+            List<String> especialidades = medicoRepository.findDistinctEspecialidadesByClinicaId(id);
+            return ResponseEntity.ok(especialidades);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{id}/especialidades/{especialidade}/medicos")
+    public ResponseEntity<List<Medico>> getMedicosByEspecialidade(
+            @PathVariable Long id, 
+            @PathVariable String especialidade) {
+        Optional<Clinica> clinica = clinicaRepository.findById(id);
+        if (clinica.isPresent()) {
+            List<Medico> medicos = medicoRepository.findByClinicaIdAndEspecialidade(id, especialidade);
+            return ResponseEntity.ok(medicos);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/cadastrar/lote")
+    public ResponseEntity<List<Clinica>> createClinicasLote(@RequestBody List<Clinica> clinicas) {
+        List<Clinica> savedClinicas = clinicaRepository.saveAll(clinicas);
+        return ResponseEntity.ok(savedClinicas);
     }
 }

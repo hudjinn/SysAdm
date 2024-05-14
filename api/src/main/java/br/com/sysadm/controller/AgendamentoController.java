@@ -1,85 +1,91 @@
 package br.com.sysadm.controller;
 
-import java.util.List;
-import java.util.Optional;
-
+import br.com.sysadm.model.Agendamento;
+import br.com.sysadm.model.Clinica;
+import br.com.sysadm.model.Medico;
+import br.com.sysadm.repository.AgendamentoRepository;
+import br.com.sysadm.repository.ClinicaRepository;
+import br.com.sysadm.repository.MedicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import br.com.sysadm.model.Agendamento;
-import br.com.sysadm.repository.AgendamentoRepository;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/agendamentos")
 public class AgendamentoController {
 
     @Autowired
     private AgendamentoRepository agendamentoRepository;
 
+    @Autowired
+    private ClinicaRepository clinicaRepository;
+
+    @Autowired
+    private MedicoRepository medicoRepository;
+
+    @GetMapping("/clinica/{clinicaId}/medico/{medicoId}")
+    public ResponseEntity<List<Agendamento>> getAgendamentos(
+            @PathVariable Long clinicaId, 
+            @PathVariable Long medicoId, 
+            @RequestParam("start") LocalDateTime start, 
+            @RequestParam("end") LocalDateTime end) {
+        
+        Clinica clinica = clinicaRepository.findById(clinicaId).orElse(null);
+        Medico medico = medicoRepository.findById(medicoId).orElse(null);
+
+        if (clinica == null || medico == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Agendamento> agendamentos = agendamentoRepository.findByClinicaAndMedicoAndDataHoraAgendamentoBetween(clinica, medico, start, end);
+        return ResponseEntity.ok(agendamentos);
+    }
+
     @GetMapping
-    public List<Agendamento> listarTodos() {
+    public List<Agendamento> getAllAgendamentos() {
         return agendamentoRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Agendamento> buscarAgendamento(@PathVariable Long id) {
-        Optional<Agendamento> agendamento = agendamentoRepository.findById(id);
-        return agendamento.map(ResponseEntity::ok)
-                          .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Agendamento> getAgendamentoById(@PathVariable Long id) {
+        return agendamentoRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Agendamento> criarAgendamento(@RequestBody Agendamento agendamento) {
-        Agendamento novoAgendamento = agendamentoRepository.save(agendamento);
-        return new ResponseEntity<>(novoAgendamento, HttpStatus.CREATED);
+    public Agendamento createAgendamento(@RequestBody Agendamento agendamento) {
+        return agendamentoRepository.save(agendamento);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Agendamento> atualizarAgendamento(@PathVariable Long id, @RequestBody Agendamento agendamentoAtualizado) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Agendamento> updateAgendamento(@PathVariable Long id, @RequestBody Agendamento agendamentoDetails) {
         return agendamentoRepository.findById(id)
-            .map(existingAgendamento -> {
-                if (agendamentoAtualizado.getNomePaciente() != null) {
-                    existingAgendamento.setNomePaciente(agendamentoAtualizado.getNomePaciente());
-                }
-                if (agendamentoAtualizado.getEmailPaciente() != null) {
-                    existingAgendamento.setEmailPaciente(agendamentoAtualizado.getEmailPaciente());
-                }
-                if (agendamentoAtualizado.getTelefonePaciente() != null) {
-                    existingAgendamento.setTelefonePaciente(agendamentoAtualizado.getTelefonePaciente());
-                }
-                if (agendamentoAtualizado.getHorarioAtendimento() != null) {
-                    existingAgendamento.setHorarioAtendimento(agendamentoAtualizado.getHorarioAtendimento());
-                }
-                if (agendamentoAtualizado.getDataHoraAgendamento() != null) {
-                    existingAgendamento.setDataHoraAgendamento(agendamentoAtualizado.getDataHoraAgendamento());
-                }
-                if (agendamentoAtualizado.getStatus() != null) {
-                    existingAgendamento.setStatus(agendamentoAtualizado.getStatus());
-                }
-                agendamentoRepository.save(existingAgendamento);
-                return ResponseEntity.ok(existingAgendamento);
-            })
-            .orElseGet(() -> ResponseEntity.notFound().build());
+                .map(agendamento -> {
+                    agendamento.setDataHoraAgendamento(agendamentoDetails.getDataHoraAgendamento());
+                    agendamento.setEmailPaciente(agendamentoDetails.getEmailPaciente());
+                    agendamento.setNomePaciente(agendamentoDetails.getNomePaciente());
+                    agendamento.setTelefonePaciente(agendamentoDetails.getTelefonePaciente());
+                    agendamento.setStatus(agendamentoDetails.getStatus());
+                    agendamento.setHorario(agendamentoDetails.getHorario());
+                    agendamento.setClinica(agendamentoDetails.getClinica());
+                    agendamento.setMedico(agendamentoDetails.getMedico());
+                    Agendamento updatedAgendamento = agendamentoRepository.save(agendamento);
+                    return ResponseEntity.ok(updatedAgendamento);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarAgendamento(@PathVariable Long id) {
-        if (agendamentoRepository.existsById(id)) {
-            agendamentoRepository.deleteById(id);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Agendamento>> buscarPorStatus(@PathVariable String status) {
-        List<Agendamento> agendamentos = agendamentoRepository.findByStatus(status);
-        if (agendamentos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(agendamentos);
+    public ResponseEntity<Void> deleteAgendamento(@PathVariable Long id) {
+        return agendamentoRepository.findById(id)
+                .map(agendamento -> {
+                    agendamentoRepository.delete(agendamento);
+                    return ResponseEntity.noContent().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }

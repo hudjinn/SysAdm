@@ -1,70 +1,50 @@
 package br.com.sysadm.model;
 
-import java.time.LocalDate;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 
+import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import java.util.HashSet;
 
 @Entity
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "cpf")
 public class Medico {
-
+    
     @Id
-    private String cpf;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(nullable = false)
     private String nome;
-
-    @Column(nullable = false)
+    private String cpf;
     private String especialidade;
-
-    @Column(nullable = false)
-    private LocalDate dataCad;
 
     @ManyToMany
     @JoinTable(
-        name = "clinica_medico",
-        joinColumns = @JoinColumn(name = "medico_cpf"), 
-        inverseJoinColumns = @JoinColumn(name = "clinica_id")  
+        name = "medico_clinica",
+        joinColumns = @JoinColumn(name = "medico_id"),
+        inverseJoinColumns = @JoinColumn(name = "clinica_id")
     )
     @JsonIgnore
     private Set<Clinica> clinicas = new HashSet<>();
-    
+
+    @JsonIgnore
     @OneToMany(mappedBy = "medico")
-    private Set<MedicoClinicaHorario> clinicaHorarios = new HashSet<>();
+    private Set<Horario> horarios = new HashSet<>();
 
-    @PrePersist
-    protected void onCreate() {
-        dataCad = LocalDate.now();
+    // Getters e Setters
+    public Long getId() {
+        return id;
     }
 
-    public Medico() {
-    }
-
-    public Medico(String cpf, String nome, String especialidade) {
-        this.cpf = cpf;
-        this.nome = nome;
-        this.especialidade = especialidade;
-    }
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -75,6 +55,14 @@ public class Medico {
         this.nome = nome;
     }
 
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
     public String getEspecialidade() {
         return especialidade;
     }
@@ -83,13 +71,6 @@ public class Medico {
         this.especialidade = especialidade;
     }
 
-    public LocalDate getDataCad() {
-        return dataCad;
-    }
-
-    public void setDataCad(LocalDate dataCad) {
-        this.dataCad = dataCad;
-    }
     public Set<Clinica> getClinicas() {
         return clinicas;
     }
@@ -98,43 +79,11 @@ public class Medico {
         this.clinicas = clinicas;
     }
 
-    public void addClinica(Clinica clinica) {
-        this.clinicas.add(clinica);
-        clinica.getMedicos().add(this);
+    public Set<Horario> getHorarios() {
+        return horarios;
     }
 
-    public void removeClinica(Clinica clinica) {
-        this.clinicas.remove(clinica);
-        clinica.getMedicos().remove(this);
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((cpf == null) ? 0 : cpf.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null || getClass() != obj.getClass())
-            return false;
-        Medico other = (Medico) obj;
-        if (cpf == null) {
-            return other.cpf == null;
-        } else return cpf.equals(other.cpf);
-    }
-
-    @Override
-    public String toString() {
-        return "Medico{" +
-            "cpf='" + cpf + '\'' +
-            ", nome='" + nome + '\'' +
-            ", especialidade='" + especialidade + '\'' +
-            ", dataCad=" + dataCad +
-            '}';
+    public void setHorarios(Set<Horario> horarios) {
+        this.horarios = horarios;
     }
 }

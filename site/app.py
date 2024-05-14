@@ -114,7 +114,7 @@ def login_required(f):
 def home():
     # return render_template('home.html', text=session['text'])
     # Aqui vai entrar a 
-    return '<p>Hello, World!</p>'
+    return '<p>Helloooooo, World!</p>'
 
 # Rota para a página de login
 @app.route('/login', methods=['GET', 'POST'])
@@ -364,148 +364,67 @@ def logout():
     del session['logged_in']
     return redirect(url_for('login_screen'))
 
+# Função para carregar dados do arquivo JSON
+def load_json(filename):
+    with open(filename, 'r') as file:
+        return json.load(file)
+
+# Função para inserir dados na API
+def insert_data(endpoint, data):
+    response = requests.post(endpoint, json=data)
+    if response.ok:
+        print(f"Sucesso ao inserir dados em {endpoint}")
+    else:
+        print(f"Erro ao inserir dados em {endpoint}: {response.text}")
+
 if wait_for_api(app.api + 'usuarios'):
-    usuarios = [
-        {
-            "nome": 'Fulano de Tal',
-            "email": 'adm@teste.com',
-            "dataNasc": '2222-01-01',
-            "cpf": '12345678900',
-            "senha": '123456',
-            "ativo": True
-        },
-        {
-            "nome": "Ana Beatriz",
-            "email": "ana@teste.com",
-            "dataNasc": "1995-04-22",
-            "cpf": "98765432109",
-            "senha": "senhaSegura",
-            "ativo": True
-        },
-        {
-            "nome": "Roberto Silva",
-            "email": "roberto@teste.com",
-            "dataNasc": "1988-12-15",
-            "cpf": "12312312399",
-            "senha": "outraSenha123",
-            "ativo": True
-        },
-        {
-            "nome": "Carla dos Santos",
-            "email": "carla@teste.com",
-            "dataNasc": "2000-07-03",
-            "cpf": "45645645666",
-            "senha": "carlaSenha",
-            "ativo": True
-        },
-        {
-            "nome": "Pedro Oliveira",
-            "email": "pedro@teste.com",
-            "dataNasc": "1992-02-28",
-            "cpf": "78978978911",
-            "senha": "pedro1234",
-            "ativo": False
-        },
-        {
-            "nome": "Juliana Moraes",
-            "email": "juliana@teste.com",
-            "dataNasc": "1998-11-20",
-            "cpf": "32132132177",
-            "senha": "julianaSenha",
-            "ativo": True
-        }
-    ]
+    data = load_json('static/dados_fake.json')
 
-    clinicas = [
-        {
-            "nome": "Clínica Saúde",
-            "endereco": "Rua da Saúde, 123"
-        },
-        {
-            "nome": "Clínica Bem-Estar",
-            "endereco": "Avenida do Bem, 321"
-        }
-    ]
+    usuarios = data['usuarios']
+    clinicas = data['clinicas']
+    medicos = data['medicos']
+    clinica_medico = data['clinica_medico']
 
-    medicos = [
-        {
-            "cpf": "12345678901",
-            "nome": "Dr. João Silva",
-            "especialidade": "Cardiologia"
-        },
-        {
-            "cpf": "98765432109",
-            "nome": "Dra. Maria Oliveira",
-            "especialidade": "Endocrinologia"
-        },
-        {
-            "cpf": "19283746501",
-            "nome": "Dr. Carlos Prado",
-            "especialidade": "Dermatologia"
-        }
-    ]
+    # Inserir usuários em lote
+    insert_data(app.api + 'usuarios/cadastrar/lote', usuarios)
 
+    # Inserir clínicas em lote
+    insert_data(app.api + 'clinicas/cadastrar/lote', clinicas)
 
-    response = requests.post(app.api + 'usuarios/cadastrar/lote', json=usuarios)
-    if not response.ok:
-        print("Erro ao inserir usuários:", response.text)
-    else:
-        print(f"Sucesso ao inserir Usuários")
+    # Inserir médicos em lote
+    insert_data(app.api + 'medicos/cadastrar/lote', medicos)
 
-    response = requests.post(app.api + 'medicos/cadastrar/lote', json=medicos)
-    if not response.ok:
-        print("Erro ao inserir médicos:", response.text)
-    else:
-        print(f"Sucesso ao inserir Médicos")
+    # Inserir horários e associações de médicos a clínicas
+    for cm in clinica_medico:
+        clinica_id = cm["clinicaId"]
+        medico_cpf = cm["medicoCpf"]
+        horarios = cm["horarios"]
 
-    response = requests.post(app.api + 'clinicas/cadastrar/lote', json=clinicas)
-    if not response.ok:
-        print("Erro ao inserir clínicas:", response.text)
-    else:
-        print(f"Sucesso ao inserir Clínicas")
+        # Adicionar médico à clínica
+        response = requests.post(f'{app.api}clinicas/{clinica_id}/medicos/cpf/{medico_cpf}')
+        if not response.ok:
+            print(f"Erro ao adicionar médico {medico_cpf} à clínica {clinica_id}: {response.text}")
+            continue
 
-    clinica_medico = [{
-        1: {
-            "12345678901": {
-                "MONDAY": ["07:00", "12:00"],
-                "WEDNESDAY": ["13:00", "18:00"]
-            },
-            "98765432109": {
-                "TUESDAY": ["08:00", "11:00"],
-                "THURSDAY": ["14:00", "17:00"]
+        # Adicionar horários ao médico na clínica
+        for dia, horas in horarios.items():
+            data = {
+                "diaSemana": dia,
+                "horarioInicio": horas[0],
+                "horarioFim": horas[1]
             }
-        },
-        2: {
-            "19283746501": {
-                "MONDAY": ["09:00", "15:00"],
-                "FRIDAY": ["10:00", "16:00"]
-            },
-            "98765432109": {
-                "FRIDAY": ["08:00", "11:00"],
-                "MONDAY": ["07:00", "17:00"]
-            }
-        }
-    }]
+            url = f'{app.api}clinicas/{clinica_id}/medicos/cpf/{medico_cpf}/horarios'
+            response = requests.post(url, json=data)
+            if response.ok:
+                print(f"Sucesso ao inserir horário para médico {medico_cpf} na clínica {clinica_id}")
+            else:
+                print(f"Erro ao inserir horário para médico {medico_cpf} na clínica {clinica_id}: {response.text}")
 
-
-    # Iterar sobre cada clínica e seus respectivos médicos e horários
-    for clinica_dict in clinica_medico:
-        for clinica_id, medicos_info in clinica_dict.items():
-            for medico_cpf, horarios in medicos_info.items():
-                url = f'{app.api}clinicas/{clinica_id}/medicos'
-                data = {
-                    "medicoCpf": medico_cpf,
-                    "horarios": horarios
-                }
-                # Fazer a requisição POST para adicionar médico à clínica
-                response = requests.post(url, json=data)
-                if not response.ok:
-                    print(f"Erro ao inserir médico {medico_cpf} na clínica {clinica_id}: {response.text}")
-                else:
-                    print(f"Sucesso ao inserir médico {medico_cpf} na clínica {clinica_id}")
 else:
     print("Falha ao acessar a API.")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.jinja_env.auto_reload = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.run(debug=True, host='0.0.0.0')
 

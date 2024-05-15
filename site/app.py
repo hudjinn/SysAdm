@@ -261,6 +261,41 @@ def change_password(cpf):
     return render_template('change_password.html', text=session['text'], cpf=cpf)
 
 # TODO Aqui a gente precisa incluir o CRUD para Clinicas, Medicos e Agendamentos. Inserir abas para selecionar qual crud será carregados, vamos estudar as possibilidades
+
+# Rota para a página de agendamento 
+@app.route('/create_scheduling', methods=['GET', 'POST'])
+def create_scheduling_screen():
+    if request.method == 'POST':
+        # Captura os dados do formulário
+
+        data_nasc = request.form['data_nasc_cad']
+        data_nasc_formatted = datetime.strptime(data_nasc, "%Y-%m-%d").strftime("%Y-%m-%d")
+
+        user_data = {
+            "nome": request.form['nome_agen'],
+            "email": request.form['email_agen'],
+            # "dataNasc": data_nasc_formatted,
+            "clinica": request.form['clinica_agen'],
+            "medico": request.form['medico_agen'],
+            "dataHoraAgendamento": request.form['dataHoraAgendamento_agen'],
+            # "senha": request.form['senha_cad'],
+            "ativo": True
+        }
+
+        # Envia os dados do usuário para a API
+        response = requests.post( app.api + 'usuarios/cadastrar', json=user_data)
+
+        if response.status_code == 201:
+            # Usuário criado com sucesso, redirecionar para a tela de login ou outra página
+            flash(session['flash_text']['create_acc_success'], 'success')
+            return redirect(url_for('login_screen'))
+        else:
+            flash(f"{session['flash_text']['create_acc_fail']} | Response Code: {response.status_code}", 'error')
+
+
+    # Se o método for GET ou se o cadastro falhar, mostra a tela de cadastro novamente
+    return render_template('create_scheduling_screen.html', text=session['text'])
+
 # Rota para a página de administração do site
 @app.route('/admin', methods=['GET', 'POST'])
 @check_api_status

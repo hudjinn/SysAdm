@@ -1,0 +1,74 @@
+{% import 'flash_msg.html' as flash_msgs %}
+<!DOCTYPE html>
+<html lang="{{ session['language'] }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ text.signup_screen }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/login_screen.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</head>
+<body>
+
+    {% include 'language.html' %}
+    {% include "header.html" %}
+    {% block content %}
+    <div class="container">
+       
+        <div class="content">      
+            <!-- FORMULÁRIO DE AGENDAMENTO -->
+            <div id="cadastro">
+                <form method="post" action="" onsubmit="return validarSenha()"> 
+                    <h1>{{ text.signup_title }}</h1> 
+                    
+                    <p> 
+                        <label for="nome_agen">{{ text.name_label }}</label>
+                        <input id="nome_agen" name="nome_agen" required="required" type="text" placeholder="{{ text.name_placeholder }}" />
+                    </p>
+                    
+                    <p> 
+                        <label for="email_agen">{{ text.email_label }}</label>
+                        <input id="email_agen" name="email_agen" required="required" type="email" placeholder="{{ text.email_placeholder }}"/> 
+                    </p>
+
+                    <p> 
+                        <label for="clinica_agen">Clínica</label>
+                        <input id="clinica_agen" name="clinica_agen" required="required" type="text" placeholder="{{ text.clinica_placeholder }}" pattern="\d{11}"/> 
+                    </p>
+
+                    <p> 
+                        <label for="medico_agen">Médico</label>
+                        <input id="medico_agen" name="medico_agen" required="required" type="text" placeholder="{{ text.medico_placeholder }}" pattern="\d{11}"/> 
+                    </p>
+                    
+                    <p> 
+                        <label for="dataHoraAgendamento_agen">Data e Hora do Agendamento</label>
+                        <input id="dataHoraAgendamento_agen" name="dataHoraAgendamento_agen" required="required" type="text" placeholder="{{ text.dataHoraAgendamento_placeholder }}" pattern="\d{11}"/> 
+                    </p>
+                    
+                    <p> 
+                        <input type="submit" value="{{ text.signup_button }}"/> 
+                    </p>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function validarSenha() {
+            var senha = document.getElementById("senha_cad").value;
+            var confirmaSenha = document.getElementById("confirma_senha_cad").value;
+
+            if (senha != confirmaSenha) {
+                alert("As senhas digitadas não coincidem!");
+                return false;
+            }
+            return true;
+        }
+    </script>
+    {% endblock %}
+    {{ flash_msgs.render_flash_messages() }}
+
+</body>
+</html>

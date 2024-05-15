@@ -299,7 +299,7 @@ def create_scheduling_screen():
 # Rota para a página de administração do site
 @app.route('/admin', methods=['GET', 'POST'])
 @check_api_status
-@login_required
+#@login_required
 def admin():
     # Renderiza o template, passando os dados dos usuários e as mensagens de flash
     return render_template('admin_screen.html', text=session['text'], flash_text=session.pop('flash_text', None))

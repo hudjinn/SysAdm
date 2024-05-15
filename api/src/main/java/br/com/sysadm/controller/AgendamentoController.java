@@ -14,9 +14,7 @@ import java.util.List;
 import br.com.sysadm.model.Agendamento;
 import br.com.sysadm.model.Horario;
 import br.com.sysadm.repository.AgendamentoRepository;
-import br.com.sysadm.repository.ClinicaRepository;
 import br.com.sysadm.repository.HorarioRepository;
-import br.com.sysadm.repository.MedicoRepository;
 
 @RestController
 public class AgendamentoController {
@@ -24,11 +22,6 @@ public class AgendamentoController {
     @Autowired
     private AgendamentoRepository agendamentoRepository;
 
-    @Autowired
-    private ClinicaRepository clinicaRepository;
-
-    @Autowired
-    private MedicoRepository medicoRepository;
 
     @Autowired
     private HorarioRepository horarioRepository;

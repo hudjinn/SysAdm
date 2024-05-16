@@ -58,6 +58,8 @@
     "user_not_logged_in": "Usuário não logado",
     "dologin": "Efetuar Login",
     "create_new_user": "Cadastrar Novo Usuário",
+    "create_new_appointment": "Cadastrar Nova Consulta",
+    "create_new_doctor": "Cadastrar Novo Médico",
     "cpf": "CPF",
     "name": "Nome",
     "email": "Email",
@@ -71,6 +73,8 @@
     "edit": "Editar",
     "delete": "Remover",
     "edit_user": "Editando Cadastro",
+    "edit_doctor": "Editando Médico",
+    "edit_appointment": "Editando Consulta",
     "update_user_fail": "Falha ao atualizar o usuário",
     "update_user_success": "Usuário atualizado com sucesso",
     "update_user_error": "Erro ao atualizar usuário",
@@ -83,6 +87,8 @@
     "active": "Ativa",
     "inactive": "Inativa",
     "delete_confirmation_title": "Tem certeza?",
-    "delete_confirmation_text": "Uma vez removido, você não poderá recuperar os dados deste usuário!"
-    
+    "delete_confirmation_text": "Uma vez removido, você não poderá recuperar os dados deste usuário!",
+    "user_management": "Gerenciamento de Usuários",
+    "doctor_management": "Gerenciamento de Médicos",
+    "appointment_management": "Gerenciamento de Consultas"
 }

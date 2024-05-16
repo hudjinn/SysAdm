@@ -44,23 +44,23 @@
     border-radius: 8px;
 }
 
-#user-table {
+#user-table, #doctor-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-#user-table th, #user-table td {
+#user-table th, #user-table td, #doctor-table th, #doctor-table td {
     padding: 10px;
     border-bottom: 1px solid #e1e1e1;
     text-align: center;
 }
 
-#user-table th {
+#user-table th, #doctor-table th {
     background-color: #31a2ac; /* Azul turquesa para cabeçalho da tabela */
     color: white;
 }
 
-#user-table tr:hover {
+#user-table tr:hover, #doctor-table tr:hover {
     background-color: #e1e1e1; /* Um leve cinza para quando passa o mouse por cima das linhas */
 }
 /* Torna os botões transparentes por padrão */

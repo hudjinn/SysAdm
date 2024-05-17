@@ -3,65 +3,93 @@
         <span class="close-button" onclick="closeModal('createDoctorModal')">&times;</span>
         <h3>{{ text.create_new_doctor }}</h3>
         <form id="createDoctorForm">
-            <label for="newCpf">{{ text.cpf }}</label>
-            <input type="text" id="newCpf" name="cpf">
-            <label for="newNome">{{ text.name }}</label>
-            <input type="text" id="newNome" name="nome">
-            <label for="newEmail">{{ text.email }}</label>
-            <input type="email" id="newEmail" name="email">
-            <label for="newDataNasc">{{ text.date_of_birth }}</label>
-            <input type="date" id="newDataNasc" name="dataNasc">
-            <label for="newSenha">{{ text.password }}</label>
-            <input type="password" id="newSenha" name="senha">
+            <label for="newDoctorCpf">{{ text.cpf }}</label>
+            <input type="text" id="newDoctorCpf" name="cpf">
+            <label for="newDoctorNome">{{ text.name }}</label>
+            <input type="text" id="newDoctorNome" name="nome">
+            <label for="newDoctorEspecialidade">{{ text.speciality }}</label>
+            <select id="newDoctorEspecialidade" name="especialidade">
+                <option value="Cardiologia">Cardiologia</option>
+                <option value="Dermatologia">Dermatologia</option>
+                <option value="Endocrinologia">Endocrinologia</option>
+                <option value="Gastroenterologia">Gastroenterologia</option>
+                <option value="Geriatria">Geriatria</option>
+                <option value="Ginecologia">Ginecologia</option>
+                <option value="Hematologia">Hematologia</option>
+                <option value="Infectologia">Infectologia</option>
+                <option value="Nefrologia">Nefrologia</option>
+                <option value="Neurologia">Neurologia</option>
+                <option value="Obstetricia">Obstetrícia</option>
+                <option value="Oftalmologia">Oftalmologia</option>
+                <option value="Oncologia">Oncologia</option>
+                <option value="Ortopedia">Ortopedia</option>
+                <option value="Otorrinolaringologia">Otorrinolaringologia</option>
+                <option value="Pediatria">Pediatria</option>
+                <option value="Psiquiatria">Psiquiatria</option>
+                <option value="Reumatologia">Reumatologia</option>
+                <option value="Urologia">Urologia</option>
+            </select>
             <button type="button" onclick="submitNewDoctor()">{{ text.create }}</button>
         </form>
     </div>
 </div>
+
 <div id="editDoctorModal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeModal('editDoctorModal')">&times;</span>
-        <form id="editUserForm">
-            <h3>{{ text.edit_user }}</h3>
-            <label for="editCpf">{{ text.cpf }}</label>
-            <input type="text" id="editCpf" name="cpf" readonly>
-            <label for="editNome">{{ text.name }}</label>
-            <input type="text" id="editNome" name="nome">
-            <label for="editEmail">{{ text.email }}</label>
-            <input type="email" id="editEmail" name="email">
-            <label for="editDataNasc">{{ text.date_of_birth }}</label>
-            <input type="date" id="editDataNasc" name="dataNasc">
-            <label for="editAtivo">{{ text.activity }}</label>
-            <select id="editAtivo" name="ativo">
-                <option value="true">{{ text.active }}</option>
-                <option value="false">{{ text.inactive }}</option>
+        <h3>{{ text.edit_doctor }}</h3>
+        <form id="editDoctorForm">
+            <input type="hidden" id="editDoctorId" name="id">
+            <label for="editDoctorCpf">{{ text.cpf }}</label>
+            <input type="text" id="editDoctorCpf" name="cpf" readonly>
+            <label for="editDoctorNome">{{ text.name }}</label>
+            <input type="text" id="editDoctorNome" name="nome">
+            <label for="editDoctorEspecialidade">{{ text.speciality }}</label>
+            <select id="editDoctorEspecialidade" name="especialidade">
+                <option value="Cardiologia">Cardiologia</option>
+                <option value="Dermatologia">Dermatologia</option>
+                <option value="Endocrinologia">Endocrinologia</option>
+                <option value="Gastroenterologia">Gastroenterologia</option>
+                <option value="Geriatria">Geriatria</option>
+                <option value="Ginecologia">Ginecologia</option>
+                <option value="Hematologia">Hematologia</option>
+                <option value="Infectologia">Infectologia</option>
+                <option value="Nefrologia">Nefrologia</option>
+                <option value="Neurologia">Neurologia</option>
+                <option value="Obstetricia">Obstetrícia</option>
+                <option value="Oftalmologia">Oftalmologia</option>
+                <option value="Oncologia">Oncologia</option>
+                <option value="Ortopedia">Ortopedia</option>
+                <option value="Otorrinolaringologia">Otorrinolaringologia</option>
+                <option value="Pediatria">Pediatria</option>
+                <option value="Psiquiatria">Psiquiatria</option>
+                <option value="Reumatologia">Reumatologia</option>
+                <option value="Urologia">Urologia</option>
             </select>
-            <button type="button" onclick="submitEdit()">{{ text.save_changes }}</button>
+            <button type="button" onclick="submitMedicEdit()">{{ text.save_changes }}</button>
         </form>
     </div>
 </div>
 
 <div id="admin-content">
-    <h2>{{ text.adm_panel }}</h2>
-    <button onclick="showcreateDoctorModal()" class="new-user-btn">{{ text.new_registration }}</button>
+    <h2>{{ text.adm_panel }} - {{ text.doctor_management }}</h2>
+    <button onclick="showCreateDoctorModal()" class="new-user-btn">{{ text.new_registration }}</button>
 
     <table id="doctor-table">
         <thead>
             <tr>
-                <th id="sortDataCad" data-sort="asc">{{ text.registration_date }}</th>
-                <th id="sortCpf" data-sort="asc">{{ text.cpf }}</th>
-                <th id="sortNome" data-sort="asc">{{ text.name }}</th>
-                <th id="sortEmail" data-sort="asc">{{ text.email }}</th>
-                <th id="sortDataNasc" data-sort="asc">{{ text.date_of_birth }}</th>
-                <th id="sortAtivo" data-sort="asc">{{ text.activity }}</th>
+                <th>ID</th>
+                <th>{{ text.cpf }}</th>
+                <th>{{ text.name }}</th>
+                <th>{{ text.speciality }}</th>
                 <th>{{ text.actions }}</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Os medicos serão carregados aqui via JavaScript -->
+            <!-- Os médicos serão carregados aqui via JavaScript -->
         </tbody>
     </table>
 </div>
-{{ flash_msgs.render_flash_messages() }}
 
 <script>
     window.addEventListener('DOMContentLoaded', (event) => {
@@ -70,19 +98,17 @@
         .then(data => {
             const tbody = document.querySelector('#doctor-table tbody');
             tbody.innerHTML = ''; // Limpar o corpo da tabela existente
-            data.forEach(user => {
+            data.forEach(doctor => {
                 const tr = document.createElement('tr');
-                tr.setAttribute('data-cpf', user.cpf);
+                tr.setAttribute('data-id', doctor.id);
                 tr.innerHTML = `
-                    <td> ${user.dataCad}</td>
-                    <td>${user.cpf}</td>
-                    <td class="nome">${user.nome}</td>
-                    <td class="email">${user.email}</td>
-                    <td class="dataNasc">${user.dataNasc}</td>
-                    <td class="ativo">${user.ativo ? "{{ text.active }}" : "{{ text.inactive }}"}</td>
+                    <td class="id">${doctor.id}</td>
+                    <td class="cpf">${doctor.cpf}</td>
+                    <td class="nome">${doctor.nome}</td>
+                    <td class="especialidade">${doctor.especialidade}</td>
                     <td class="actions">
-                        <button onclick="editUser('${user.cpf}')" class="edit-btn action-btn">{{ text.edit }}</button>
-                        <button onclick="deleteUser('${user.cpf}')" class="delete-btn action-btn">{{ text.delete }}</button>
+                        <button onclick="editDoctor('${doctor.id}')" class="edit-btn action-btn">{{ text.edit }}</button>
+                        <button onclick="deleteDoctor('${doctor.id}')" class="delete-btn action-btn">{{ text.delete }}</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -90,91 +116,58 @@
         })
         .catch(error => console.error('Erro ao buscar dados:', error));
     });
-    // Adiciona eventos de clique a todos os cabeçalhos das colunas
-    document.querySelectorAll('th').forEach(th => {
-        th.addEventListener('click', () => {
-            const columnName = th.id.slice(4); // Remove "sort" do ID para obter o nome da coluna
-            const tableElement = document.querySelector('#doctor-table');
-            const headerIndex = Array.from(tableElement.querySelectorAll('thead th')).findIndex(header => header.id === `sort${columnName}`);
-            const currentIsAscending = th.getAttribute('data-sort') === 'asc';
-            sortTableByColumn(tableElement, headerIndex + 1, currentIsAscending);
-        });
-    });
-    function sortColumn(columnName) {
-        const tableElement = document.querySelector('#doctor-table');
-        const headerIndex = Array.from(tableElement.querySelectorAll('thead th')).findIndex(th => th.id === `sort${columnName.charAt(0).toUpperCase() + columnName.slice(1)}`);
-        const currentIsAscending = document.querySelector(`#sort${columnName}`).getAttribute('data-sort') === 'asc';
-        sortTableByColumn(tableElement, headerIndex + 1, currentIsAscending);
-    }
-    function sortTableByColumn(table, column, asc = true) {
-        const dirModifier = asc ? 1 : -1;
-        const tBody = table.tBodies[0];
-        const rows = Array.from(tBody.querySelectorAll('tr'));
 
-        // Ordenar cada linha
-        const sortedRows = rows.sort((a, b) => {
-            const aColText = a.querySelector(`td:nth-child(${column})`).textContent.trim();
-            const bColText = b.querySelector(`td:nth-child(${column})`).textContent.trim();
-
-            return aColText > bColText ? (1 * dirModifier) : (-1 * dirModifier);
-        });
-
-        // Remover todas as linhas existentes da tabela
-        while (tBody.firstChild) {
-            tBody.removeChild(tBody.firstChild);
+    function editDoctor(id) {
+        const doctorRow = document.querySelector(`tr[data-id="${id}"]`);
+        if (!doctorRow) {
+            console.error('Linha do médico não encontrada.');
+            return;
         }
 
-        // Re-adicionar as linhas já ordenadas na tabela
-        tBody.append(...sortedRows);
+        const id_medico = doctorRow.querySelector('.id').textContent;
+        const cpf = doctorRow.querySelector('.cpf').textContent;
+        const nome = doctorRow.querySelector('.nome').textContent;
+        const especialidade = doctorRow.querySelector('.especialidade').textContent;
 
-        // Inverter a direção para a próxima ordenação
-        table.querySelectorAll('th').forEach(th => th.setAttribute('data-sort', 'asc'));
-        table.querySelector(`th:nth-child(${column})`).setAttribute('data-sort', asc ? 'desc' : 'asc');
-    }
+        document.getElementById('editDoctorId').value = id_medico;
+        document.getElementById('editDoctorCpf').value = cpf;
+        document.getElementById('editDoctorNome').value = nome;
+        document.getElementById('editDoctorEspecialidade').value = especialidade;
 
-    function editUser(cpf) {
-        const userRow = document.querySelector(`tr[data-cpf="${cpf}"]`);
-        const nome = userRow.querySelector('.nome').textContent;
-        const email = userRow.querySelector('.email').textContent;
-        const dataNasc = userRow.querySelector('.dataNasc').textContent;
-        const ativo = userRow.querySelector('.ativo').textContent === "{{ text.active }}"; // Verifica se está ativo
-        document.getElementById('editCpf').value = cpf;
-        document.getElementById('editNome').value = nome;
-        document.getElementById('editEmail').value = email;
-        document.getElementById('editDataNasc').value = dataNasc;
-        document.getElementById('editAtivo').value = ativo; 
         document.getElementById('editDoctorModal').style.display = 'block';
     }
-    function submitEdit() {
-        const cpf = document.getElementById('editCpf').value;
-        const nome = document.getElementById('editNome').value;
-        const email = document.getElementById('editEmail').value;
-        const dataNasc = document.getElementById('editDataNasc').value;
-        const ativo = document.getElementById('editAtivo').value === "true"; // Obtém o valor booleano da caixa de seleção
 
-        fetch('/api/atualizar/' + cpf, {
+    function submitMedicEdit() {
+        const id = document.getElementById('editDoctorId').value;
+        const nome = document.getElementById('editDoctorNome').value;
+        const especialidade = document.getElementById('editDoctorEspecialidade').value;
+
+        fetch('/api/medicos/atualizar/' + id, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ nome, email, dataNasc, ativo }) // Inclui o valor de ativo no corpo da requisição
+            body: JSON.stringify({ nome, especialidade })
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(response.statusText);
+                return response.json().then(err => { throw err; });
             }
             return response.json();
         })
         .then(data => {
-            window.location.reload();
+            swal(data.message, "", "success").then(() => {
+                window.location.reload();
+            });
         })
         .catch(error => {
-            console.error('Erro:', error);
+            swal("Erro ao remover médico", error.message, "error");
         });
 
         closeModal('editDoctorModal');
     }
-    function deleteUser(cpf) {
+
+    function deleteDoctor(id) {
         swal({
             title: "{{ text.delete_confirmation_title }}",
             text: "{{ text.delete_confirmation_text }}",
@@ -183,62 +176,67 @@
             dangerMode: true,
         }).then((willDelete) => {
             if (willDelete) {
-                fetch('/api/remover/' + cpf, {
+                fetch('/api/medicos/remover/' + id, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                     }
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(response.statusText);
+                    if (response.ok) {
+                        swal("Médico removido com sucesso!", "", "success").then(() => {
+                            window.location.reload();
+                        });
+                    } else if (response.status === 404) {
+                        swal("Médico não encontrado", "", "error");
+                    } else {
+                        return response.json().then(err => { throw err; });
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    window.location.reload();
                 })
                 .catch(error => {
                     console.error('Erro:', error);
+                    swal("Erro ao remover médico", error.message, "error");
                 });
             }
         });
     }
+
     function submitNewDoctor() {
-        const cpf = document.getElementById('newCpf').value;
-        const nome = document.getElementById('newNome').value;
-        const email = document.getElementById('newEmail').value;
-        const dataNasc = document.getElementById('newDataNasc').value;
-        const senha = document.getElementById('newSenha').value;
-        
-        fetch('/api/criar', {
+        const cpf = document.getElementById('newDoctorCpf').value;
+        const nome = document.getElementById('newDoctorNome').value;
+        const especialidade = document.getElementById('newDoctorEspecialidade').value;
+
+        fetch('/api/medicos/cadastrar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({cpf, nome, email, dataNasc, senha})
+            body: JSON.stringify({ cpf, nome, especialidade })
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(response.statusText);
+                return response.json().then(err => { throw err; });
             }
             return response.json();
         })
         .then(data => {
-            window.location.reload();
+            swal(data.message, "", "success").then(() => {
+                window.location.reload();
+            });
         })
         .catch(error => {
-            console.error('Erro:', error);
+            swal("Falha ao criar médico", error.message, "error");
         });
 
         closeModal('createDoctorModal');
     }
 
+
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
     }
-    function showcreateDoctorModal() {
+
+    function showCreateDoctorModal() {
         document.getElementById('createDoctorModal').style.display = 'block';
     }
-
 </script>

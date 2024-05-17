@@ -1,6 +1,7 @@
 package br.com.sysadm.controller;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class AgendamentoController {
     @PostMapping("/agendamentos")
     public ResponseEntity<Agendamento> criarAgendamento(@RequestBody Agendamento agendamento) {
         Agendamento novoAgendamento = agendamentoRepository.save(agendamento);
-        return ResponseEntity.ok(novoAgendamento);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoAgendamento);
     }
 
     /**

@@ -1,9 +1,11 @@
 package br.com.sysadm.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import br.com.sysadm.model.Medico;
+import br.com.sysadm.repository.HorarioRepository;
 import br.com.sysadm.repository.MedicoRepository;
 
 import java.util.List;
@@ -12,6 +14,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/medicos")
 public class MedicoController {
+
+    @Autowired
+    private HorarioRepository horarioRepository;
 
     @Autowired
     private MedicoRepository medicoRepository;
@@ -77,8 +82,14 @@ public class MedicoController {
      * }
      */
     @PostMapping("/cadastrar")
-    public Medico createMedico(@RequestBody Medico medico) {
-        return medicoRepository.save(medico);
+    public ResponseEntity<?> createMedico(@RequestBody Medico medico) {
+        // Verifica se já existe um médico com o mesmo CPF
+        if (medicoRepository.existsByCpf(medico.getCpf())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("CPF já cadastrado");
+        }
+
+        Medico savedMedico = medicoRepository.save(medico);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedMedico);
     }
 
     /**
@@ -128,6 +139,10 @@ public class MedicoController {
     @DeleteMapping("/remover/{id}")
     public ResponseEntity<Void> deleteMedico(@PathVariable Long id) {
         if (medicoRepository.existsById(id)) {
+            // Remover registros relacionados na tabela horario
+            horarioRepository.deleteByMedicoId(id);
+            
+            // Remover o médico
             medicoRepository.deleteById(id);
             return ResponseEntity.ok().build();
         } else {

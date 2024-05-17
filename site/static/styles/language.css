@@ -2,7 +2,16 @@
 #language-selector {
     position: fixed;
     bottom: 0;
-    left: 50%;
+    left: 5%;
     transform: translateX(-50%);
     z-index: 1000;
+}
+select {
+    padding: 10px;
+    margin-top: 4px;
+    margin-bottom: 5px;
+    border: 1px solid #b2b2b2;
+    border-radius: 3px;
+    box-shadow: 0px 1px 4px 0px rgba(168, 168, 168, 0.6) inset;
+    transition: all 0.2s linear;
 }

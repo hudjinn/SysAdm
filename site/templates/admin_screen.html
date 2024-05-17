@@ -7,22 +7,28 @@
     <title>{{ text.adm_panel }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/admin.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
         function showCrud(crudType) {
+            // Atualiza a URL sem recarregar a página
+            history.pushState(null, '', `?crud=${crudType}`);
+            // Esconde todas as seções
             document.querySelectorAll('.crud-section').forEach(section => {
                 section.style.display = 'none';
             });
+            // Mostra apenas a seção correspondente
             document.getElementById(crudType).style.display = 'block';
         }
+
         window.addEventListener('DOMContentLoaded', (event) => {
-            // Mostrar a seção padrão (usuarios) ao carregar a página
-            showCrud('usuarios');
+            const params = new URLSearchParams(window.location.search);
+            const currentCrud = params.get('crud') || 'usuarios';
+            showCrud(currentCrud);
         });
     </script>
 </head>
 <body>
     {% include 'language.html' %}
+
     <img src="/static/img/sysadm_logo.png" alt="sysadm_logo" class="logo">
 
     <div class="user-info">
@@ -50,5 +56,7 @@
             {% include 'crudAgendamentos.html' %}
         </div>
     </div>
+
+    {{ flash_msgs.render_flash_messages() }}
 </body>
 </html>

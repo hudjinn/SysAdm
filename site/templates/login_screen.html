@@ -66,6 +66,10 @@
                     <p class="link">
                         {{ text.no_account }} <a href="{{ url_for('create_account_screen') }}">{{ text.signup }}</a> 
                     </p>
+
+                    <p class="link" style="margin-top: 60px;"> 
+                        <a href="{{ url_for('create_scheduling_screen')}}">{{ text.back_to_sched_screen}}</a>
+                    </p>
                 </form>
             </div>
         </div>

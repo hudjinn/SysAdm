@@ -7,11 +7,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import br.com.sysadm.model.Medico;
+import jakarta.transaction.Transactional;
 
 @Repository
 public interface MedicoRepository extends JpaRepository<Medico, Long> {
     Optional<Medico> findByCpf(String cpf);
+
     Optional<Medico> findByEspecialidade(String especialidade);
+    
+    boolean existsByCpf(String cpf);
+
+    @Transactional
+    void deleteById(Long id);
     
     // Método para encontrar todas as especialidades únicas de médicos em uma clínica específica
     @Query("SELECT DISTINCT m.especialidade FROM Medico m JOIN m.clinicas c WHERE c.id = :clinicaId")

@@ -6,6 +6,8 @@ import json
 from functools import wraps
 
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session, flash, g
+from markupsafe import Markup
+
 import requests
 
 
@@ -112,28 +114,36 @@ def login_required(f):
 # Rota inicial para a página de agendamento 
 @app.route('/', methods=['GET', 'POST'])
 def create_scheduling_screen():
-    crud = request.args.get('crud', 'usuarios')  # Define 'usuarios' como padrão se nenhum CRUD for especificado
-
     if request.method == 'POST':
-        data = request.form
-        data_hora_agendamento = f"{data['data_agen']}T{data['hora_agen']}"  # Ajuste no formato da data e hora
+        try:
+            data = request.form
+            agendamento = {
+                "clinica": {"id": data['clinica_agen']},
+                "medico": {"id": data['medico_agen']},
+                "dataAgendamento": data['data_agen'],
+                "horaAgendamento": data['hora_agen'],
+                "nomePaciente": data['nome_agen'],
+                "emailPaciente": data['email_agen']
+            }
 
-        agendamento_data = {
-            "nomePaciente": data['nome_agen'],
-            "emailPaciente": data['email_agen'],
-            "clinica": {"id": data['clinica_agen']},
-            "medico": {"id": data['medico_agen']},
-            "dataHoraAgendamento": data_hora_agendamento,
-        }
-        response = requests.post(app.api + 'agendamentos', json=agendamento_data)
-        if response.status_code == 201:
-            protocolo_id = response.json().get('id')  # Extrair o ID do agendamento da resposta
-            flash(f"Agendamento criado com sucesso!\nProtocolo: {protocolo_id}", 'success')
-        else:
-            flash("Erro ao criar agendamento", 'error')
-        
-    return render_template('create_scheduling_screen.html', crud=crud, text=session['text'])
+            response = requests.post(app.api + 'agendamentos', json=agendamento)
 
+            if response.ok:
+                response_data = response.json()  # Extrair os dados da resposta JSON
+                protocolo_id = response_data.get('id')
+                flash(Markup(f"Agendamento criado com sucesso! Protocolo: {protocolo_id}"), 'success')
+                return redirect(url_for('create_scheduling_screen'))
+            else:
+                flash("Erro ao criar agendamento na API", 'error')
+                return redirect(url_for('create_scheduling_screen'))
+        except KeyError as e:
+            flash(f"Campo faltando: {str(e)}", 'error')
+            return redirect(url_for('create_scheduling_screen'))
+        except Exception as e:
+            flash(f"Erro: {str(e)}", 'error')
+            return redirect(url_for('create_scheduling_screen'))
+
+    return render_template('create_scheduling_screen.html', text=session['text'])
 
 # Rota para a página de login
 @app.route('/login', methods=['GET', 'POST'])
@@ -520,17 +530,21 @@ def api_criar_agendamento():
         "emailPaciente": data['emailPaciente'],
         "clinica": {"id": data['clinica']},
         "medico": {"id": data['medico']},
-        "dataHoraAgendamento": data['dataHoraAgendamento'],
-        "status": 'pendente'
+        "dataAgendamento": data['dataAgendamento'],
+        "horaAgendamento": data['horaAgendamento'],
+        "status": "AGENDADO"  # Define o status como AGENDADO por padrão
     }
     response = requests.post(app.api + 'agendamentos', json=agendamento_data)
-    if response.status_code == 201:
-        protocolo_id = response.json().get('id')  # Extrair o ID do agendamento da resposta
-        return jsonify({"message": f"Agendamento criado com sucesso!\nProtocolo: {protocolo_id}"}), 201
-    else:
-        return jsonify({"message": "Erro ao criar agendamento"}), response.status_code
 
-@app.route('/api/agendamentos/atualizar/<id>', methods=['PATCH'])
+    if response.ok:
+        response_data = response.json()  # Extrair os dados da resposta JSON
+        protocolo_id = response_data.get('id')
+        flash(Markup(f"Agendamento criado com sucesso! Protocolo: {protocolo_id}")), 201
+    else:
+        return jsonify({"error": "Erro ao criar agendamento na API"}), response.status_code
+
+# Rota para atualizar um agendamento existente
+@app.route('/api/agendamentos/atualizar/<int:id>', methods=['PATCH'])
 def api_atualizar_agendamento(id):
     try:
         agendamento_data = request.json
@@ -542,7 +556,8 @@ def api_atualizar_agendamento(id):
     except Exception as e:
         return jsonify({"message": "Erro desconhecido ao atualizar agendamento"}), 500
 
-@app.route('/api/agendamentos/remover/<id>', methods=['DELETE'])
+# Rota para remover um agendamento existente
+@app.route('/api/agendamentos/remover/<int:id>', methods=['DELETE'])
 def api_deletar_agendamento(id):
     try:
         response = requests.delete(f'{app.api}agendamentos/remover/{id}')
@@ -552,6 +567,22 @@ def api_deletar_agendamento(id):
             return jsonify({"message": "Erro ao remover agendamento"}), response.status_code
     except requests.exceptions.RequestException as e:
         return jsonify({"message": "Erro ao conectar com o servidor"}), 500
+
+
+@app.route('/api/agendamentos/horarios')
+def get_horarios():
+    clinica_id = request.args.get('clinicaId')
+    medico_id = request.args.get('medicoId')
+    dia = request.args.get('dia')
+
+    if clinica_id and medico_id and dia:
+        response = requests.get(f"{app.api}agendamentos/horarios?clinicaId={clinica_id}&medicoId={medico_id}&dia={dia}")
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return jsonify({'error': 'Erro ao buscar horários disponíveis'}), response.status_code
+    else:
+        return jsonify({'error': 'Parâmetros insuficientes'}), 400
 
 # ---------- CLINICAS CONTROLE -----------
 # Rota para obter especialidades de uma clínica
@@ -595,7 +626,6 @@ def dados_agendamentos():
         resposta = requests.get(app.api + 'agendamentos')
         if resposta.status_code == 200:
             dados = resposta.json()
-
             return jsonify(dados)
         else:
             flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')

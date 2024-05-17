@@ -1,31 +1,219 @@
 <div id="createSchedulingModal" class="modal">
+
     <div class="modal-content">
         <span class="close-button" onclick="closeModal('createSchedulingModal')">&times;</span>
         <h3>{{ text.create_new_scheduling }}</h3>
-        <form id="createSchedulingForm">
-            <label for="newSchedulingNome">{{ text.patient_name }}</label>
-            <input type="text" id="newSchedulingNome" name="nomePaciente">
-            
-            <label for="newSchedulingEmail">{{ text.patient_email }}</label>
-            <input type="email" id="newSchedulingEmail" name="emailPaciente">
-            
-            <label for="newSchedulingClinica">{{ text.clinic }}</label>
-            <select id="newSchedulingClinica" name="clinica">
-                <!-- Options will be loaded dynamically -->
-            </select>
-            
-            <label for="newSchedulingMedico">{{ text.doctor }}</label>
-            <select id="newSchedulingMedico" name="medico">
-                <!-- Options will be loaded dynamically -->
-            </select>
-            
-            <label for="newSchedulingDataHora">{{ text.date_time }}</label>
-            <input type="datetime-local" id="newSchedulingDataHora" name="dataHoraAgendamento">
-            
-            <button type="button" onclick="submitNewScheduling()">{{ text.create }}</button>
-        </form>
+        
+        <!-- FORMULÁRIO DE AGENDAMENTO -->
+        <div class="agendamento">
+            <form id="agendamento-form" method="post" action="submitNewScheduling()">
+                <div class="form-left">
+                    <p>
+                        <label for="nome_agen">{{ text.name_label }}</label>
+                        <input id="nome_agen" name="nome_agen" required="required" type="text" placeholder="{{ text.name_placeholder }}" />
+                    </p>
+                    <p>
+                        <label for="email_agen">{{ text.email_label }}</label>
+                        <input id="email_agen" name="email_agen" required="required" type="email" placeholder="{{ text.email_placeholder }}"/>
+                    </p>
+                    <p>
+                        <label for="clinica_agen">Clínica</label>
+                        <select id="clinica_agen" name="clinica_agen" required="required">
+                            <option value="" selected disabled>{{ text.clinic_select }}</option>
+                        </select>
+                    </p>
+                    <p id="endereco_clinica"></p>
+                    <p>
+                        <label for="especia_agen">Especialidade</label>
+                        <select id="especia_agen" name="especia_agen" required="required">
+                            <option value="" selected disabled>{{ text.spec_select }}</option>
+                        </select>
+                    </p>
+                    <p>
+                        <label for="medico_agen">Médico</label>
+                        <select id="medico_agen" name="medico_agen" required="required">
+                            <option value="" selected disabled>{{ text.doctor_select }}</option>
+                        </select>
+                    </p>
+                </div>
+                <div class="form-right">
+                    <p>
+                        <label for="data_agen">Data</label>
+                        <input id="data_agen" name="data_agen" required="required" type="hidden"/>
+                    </p>
+                    <div id="horarios_disponiveis" class="horarios-disponiveis">
+                        <label>{{ text.select_time }}</label>
+                        <div id="horarios-container"></div>
+                    </div>
+                    <p>
+                        <input type="hidden" id="hora_agen" name="hora_agen"/>
+                        <input type="submit" value="{{ text.sched_button }}"/>
+                    </p>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+<!-- Script para carregar dados no modal de criação -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function carregarClinicas() {
+            fetch('/api/clinicas')
+                .then(response => response.json())
+                .then(data => {
+                    const clinicaSelect = document.getElementById('clinica_agen');
+                    clinicaSelect.innerHTML = '<option value="" disabled selected>{{ text.clinic_select }}</option>';
+                    data.forEach(clinica => {
+                        const option = document.createElement('option');
+                        option.value = clinica.id;
+                        option.setAttribute('data-endereco', clinica.endereco);
+                        option.textContent = clinica.nome;
+                        clinicaSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Erro ao buscar clínicas:', error));
+        }
+
+        function carregarEspecialidades(clinicaId) {
+            fetch(`/api/clinicas/${clinicaId}/especialidades`)
+                .then(response => response.json())
+                .then(data => {
+                    const especialidadeSelect = document.getElementById('especia_agen');
+                    especialidadeSelect.innerHTML = '<option value="" disabled selected>{{ text.spec_select }}</option>';
+                    data.forEach(especialidade => {
+                        const option = document.createElement('option');
+                        option.value = especialidade;
+                        option.textContent = especialidade;
+                        especialidadeSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Erro ao buscar especialidades:', error));
+        }
+
+        function carregarMedicos(clinicaId, especialidade) {
+            fetch(`/api/clinicas/${clinicaId}/especialidades/${especialidade}/medicos`)
+                .then(response => response.json())
+                .then(data => {
+                    const medicoSelect = document.getElementById('medico_agen');
+                    medicoSelect.innerHTML = '<option value="" disabled selected>{{ text.doctor_select }}</option>';
+                    data.forEach(medico => {
+                        const option = document.createElement('option');
+                        option.value = medico.id;
+                        option.textContent = medico.nome;
+                        medicoSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Erro ao buscar médicos:', error));
+        }
+
+        function carregarDiasDisponiveis(clinicaId, medicoId) {
+            fetch(`/api/agendamentos/dias-disponiveis?clinicaId=${clinicaId}&medicoId=${medicoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const diasDisponiveis = data.map(dia => {
+                        switch(dia) {
+                            case 'MONDAY': return 1;
+                            case 'TUESDAY': return 2;
+                            case 'WEDNESDAY': return 3;
+                            case 'THURSDAY': return 4;
+                            case 'FRIDAY': return 5;
+                            case 'SATURDAY': return 6;
+                            case 'SUNDAY': return 0;
+                            default: return null;
+                        }
+                    });
+
+                    let localeConfig;
+                    const lang = document.documentElement.lang;
+                    switch (lang) {
+                        case 'pt_BR':
+                            localeConfig = flatpickr.l10ns.pt;
+                            break;
+                        case 'es':
+                            localeConfig = flatpickr.l10ns.es;
+                            break;
+                        case 'en-US':
+                        default:
+                            localeConfig = flatpickr.l10ns.default;
+                            break;
+                    }
+
+                    flatpickr("#data_agen", {
+                        enable: [
+                            function(date) {
+                                return diasDisponiveis.includes(date.getDay());
+                            }
+                        ],
+                        locale: localeConfig,
+                        dateFormat: localeConfig.dateFormat || "Y-m-d", // Ajustar o formato de data conforme o idioma
+                        altFormat: localeConfig.altFormat || "d-m-Y",
+                        altInput: true,
+                    });
+                })
+                .catch(error => console.error('Erro ao buscar dias disponíveis:', error));
+        }
+
+        function carregarHorarios(clinicaId, medicoId, dia) {
+            fetch(`/api/agendamentos/horarios?clinicaId=${clinicaId}&medicoId=${medicoId}&dia=${dia}`)
+            .then(response => response.json())
+            .then(data => {
+                const horariosContainer = document.getElementById('horarios-container');
+                horariosContainer.innerHTML = ''; 
+
+                data.forEach(horario => {
+                    const horarioBox = document.createElement('div');
+                    horarioBox.classList.add('horario-box');
+                    horarioBox.textContent = horario.horarioInicio.substring(0, 5); // Exibir apenas HH:mm
+                    horarioBox.setAttribute('data-horario', horario.horarioInicio);
+
+                    if (horario.agendado) {
+                        horarioBox.classList.add('agendado');
+                        horarioBox.classList.add('unselectable');
+                    } else {
+                        horarioBox.addEventListener('click', function() {
+                            document.querySelectorAll('.horario-box').forEach(box => box.classList.remove('selected'));
+                            horarioBox.classList.add('selected');
+                            document.getElementById('hora_agen').value = horario.horarioInicio;
+                        });
+                    }
+
+                    horariosContainer.appendChild(horarioBox);
+                });
+            })
+            .catch(error => console.error('Erro ao buscar horários disponíveis:', error));
+        }
+
+        document.getElementById('clinica_agen').addEventListener('change', function () {
+            const clinicaId = this.value;
+            const enderecoClinica = this.options[this.selectedIndex].getAttribute('data-endereco');
+            document.getElementById('endereco_clinica').textContent = `Endereço: ${enderecoClinica}`;
+            carregarEspecialidades(clinicaId);
+        });
+
+        document.getElementById('especia_agen').addEventListener('change', function () {
+            const clinicaId = document.getElementById('clinica_agen').value;
+            const especialidade = this.value;
+            carregarMedicos(clinicaId, especialidade);
+        });
+
+        document.getElementById('medico_agen').addEventListener('change', function () {
+            const clinicaId = document.getElementById('clinica_agen').value;
+            const medicoId = this.value;
+            carregarDiasDisponiveis(clinicaId, medicoId);
+        });
+
+        document.getElementById('data_agen').addEventListener('change', function () {
+            const clinicaId = document.getElementById('clinica_agen').value;
+            const medicoId = document.getElementById('medico_agen').value;
+            const dia = this.value;
+            if (clinicaId && medicoId && dia) {
+                carregarHorarios(clinicaId, medicoId, dia);
+            }
+        });
+        carregarClinicas();
+    });
+</script>
 
 <div id="editSchedulingModal" class="modal">
     <div class="modal-content">
@@ -35,24 +223,34 @@
             <input type="hidden" id="editSchedulingId" name="id">
             
             <label for="editSchedulingNome">{{ text.patient_name }}</label>
-            <input type="text" id="editSchedulingNome" name="nomePaciente">
+            <input type="text" id="editSchedulingNome" name="nomePaciente" required>
             
             <label for="editSchedulingEmail">{{ text.patient_email }}</label>
-            <input type="email" id="editSchedulingEmail" name="emailPaciente">
+            <input type="email" id="editSchedulingEmail" name="emailPaciente" required>
             
             <label for="editSchedulingClinica">{{ text.clinic }}</label>
-            <select id="editSchedulingClinica" name="clinica">
+            <select id="editSchedulingClinica" name="clinica" required>
                 <!-- Options will be loaded dynamically -->
             </select>
             
             <label for="editSchedulingMedico">{{ text.doctor }}</label>
-            <select id="editSchedulingMedico" name="medico">
+            <select id="editSchedulingMedico" name="medico" required>
                 <!-- Options will be loaded dynamically -->
             </select>
             
-            <label for="editSchedulingDataHora">{{ text.date_time }}</label>
-            <input type="datetime-local" id="editSchedulingDataHora" name="dataHoraAgendamento">
-            
+            <label for="editSchedulingData">{{ text.date }}</label>
+            <input type="date" id="editSchedulingData" name="dataAgendamento" required>
+
+            <label for="editSchedulingHora">{{ text.time }}</label>
+            <input type="time" id="editSchedulingHora" name="horaAgendamento" required>
+
+            <label for="editSchedulingStatus">{{ text.status }}</label>
+            <select id="editSchedulingStatus" name="status" required>
+                <option value="AGENDADO">Agendado</option>
+                <option value="CANCELADO">Cancelado</option>
+                <option value="CONCLUIDO">Concluído</option>
+            </select>
+
             <button type="button" onclick="submitSchedulingEdit()">{{ text.save_changes }}</button>
         </form>
     </div>
@@ -70,7 +268,9 @@
                 <th>{{ text.patient_email }}</th>
                 <th>{{ text.clinic }}</th>
                 <th>{{ text.doctor }}</th>
-                <th>{{ text.date_time }}</th>
+                <th>{{ text.date }}</th>
+                <th>{{ text.time }}</th>
+                <th>{{ text.status }}</th>
                 <th>{{ text.actions }}</th>
             </tr>
         </thead>
@@ -95,14 +295,16 @@
             tbody.innerHTML = ''; // Limpar o corpo da tabela existente
             data.forEach(scheduling => {
                 const tr = document.createElement('tr');
-                tr.setAttribute('data-id', scheduling.id);
+                tr.setAttribute('data-agend-id', scheduling.id);
                 tr.innerHTML = `
                     <td class="id">${scheduling.id}</td>
                     <td class="nomePaciente">${scheduling.nomePaciente}</td>
                     <td class="emailPaciente">${scheduling.emailPaciente}</td>
-                    <td class="clinica">${scheduling.clinica.nome}</td>
-                    <td class="medico">${scheduling.medico.nome}</td>
-                    <td class="dataHoraAgendamento">${new Date(scheduling.dataHoraAgendamento).toLocaleString()}</td>
+                    <td class="clinica" data-id="${scheduling.clinica.id}">${scheduling.clinica.nome}</td>
+                    <td class="medico" data-id="${scheduling.medico.id}">${scheduling.medico.nome}</td>
+                    <td class="dataAgendamento">${scheduling.dataAgendamento}</td>
+                    <td class="horaAgendamento">${scheduling.horaAgendamento}</td>
+                    <td class="status">${scheduling.status}</td>
                     <td class="actions">
                         <button onclick="editScheduling('${scheduling.id}')" class="edit-btn action-btn">{{ text.edit }}</button>
                         <button onclick="deleteScheduling('${scheduling.id}')" class="delete-btn action-btn">{{ text.delete }}</button>
@@ -139,6 +341,7 @@
             const selectEdit = document.getElementById('editSchedulingMedico');
             data.forEach(doctor => {
                 const option = document.createElement('option');
+                
                 option.value = doctor.id;
                 option.textContent = doctor.nome;
                 selectNew.appendChild(option);
@@ -149,7 +352,7 @@
     }
 
     function editScheduling(id) {
-        const schedulingRow = document.querySelector(`tr[data-id="${id}"]`);
+        const schedulingRow = document.querySelector(`tr[data-agend-id="${id}"]`);
         if (!schedulingRow) {
             console.error('Linha do agendamento não encontrada.');
             return;
@@ -160,32 +363,47 @@
         const emailPaciente = schedulingRow.querySelector('.emailPaciente').textContent;
         const clinicaId = schedulingRow.querySelector('.clinica').dataset.id;
         const medicoId = schedulingRow.querySelector('.medico').dataset.id;
-        const dataHoraAgendamento = new Date(schedulingRow.querySelector('.dataHoraAgendamento').textContent).toISOString().slice(0, 16);
+        const dataAgendamento = schedulingRow.querySelector('.dataAgendamento').textContent;
+        const horaAgendamento = schedulingRow.querySelector('.horaAgendamento').textContent;
+        const status = schedulingRow.querySelector('.status').textContent;
 
         document.getElementById('editSchedulingId').value = idScheduling;
         document.getElementById('editSchedulingNome').value = nomePaciente;
         document.getElementById('editSchedulingEmail').value = emailPaciente;
         document.getElementById('editSchedulingClinica').value = clinicaId;
         document.getElementById('editSchedulingMedico').value = medicoId;
-        document.getElementById('editSchedulingDataHora').value = dataHoraAgendamento;
+        document.getElementById('editSchedulingData').value = dataAgendamento;
+        document.getElementById('editSchedulingHora').value = horaAgendamento;
+        document.getElementById('editSchedulingStatus').value = status;
 
         document.getElementById('editSchedulingModal').style.display = 'block';
     }
+
 
     function submitSchedulingEdit() {
         const id = document.getElementById('editSchedulingId').value;
         const nomePaciente = document.getElementById('editSchedulingNome').value;
         const emailPaciente = document.getElementById('editSchedulingEmail').value;
-        const clinica = document.getElementById('editSchedulingClinica').value;
-        const medico = document.getElementById('editSchedulingMedico').value;
-        const dataHoraAgendamento = document.getElementById('editSchedulingDataHora').value;
+        const clinicaId = document.getElementById('editSchedulingClinica').value;
+        const medicoId = document.getElementById('editSchedulingMedico').value;
+        const dataAgendamento = document.getElementById('editSchedulingData').value;
+        const horaAgendamento = document.getElementById('editSchedulingHora').value;
+        const status = document.getElementById('editSchedulingStatus').value;
 
         fetch('/api/agendamentos/atualizar/' + id, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ nomePaciente, emailPaciente, clinica, medico, dataHoraAgendamento })
+            body: JSON.stringify({
+                status,
+                nomePaciente,
+                emailPaciente,
+                clinica: { id: clinicaId },
+                medico: { id: medicoId },
+                dataAgendamento,
+                horaAgendamento
+            })
         })
         .then(response => {
             if (!response.ok) {
@@ -203,6 +421,7 @@
             swal("Erro ao atualizar o agendamento", error.message, "error");
         });
     }
+
 
     function deleteScheduling(id) {
         swal({
@@ -249,16 +468,24 @@
     function submitNewScheduling() {
         const nomePaciente = document.getElementById('newSchedulingNome').value;
         const emailPaciente = document.getElementById('newSchedulingEmail').value;
-        const clinica = document.getElementById('newSchedulingClinica').value;
-        const medico = document.getElementById('newSchedulingMedico').value;
-        const dataHoraAgendamento = document.getElementById('newSchedulingDataHora').value;
+        const clinicaId = document.getElementById('newSchedulingClinica').value;
+        const medicoId = document.getElementById('newSchedulingMedico').value;
+        const dataAgendamento = document.getElementById('newSchedulingData').value;
+        const horaAgendamento = document.getElementById('newSchedulingHora').value;
 
         fetch('/api/agendamentos', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ nomePaciente, emailPaciente, clinica, medico, dataHoraAgendamento })
+            body: JSON.stringify({
+                nomePaciente,
+                emailPaciente,
+                clinica: { id: clinicaId },
+                medico: { id: medicoId },
+                dataAgendamento,
+                horaAgendamento
+            })
         })
         .then(response => {
             if (!response.ok) {
@@ -277,4 +504,3 @@
         });
     }
 </script>
-

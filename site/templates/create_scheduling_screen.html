@@ -58,7 +58,7 @@
                     <div class="form-right">
                         <p>
                             <label for="data_agen">Data</label>
-                            <input id="data_agen" name="data_agen" required="required" type="text"/>
+                            <input id="data_agen" name="data_agen" required="required" type="hidden"/>
                         </p>
                         <div id="horarios_disponiveis" class="horarios-disponiveis">
                             <label>{{ text.select_time }}</label>
@@ -172,27 +172,35 @@
             }
 
             function carregarHorarios(clinicaId, medicoId, dia) {
-                fetch(`/api/agendamentos/horarios-disponiveis?clinicaId=${clinicaId}&medicoId=${medicoId}&dia=${dia}`)
+                fetch(`/api/agendamentos/horarios?clinicaId=${clinicaId}&medicoId=${medicoId}&dia=${dia}`)
                 .then(response => response.json())
                 .then(data => {
                     const horariosContainer = document.getElementById('horarios-container');
-                    horariosContainer.innerHTML = ''; // Limpar o container de horários
+                    horariosContainer.innerHTML = ''; 
 
                     data.forEach(horario => {
                         const horarioBox = document.createElement('div');
                         horarioBox.classList.add('horario-box');
                         horarioBox.textContent = horario.horarioInicio.substring(0, 5); // Exibir apenas HH:mm
                         horarioBox.setAttribute('data-horario', horario.horarioInicio);
-                        horarioBox.addEventListener('click', function() {
-                            document.querySelectorAll('.horario-box').forEach(box => box.classList.remove('selected'));
-                            horarioBox.classList.add('selected');
-                            document.getElementById('hora_agen').value = horario.horarioInicio;
-                        });
+
+                        if (horario.agendado) {
+                            horarioBox.classList.add('agendado');
+                            horarioBox.classList.add('unselectable');
+                        } else {
+                            horarioBox.addEventListener('click', function() {
+                                document.querySelectorAll('.horario-box').forEach(box => box.classList.remove('selected'));
+                                horarioBox.classList.add('selected');
+                                document.getElementById('hora_agen').value = horario.horarioInicio;
+                            });
+                        }
+
                         horariosContainer.appendChild(horarioBox);
                     });
                 })
                 .catch(error => console.error('Erro ao buscar horários disponíveis:', error));
             }
+
 
             document.getElementById('clinica_agen').addEventListener('change', function () {
                 const clinicaId = this.value;

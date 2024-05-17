@@ -1,7 +1,9 @@
 package br.com.sysadm.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 public class Agendamento {
@@ -18,10 +20,13 @@ public class Agendamento {
     @JoinColumn(name = "medico_id")
     private Medico medico;
 
-    private LocalDateTime dataHoraAgendamento;
+    private LocalDate dataAgendamento;
+    private LocalTime horaAgendamento;
 
-    private String status;
-
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(15) default 'AGENDADO'")
+    private StatusAgendamento status = StatusAgendamento.AGENDADO;
+    
     private String nomePaciente;
     private String emailPaciente;
 
@@ -51,19 +56,27 @@ public class Agendamento {
         this.medico = medico;
     }
 
-    public LocalDateTime getDataHoraAgendamento() {
-        return dataHoraAgendamento;
+    public LocalDate getDataAgendamento() {
+        return dataAgendamento;
     }
 
-    public void setDataHoraAgendamento(LocalDateTime dataHoraAgendamento) {
-        this.dataHoraAgendamento = dataHoraAgendamento;
+    public void setDataAgendamento(LocalDate dataAgendamento) {
+        this.dataAgendamento = dataAgendamento;
     }
 
-    public String getStatus() {
+    public LocalTime getHoraAgendamento() {
+        return horaAgendamento;
+    }
+
+    public void setHoraAgendamento(LocalTime horaAgendamento) {
+        this.horaAgendamento = horaAgendamento;
+    }
+
+    public StatusAgendamento getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusAgendamento status) {
         this.status = status;
     }
 

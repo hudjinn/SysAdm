@@ -93,8 +93,12 @@ input[type="submit"]:hover {
     background: #4ab3c6;
     color: #fff;
 }
-.horario-box.ocupado {
+.horario-box.agendado  {
     background: #ffcccc;
     color: #a00;
     cursor: not-allowed;
+}
+
+.horario-box.unselectable {
+    pointer-events: none;
 }

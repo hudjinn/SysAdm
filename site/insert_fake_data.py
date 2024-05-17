@@ -18,6 +18,24 @@ def insert_data(endpoint, data):
     else:
         print(f"Erro ao inserir dados em {endpoint}: {response.text}")
 
+def insert_agendamentos(endpoint, agendamentos):
+    for agendamento in agendamentos:
+        # Certifique-se de que a estrutura do agendamento está correta
+        agendamento_data = {
+            "clinica": {"id": agendamento["clinicaId"]},
+            "medico": {"id": agendamento["medicoId"]},
+            "dataAgendamento": agendamento["dataAgendamento"],
+            "horaAgendamento": agendamento["horaAgendamento"],
+            "status": agendamento["status"],
+            "nomePaciente": agendamento["nomePaciente"],
+            "emailPaciente": agendamento["emailPaciente"]
+        }
+        response = requests.post(endpoint, json=agendamento_data)
+        if response.ok:
+            print(f"Sucesso ao inserir agendamento: {agendamento_data}")
+        else:
+            print(f"Erro ao inserir agendamento: {agendamento_data}: {response.text}")
+
 def main():
     data = load_json('static/dados_fake.json')
 
@@ -25,7 +43,7 @@ def main():
     clinicas = data['clinicas']
     medicos = data['medicos']
     clinica_medico = data['clinica_medico']
-
+    agendamentos = data['agendamentos']
     # Inserir usuários em lote
     insert_data(API_URL + 'usuarios/cadastrar/lote', usuarios)
 
@@ -60,6 +78,8 @@ def main():
                 print(f"Sucesso ao inserir horário para médico {medico_cpf} na clínica {clinica_id}")
             else:
                 print(f"Erro ao inserir horário para médico {medico_cpf} na clínica {clinica_id}: {response.text}")
+    
+    insert_agendamentos(API_URL + 'agendamentos', agendamentos)
 
 if __name__ == '__main__':
     main()

@@ -155,7 +155,7 @@ tr:hover .action-btn {
 .flash-success strong {
     color: blue;
 }
-.agendamento form {
+.agendamento form, #editSchedulingForm {
     display: flex;
     justify-content: space-between;
     gap: 20px;
@@ -218,7 +218,7 @@ input[type="submit"]:hover {
     margin-top: 20px;
 }
 
-#horarios-container {
+#horarios-container, #edit_horarios_container, #create_horarios_container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;

@@ -31,7 +31,7 @@ def insert_agendamentos(endpoint, agendamentos):
             "emailPaciente": agendamento["emailPaciente"]
         }
         response = requests.post(endpoint, json=agendamento_data)
-        if response.ok:
+        if response.status_code == '201':
             print(f"Sucesso ao inserir agendamento: {agendamento_data}")
         else:
             print(f"Erro ao inserir agendamento: {agendamento_data}: {response.text}")

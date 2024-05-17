@@ -151,17 +151,13 @@ def login_screen():
     max_tries = 3
     wait_time = 60  # Tempo de espera em segundos
 
-    # Certifique-se de que 'last_try_time' esteja sempre offset-aware
     if 'tries' not in session:
         session['tries'] = 0
-        # Armazena o tempo como offset-aware usando UTC
         session['last_try_time'] = datetime.now(ZoneInfo("UTC")).isoformat()
 
-    # Converter a string ISO de volta para datetime e torná-lo offset-aware
     last_try_time = datetime.fromisoformat(session['last_try_time']).replace(tzinfo=ZoneInfo("UTC"))
     now_aware = datetime.now(ZoneInfo("UTC"))
 
-    # Calcular o tempo desde a última tentativa
     time_since_last_try = now_aware - last_try_time
     if time_since_last_try.seconds < wait_time and session['tries'] >= max_tries:
         wait_seconds = wait_time - time_since_last_try.seconds
@@ -170,7 +166,6 @@ def login_screen():
         return render_template('login_screen.html', text=session['text'], error=error_message)
 
     if request.method == 'POST':
-        # Aqui você captura os dados do formulário e envia para a API Java
         email = request.form['email_login']
         senha = request.form['senha_login']
         
@@ -187,10 +182,9 @@ def login_screen():
                 return redirect(url_for('login_screen'))
 
             elif response.ok:
-                # Reseta as tentativas após login bem-sucedido
                 session.pop('tries', None)
                 session.pop('last_try_time', None)
-                session['user'] = response.json() 
+                session['user'] = response.json()  # Certifique-se de que `user` é definido corretamente na sessão
                 session['logged_in'] = True
                 return redirect(url_for('admin'))
             else:
@@ -199,13 +193,10 @@ def login_screen():
 
                 return render_template('login_screen.html', text=session['text'])
         except requests.exceptions.ConnectionError:
-            # Captura o caso em que a API está offline ou o hostname não pode ser resolvido
             flash(session['flash_text']['conn_error'], 'error')
         
-        # Redireciona para a página de login novamente ou para onde você achar adequado
         return redirect(url_for('login_screen'))
 
-    # Se o método for GET, apenas exiba a tela de login.
     return render_template('login_screen.html', text=session['text'])
 
 @app.route("/logout")
@@ -522,7 +513,7 @@ def api_deletar_clinica(id):
 
 # ------------AGENDAMENTO CRUD--------------------
 
-@app.route('/api/agendamentos/cadastrar', methods=['POST'])
+@app.route('/api/agendamentos', methods=['POST'])
 def api_criar_agendamento():
     data = request.json
     agendamento_data = {
@@ -536,7 +527,7 @@ def api_criar_agendamento():
     }
     response = requests.post(app.api + 'agendamentos', json=agendamento_data)
 
-    if response.ok:
+    if response.status_code == '201':
         response_data = response.json()  # Extrair os dados da resposta JSON
         protocolo_id = response_data.get('id')
         flash(Markup(f"Agendamento criado com sucesso! Protocolo: {protocolo_id}")), 201

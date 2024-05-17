@@ -16,9 +16,6 @@
 	<properties>
 		<java.version>17</java.version>
 	</properties>
-
-
-
 	<dependencies>
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -48,6 +45,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+			<version>1.6.2</version>
 		</dependency>
 	</dependencies>
 

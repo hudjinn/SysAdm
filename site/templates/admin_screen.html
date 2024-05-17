@@ -1,6 +1,6 @@
 {% import 'flash_msg.html' as flash_msgs %}
 <!DOCTYPE html>
-<html lang="{{ session['language'] }}" data-session-cpf="{{ session['user'].get('cpf', '') }}">
+<html lang="{{ session['language'] }}" data-session-cpf="{{ session.get('user', {}).get('cpf', '') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

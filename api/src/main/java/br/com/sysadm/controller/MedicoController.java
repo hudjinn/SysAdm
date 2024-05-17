@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import br.com.sysadm.model.Medico;
 import br.com.sysadm.repository.HorarioRepository;
 import br.com.sysadm.repository.MedicoRepository;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -137,13 +138,13 @@ public class MedicoController {
      * HTTP 200 OK
      */
     @DeleteMapping("/remover/{id}")
+    @Transactional
     public ResponseEntity<Void> deleteMedico(@PathVariable Long id) {
-        if (medicoRepository.existsById(id)) {
-            // Remover registros relacionados na tabela horario
-            horarioRepository.deleteByMedicoId(id);
-            
-            // Remover o médico
-            medicoRepository.deleteById(id);
+        Optional<Medico> medicoOptional = medicoRepository.findById(id);
+        if (medicoOptional.isPresent()) {
+            Medico medico = medicoOptional.get();
+            horarioRepository.deleteByMedicoId(medico.getId());
+            medicoRepository.deleteById(medico.getId());
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();

@@ -1,5 +1,6 @@
 package br.com.sysadm.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,7 +39,7 @@ public class Medico {
     private Set<Clinica> clinicas = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "medico")
+    @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Horario> horarios = new HashSet<>();
 
     // Getters e Setters

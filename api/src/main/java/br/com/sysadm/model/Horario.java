@@ -23,7 +23,7 @@ public class Horario {
     private Long id;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "medico_id")
     @JsonIgnore
     private Medico medico;

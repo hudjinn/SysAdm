@@ -1,0 +1,239 @@
+{% import 'flash_msg.html' as flash_msgs %}
+<!DOCTYPE html>
+<html lang="{{ session['language'] }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ text.sched_screen }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/sheduling_screen.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+</head>
+<body>
+    {{ flash_msgs.render_flash_messages() }}
+    {% include 'language.html' %}
+
+    <a href="/login">{% include "header.html" %}</a>
+
+    {% block content %}
+    <div class="container">
+        <div class="content">      
+            <!-- FORMULÁRIO DE AGENDAMENTO -->
+            <h1>{{ text.schedule_panel }}</h1>
+            <div class="agendamento">
+                <form id="agendamento-form" method="post" action="{{ url_for('create_scheduling_screen') }}">
+                    <div class="form-left">
+                        <p>
+                            <label for="nome_agen">{{ text.name_label }}</label>
+                            <input id="nome_agen" name="nome_agen" required="required" type="text" placeholder="{{ text.name_placeholder }}" />
+                        </p>
+                        <p>
+                            <label for="email_agen">{{ text.email_label }}</label>
+                            <input id="email_agen" name="email_agen" required="required" type="email" placeholder="{{ text.email_placeholder }}"/>
+                        </p>
+                        <p>
+                            <label for="clinica_agen">{{ text.clinic }}</label>
+                            <select id="clinica_agen" name="clinica_agen" required="required">
+                                <option value="" selected disabled>{{ text.clinic_select }}</option>
+                            </select>
+                        </p>
+                        <p id="endereco_clinica"></p>
+                        <p>
+                            <label for="especia_agen">{{ text.specialty }}</label>
+                            <select id="especia_agen" name="especia_agen" required="required">
+                                <option value="" selected disabled>{{ text.spec_select }}</option>
+                            </select>
+                        </p>
+                        <p>
+                            <label for="medico_agen">{{ text.doctor }}</label>
+                            <select id="medico_agen" name="medico_agen" required="required">
+                                <option value="" selected disabled>{{ text.doctor_select }}</option>
+                            </select>
+                        </p>
+                    </div>
+                    <div class="form-right">
+                        <p>
+                            <label for="data_agen">Data</label>
+                            <input id="data_agen" name="data_agen" required="required" type="hidden"/>
+                        </p>
+                        <div id="horarios_disponiveis" class="horarios-disponiveis">
+                            <label>{{ text.select_time }}</label>
+                            <div id="horarios-container"></div>
+                        </div>
+                        <p>
+                            <input type="hidden" id="hora_agen" name="hora_agen"/>
+                            <input type="submit" value="{{ text.sched_button }}"/>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function carregarClinicas() {
+                fetch('/api/clinicas')
+                    .then(response => response.json())
+                    .then(data => {
+                        const clinicaSelect = document.getElementById('clinica_agen');
+                        clinicaSelect.innerHTML = '<option value="" disabled selected>{{ text.clinic_select }}</option>';
+                        data.forEach(clinica => {
+                            const option = document.createElement('option');
+                            option.value = clinica.id;
+                            option.setAttribute('data-endereco', clinica.endereco);
+                            option.textContent = clinica.nome;
+                            clinicaSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Erro ao buscar clínicas:', error));
+            }
+
+            function carregarEspecialidades(clinicaId) {
+                fetch(`/api/clinicas/${clinicaId}/especialidades`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const especialidadeSelect = document.getElementById('especia_agen');
+                        especialidadeSelect.innerHTML = '<option value="" disabled selected>{{ text.spec_select }}</option>';
+                        data.forEach(especialidade => {
+                            const option = document.createElement('option');
+                            option.value = especialidade;
+                            option.textContent = especialidade;
+                            especialidadeSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Erro ao buscar especialidades:', error));
+            }
+
+            function carregarMedicos(clinicaId, especialidade) {
+                fetch(`/api/clinicas/${clinicaId}/especialidades/${especialidade}/medicos`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const medicoSelect = document.getElementById('medico_agen');
+                        medicoSelect.innerHTML = '<option value="" disabled selected>{{ text.doctor_select }}</option>';
+                        data.forEach(medico => {
+                            const option = document.createElement('option');
+                            option.value = medico.id;
+                            option.textContent = medico.nome;
+                            medicoSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Erro ao buscar médicos:', error));
+            }
+
+            function carregarDiasDisponiveis(clinicaId, medicoId) {
+                fetch(`/api/agendamentos/dias-disponiveis?clinicaId=${clinicaId}&medicoId=${medicoId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const diasDisponiveis = data.map(dia => {
+                            switch(dia) {
+                                case 'MONDAY': return 1;
+                                case 'TUESDAY': return 2;
+                                case 'WEDNESDAY': return 3;
+                                case 'THURSDAY': return 4;
+                                case 'FRIDAY': return 5;
+                                case 'SATURDAY': return 6;
+                                case 'SUNDAY': return 0;
+                                default: return null;
+                            }
+                        });
+
+                        let localeConfig;
+                        const lang = document.documentElement.lang;
+                        switch (lang) {
+                            case 'pt_BR':
+                                localeConfig = flatpickr.l10ns.pt;
+                                break;
+                            case 'es':
+                                localeConfig = flatpickr.l10ns.es;
+                                break;
+                            case 'en-US':
+                            default:
+                                localeConfig = flatpickr.l10ns.default;
+                                break;
+                        }
+
+                        flatpickr("#data_agen", {
+                            enable: [
+                                function(date) {
+                                    return diasDisponiveis.includes(date.getDay());
+                                }
+                            ],
+                            locale: localeConfig,
+                            dateFormat: localeConfig.dateFormat || "Y-m-d", // Ajustar o formato de data conforme o idioma
+                            altFormat: localeConfig.altFormat || "d-m-Y",
+                            altInput: true,
+                        });
+                    })
+                    .catch(error => console.error('Erro ao buscar dias disponíveis:', error));
+            }
+
+            function carregarHorarios(clinicaId, medicoId, dia) {
+                fetch(`/api/agendamentos/horarios?clinicaId=${clinicaId}&medicoId=${medicoId}&dia=${dia}`)
+                .then(response => response.json())
+                .then(data => {
+                    const horariosContainer = document.getElementById('horarios-container');
+                    horariosContainer.innerHTML = ''; 
+
+                    data.forEach(horario => {
+                        const horarioBox = document.createElement('div');
+                        horarioBox.classList.add('horario-box');
+                        horarioBox.textContent = horario.horarioInicio.substring(0, 5); // Exibir apenas HH:mm
+                        horarioBox.setAttribute('data-horario', horario.horarioInicio);
+
+                        if (horario.agendado) {
+                            horarioBox.classList.add('agendado');
+                            horarioBox.classList.add('unselectable');
+                        } else {
+                            horarioBox.addEventListener('click', function() {
+                                document.querySelectorAll('.horario-box').forEach(box => box.classList.remove('selected'));
+                                horarioBox.classList.add('selected');
+                                document.getElementById('hora_agen').value = horario.horarioInicio;
+                            });
+                        }
+
+                        horariosContainer.appendChild(horarioBox);
+                    });
+                })
+                .catch(error => console.error('Erro ao buscar horários disponíveis:', error));
+            }
+
+
+            document.getElementById('clinica_agen').addEventListener('change', function () {
+                const clinicaId = this.value;
+                const enderecoClinica = this.options[this.selectedIndex].getAttribute('data-endereco');
+                document.getElementById('endereco_clinica').textContent = `Endereço: ${enderecoClinica}`;
+                carregarEspecialidades(clinicaId);
+            });
+
+            document.getElementById('especia_agen').addEventListener('change', function () {
+                const clinicaId = document.getElementById('clinica_agen').value;
+                const especialidade = this.value;
+                carregarMedicos(clinicaId, especialidade);
+            });
+
+            document.getElementById('medico_agen').addEventListener('change', function () {
+                const clinicaId = document.getElementById('clinica_agen').value;
+                const medicoId = this.value;
+                carregarDiasDisponiveis(clinicaId, medicoId);
+            });
+
+            document.getElementById('data_agen').addEventListener('change', function () {
+                const clinicaId = document.getElementById('clinica_agen').value;
+                const medicoId = document.getElementById('medico_agen').value;
+                const dia = this.value;
+                if (clinicaId && medicoId && dia) {
+                    carregarHorarios(clinicaId, medicoId, dia);
+                }
+            });
+            carregarClinicas();
+        });
+
+    </script>
+    {% endblock %}
+
+</body>
+</html>

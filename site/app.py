@@ -1,10 +1,13 @@
+import time
 from zoneinfo import ZoneInfo
 from datetime import datetime
 import os
 import json
 from functools import wraps
 
-from flask import Flask, jsonify, render_template, request, redirect, url_for, session, flash
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session, flash, g
+from markupsafe import Markup
+
 import requests
 
 
@@ -23,65 +26,12 @@ text_path =  root + '/locate'
 # API JAVA
 app.api = 'http://sysadm-api:8080/'
 
-# Usuários de teste
-usuarios = [{
-		"nome": 'Fulano de Tal',
-		"email": 'adm@teste.com',
-		"dataNasc": '2222-01-01',
-		"cpf": '12345678900',
-		"senha": '123456',
-		"ativo": True
-    },
-    {
-        "nome": "Ana Beatriz",
-        "email": "ana@teste.com",
-        "dataNasc": "1995-04-22",
-        "cpf": "98765432109",
-        "senha": "senhaSegura",
-        "ativo": True
-    },
-    {
-        "nome": "Roberto Silva",
-        "email": "roberto@teste.com",
-        "dataNasc": "1988-12-15",
-        "cpf": "12312312399",
-        "senha": "outraSenha123",
-        "ativo": True
-    },
-    {
-        "nome": "Carla dos Santos",
-        "email": "carla@teste.com",
-        "dataNasc": "2000-07-03",
-        "cpf": "45645645666",
-        "senha": "carlaSenha",
-        "ativo": True
-    },
-    {
-        "nome": "Pedro Oliveira",
-        "email": "pedro@teste.com",
-        "dataNasc": "1992-02-28",
-        "cpf": "78978978911",
-        "senha": "pedro1234",
-        "ativo": False
-
-    },
-    {
-        "nome": "Juliana Moraes",
-        "email": "juliana@teste.com",
-        "dataNasc": "1998-11-20",
-        "cpf": "32132132177",
-        "senha": "julianaSenha",
-        "ativo": True
-    }
-]
-for user_data in usuarios:
-    response = requests.post(app.api + 'usuario/cadastrar', json=user_data)
 
 def check_api_status(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         try:
-            response = requests.get(app.api + 'usuario')
+            response = requests.get(app.api + 'usuarios')
             if response.status_code == 200:
                 return f(*args, **kwargs)
             else:
@@ -91,6 +41,27 @@ def check_api_status(f):
             flash(session['flash_text']['conn_error'], 'error')
             return redirect(url_for('login_screen'))
     return decorated_function
+
+def wait_for_api(api_url, timeout=300, interval=10):
+    """
+    Espera até que a API esteja disponível ou o timeout seja alcançado.
+
+    :param api_url: URL da API a ser verificada.
+    :param timeout: Tempo máximo de espera em segundos.
+    :param interval: Intervalo entre as verificações em segundos.
+    """
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            response = requests.get(api_url)
+            if response.status_code == 200:
+                print("API está online.")
+                return True
+        except requests.exceptions.RequestException as e:
+            print(f"API não disponível, tentando novamente em {interval} segundos... Erro: {e}")
+        time.sleep(interval)
+    print("Timeout alcançado, a API não está disponível.")
+    return False
 
 @app.before_request
 def before_request():
@@ -140,10 +111,39 @@ def login_required(f):
     decorated_function.__name__ = f.__name__
     return decorated_function
 
-@app.route('/')
-def home():
-    # return render_template('home.html', text=session['text'])
-    return '<p>Hello, World!</p>'
+# Rota inicial para a página de agendamento 
+@app.route('/', methods=['GET', 'POST'])
+def create_scheduling_screen():
+    if request.method == 'POST':
+        try:
+            data = request.form
+            agendamento = {
+                "clinica": {"id": data['clinica_agen']},
+                "medico": {"id": data['medico_agen']},
+                "dataAgendamento": data['data_agen'],
+                "horaAgendamento": data['hora_agen'],
+                "nomePaciente": data['nome_agen'],
+                "emailPaciente": data['email_agen']
+            }
+
+            response = requests.post(app.api + 'agendamentos', json=agendamento)
+
+            if response.ok:
+                response_data = response.json()  # Extrair os dados da resposta JSON
+                protocolo_id = response_data.get('id')
+                flash(Markup(f"Agendamento criado com sucesso! Protocolo: {protocolo_id}"), 'success')
+                return redirect(url_for('create_scheduling_screen'))
+            else:
+                flash("Erro ao criar agendamento na API", 'error')
+                return redirect(url_for('create_scheduling_screen'))
+        except KeyError as e:
+            flash(f"Campo faltando: {str(e)}", 'error')
+            return redirect(url_for('create_scheduling_screen'))
+        except Exception as e:
+            flash(f"Erro: {str(e)}", 'error')
+            return redirect(url_for('create_scheduling_screen'))
+
+    return render_template('create_scheduling_screen.html', text=session['text'])
 
 # Rota para a página de login
 @app.route('/login', methods=['GET', 'POST'])
@@ -151,17 +151,13 @@ def login_screen():
     max_tries = 3
     wait_time = 60  # Tempo de espera em segundos
 
-    # Certifique-se de que 'last_try_time' esteja sempre offset-aware
     if 'tries' not in session:
         session['tries'] = 0
-        # Armazena o tempo como offset-aware usando UTC
         session['last_try_time'] = datetime.now(ZoneInfo("UTC")).isoformat()
 
-    # Converter a string ISO de volta para datetime e torná-lo offset-aware
     last_try_time = datetime.fromisoformat(session['last_try_time']).replace(tzinfo=ZoneInfo("UTC"))
     now_aware = datetime.now(ZoneInfo("UTC"))
 
-    # Calcular o tempo desde a última tentativa
     time_since_last_try = now_aware - last_try_time
     if time_since_last_try.seconds < wait_time and session['tries'] >= max_tries:
         wait_seconds = wait_time - time_since_last_try.seconds
@@ -170,12 +166,11 @@ def login_screen():
         return render_template('login_screen.html', text=session['text'], error=error_message)
 
     if request.method == 'POST':
-        # Aqui você captura os dados do formulário e envia para a API Java
         email = request.form['email_login']
         senha = request.form['senha_login']
         
         try:
-            response = requests.post(app.api + 'usuario/login', json={'email': email, 'senha': senha})
+            response = requests.post(app.api + 'usuarios/login', json={'email': email, 'senha': senha})
             if not response.ok:
                 session['tries'] += 1
                 session['last_try_time'] = datetime.now(ZoneInfo("UTC")).isoformat()
@@ -187,10 +182,9 @@ def login_screen():
                 return redirect(url_for('login_screen'))
 
             elif response.ok:
-                # Reseta as tentativas após login bem-sucedido
                 session.pop('tries', None)
                 session.pop('last_try_time', None)
-                session['user'] = response.json() 
+                session['user'] = response.json()  # Certifique-se de que `user` é definido corretamente na sessão
                 session['logged_in'] = True
                 return redirect(url_for('admin'))
             else:
@@ -199,14 +193,18 @@ def login_screen():
 
                 return render_template('login_screen.html', text=session['text'])
         except requests.exceptions.ConnectionError:
-            # Captura o caso em que a API está offline ou o hostname não pode ser resolvido
             flash(session['flash_text']['conn_error'], 'error')
         
-        # Redireciona para a página de login novamente ou para onde você achar adequado
         return redirect(url_for('login_screen'))
 
-    # Se o método for GET, apenas exiba a tela de login.
     return render_template('login_screen.html', text=session['text'])
+
+@app.route("/logout")
+@login_required
+def logout():
+    del session['logged_in']
+    return redirect(url_for('login_screen'))
+
 
 
 # Rota para a página de cadastro
@@ -228,7 +226,7 @@ def create_account_screen():
         }
 
         # Envia os dados do usuário para a API
-        response = requests.post( app.api + 'usuario/cadastrar', json=user_data)
+        response = requests.post( app.api + 'usuarios/cadastrar', json=user_data)
 
         if response.status_code == 201:
             # Usuário criado com sucesso, redirecionar para a tela de login ou outra página
@@ -252,7 +250,7 @@ def recover_password():
         data_nasc = request.form['data_nasc_recovery']
         data_nasc_formatted = datetime.strptime(data_nasc, "%Y-%m-%d").strftime("%Y-%m-%d")
 
-        response = requests.post(app.api + 'usuario/recuperar-senha', json={'email': email, 'cpf': cpf, 'dataNasc': data_nasc_formatted})
+        response = requests.post(app.api + 'usuarios/recuperar-senha', json={'email': email, 'cpf': cpf, 'dataNasc': data_nasc_formatted})
         if response.ok:
             return redirect(url_for('change_password', cpf=cpf))
         else:
@@ -260,8 +258,6 @@ def recover_password():
             flash(error_message, 'error')
 
     return render_template('recover_password.html', text=session['text'])
-
-
 
 @app.route('/change_password/<cpf>', methods=['GET', 'POST'])
 @check_api_status
@@ -294,13 +290,13 @@ def change_password(cpf):
 # Rota para a página de administração do site
 @app.route('/admin', methods=['GET', 'POST'])
 @check_api_status
-@login_required
+#@login_required
 def admin():
     # Renderiza o template, passando os dados dos usuários e as mensagens de flash
     return render_template('admin_screen.html', text=session['text'], flash_text=session.pop('flash_text', None))
 
 def obter_usuarios():
-    resposta = requests.get(app.api + 'usuario')
+    resposta = requests.get(app.api + 'usuarios')
     if resposta.status_code == 200:
         dados = resposta.json()
         return dados
@@ -308,6 +304,9 @@ def obter_usuarios():
         flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
         return redirect(url_for('admin'))
 
+# --------------API----------------
+
+# --------------ADMIN--------------
 @app.route('/api/usuarios')
 @check_api_status
 @login_required
@@ -321,7 +320,7 @@ def dados_api():
         return redirect(url_for('admin'))
 
 
-@app.route('/api/criar', methods=['POST'])
+@app.route('/api/usuarios/criar', methods=['POST'])
 @check_api_status
 @login_required
 def api_criar_usuario():
@@ -335,65 +334,323 @@ def api_criar_usuario():
         "ativo": True
     }
 
-    response = requests.post(app.api + 'usuario/cadastrar', json=user_data)
+    response = requests.post(app.api + 'usuarios/cadastrar', json=user_data)
     if response.status_code == 201:
-        flash(session['flash_text']['create_user_success'], 'success')
+        return jsonify({"message": session['flash_text']['create_user_success']}), 201
+    elif response.status_code == 409:
+        return jsonify({"message": "CPF já cadastrado"}), 409
     else:
-        flash(session['flash_text']['create_user_fail'], 'error')
-    return str(response.status_code)
+        return jsonify({"message": session['flash_text']['create_user_fail']}), response.status_code
 
 
-@app.route('/api/atualizar/<cpf>', methods=['PATCH'])
+@app.route('/api/usuarios/atualizar/<cpf>', methods=['PATCH'])
 @check_api_status
 @login_required
 def api_atualizar_usuario(cpf):
     if str(session['user']['cpf']) != str(cpf):
         try:
             user_data = request.json
-            response = requests.patch(f'{app.api}usuario/atualizar/{cpf}', json=user_data)
+            user_data["cpf"] = cpf  # Adicione o CPF no corpo da requisição
+
+            response = requests.patch(f'{app.api}usuarios/atualizar/{cpf}', json=user_data)
 
             if response.status_code == 200:
-                flash(session['flash_text']['update_user_success'], 'success')
+                return jsonify({"message": session['flash_text']['update_user_success']}), 200
             else:
-                flash(session['flash_text']['update_user_fail'], 'error')
-            return str(response.status_code)
+                return jsonify({"message": session['flash_text']['update_user_fail']}), response.status_code
 
         except Exception as e:
-            flash(session['flash_text']['unknown_error'], 'error')
-            return '500'
+            return jsonify({"message": session['flash_text']['unknown_error']}), 500
 
     else:
-        flash(session['flash_text']['self_edit_error'], 'error')
-        return '403'
+        return jsonify({"message": session['flash_text']['self_edit_error']}), 403
 
-
-@app.route('/api/remover/<cpf>', methods=['DELETE'])
+@app.route('/api/usuarios/remover/<cpf>', methods=['DELETE'])
 @check_api_status
 @login_required
 def api_deletar_usuario(cpf):
-
     if str(session['user']['cpf']) != str(cpf):
         try:
-            response = requests.delete(f'{app.api}usuario/remover/{cpf}')
+            response = requests.delete(f'{app.api}usuarios/remover/{cpf}')
 
             if response.status_code == 200:
-                flash(session['flash_text']['delete_user_success'], 'success')
+                return jsonify({"message": session['flash_text']['delete_user_success']}), 200
             else:
-                flash(session['flash_text']['delete_user_fail'], 'error')
-            return str(response.status_code)
+                return jsonify({"message": session['flash_text']['delete_user_fail']}), response.status_code
         except requests.exceptions.RequestException as e:
-            flash(session['flash_text']['conn_error'], 'error')
-            return '500'
+            return jsonify({"message": session['flash_text']['conn_error']}), 500
     else:
-        flash(session['flash_text']['self_delete_error'], 'error')
-        return '403'
+        return jsonify({"message": session['flash_text']['self_delete_error']}), 403
 
-@app.route("/logout")
+    
+# ---------------MEDICO CRUD--------------------
+# Rota para obter todos os médicos
+@app.route('/api/medicos')
+@check_api_status
 @login_required
-def logout():
-    del session['logged_in']
-    return redirect(url_for('login_screen'))
+def dados_medicos():
+    try:
+        resposta = requests.get(app.api + 'medicos')
+        if resposta.status_code == 200:
+            dados = resposta.json()
+            return jsonify(dados)
+        else:
+            flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
+            return redirect(url_for('admin'))
+    except requests.exceptions.RequestException as e:
+        flash(f"{session['flash_text']['conn_error']} | Error: {e}", 'error')
+        return redirect(url_for('admin'))
+
+@app.route('/api/medicos/cadastrar', methods=['POST'])
+@check_api_status
+@login_required
+def api_criar_medico():
+    data = request.json
+    medico_data = {
+        "cpf": data['cpf'],
+        "nome": data['nome'],
+        "especialidade": data['especialidade'],
+    }
+
+    response = requests.post(app.api + 'medicos/cadastrar', json=medico_data)
+    if response.status_code == 201:
+        return jsonify({"message": session['flash_text']['create_user_success']}), 201
+    elif response.status_code == 409:
+        return jsonify({"message": "CPF já cadastrado"}), 409
+    else:
+        return jsonify({"message": session['flash_text']['create_user_fail']}), response.status_code
+
+@app.route('/api/medicos/atualizar/<id>', methods=['PATCH'])
+@check_api_status
+@login_required
+def api_atualizar_medico(id):
+    try:
+        medico_data = request.json
+        response = requests.patch(f'{app.api}medicos/atualizar/{id}', json=medico_data)
+        if response.status_code == 200:
+            return jsonify({"message": session['flash_text']['update_user_success']}), 200
+        else:
+            return jsonify({"message": session['flash_text']['update_user_fail']}), response.status_code
+    except Exception as e:
+        return jsonify({"message": session['flash_text']['unknown_error']}), 500
+
+@app.route('/api/medicos/remover/<id>', methods=['DELETE'])
+@check_api_status
+@login_required
+def api_deletar_medico(id):
+    try:
+        response = requests.delete(f'{app.api}medicos/remover/{id}')
+        if response.status_code == 200:
+            return jsonify({"message": session['flash_text']['delete_user_success']}), 200
+        else:
+            return jsonify({"message": session['flash_text']['delete_user_fail']}), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"message": session['flash_text']['conn_error']}), 500
+
+
+
+# -----------------CLINICAS CRUD---------------------
+# Rota para obter todas as clínicas
+@app.route('/api/clinicas')
+@check_api_status
+def dados_clinicas():
+    try:
+        resposta = requests.get(app.api + 'clinicas')
+        if resposta.status_code == 200:
+            dados = resposta.json()
+            return jsonify(dados)
+        else:
+            flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
+            return redirect(url_for('admin'))
+    except requests.exceptions.RequestException as e:
+        flash(f"{session['flash_text']['conn_error']} | Error: {e}", 'error')
+        return redirect(url_for('admin'))
+
+@app.route('/api/clinicas/cadastrar', methods=['POST'])
+@check_api_status
+@login_required
+def api_criar_clinica():
+    data = request.json
+    clinica_data = {
+        "nome": data['nome'],
+        "endereco": data['endereco']
+    }
+    
+    response = requests.post(app.api + 'clinicas/cadastrar', json=clinica_data)
+    if response.status_code == 201:
+        return jsonify({"message": session['flash_text']['create_clinic_success']}), 201
+    elif response.status_code == 409:
+        return jsonify({"message": "Nome da clínica já cadastrado"}), 409
+    else:
+        return jsonify({"message": session['flash_text']['create_clinic_fail']}), response.status_code
+
+@app.route('/api/clinicas/atualizar/<int:id>', methods=['PATCH'])
+@check_api_status
+@login_required
+def api_atualizar_clinica(id):
+    try:
+        clinica_data = request.json
+        response = requests.patch(f'{app.api}clinicas/atualizar/{id}', json=clinica_data)
+        if response.status_code == 200:
+            return jsonify({"message": session['flash_text']['update_clinic_success']}), 200
+        else:
+            return jsonify({"message": session['flash_text']['update_clinic_fail']}), response.status_code
+    except Exception as e:
+        return jsonify({"message": session['flash_text']['unknown_error']}), 500
+
+@app.route('/api/clinicas/remover/<int:id>', methods=['DELETE'])
+@check_api_status
+@login_required
+def api_deletar_clinica(id):
+    try:
+        response = requests.delete(f'{app.api}clinicas/remover/{id}')
+        if response.status_code == 200:
+            return jsonify({"message": session['flash_text']['delete_clinic_success']}), 200
+        else:
+            return jsonify({"message": session['flash_text']['delete_clinic_fail']}), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"message": session['flash_text']['conn_error']}), 500
+
+# ------------AGENDAMENTO CRUD--------------------
+
+@app.route('/api/agendamentos', methods=['POST'])
+def api_criar_agendamento():
+    data = request.json
+    agendamento_data = {
+        "nomePaciente": data['nomePaciente'],
+        "emailPaciente": data['emailPaciente'],
+        "clinica": {"id": data['clinica']},
+        "medico": {"id": data['medico']},
+        "dataAgendamento": data['dataAgendamento'],
+        "horaAgendamento": data['horaAgendamento'],
+        "status": "AGENDADO"  # Define o status como AGENDADO por padrão
+    }
+    response = requests.post(app.api + 'agendamentos', json=agendamento_data)
+
+    if response.status_code == 201:
+        response_data = response.json()  # Extrair os dados da resposta JSON
+        protocolo_id = response_data.get('id')
+        flash(Markup(f"Agendamento criado com sucesso! Protocolo: {protocolo_id}")), 201
+    else:
+        return jsonify({"error": "Erro ao criar agendamento na API"}), response.status_code
+
+# Rota para atualizar um agendamento existente
+@app.route('/api/agendamentos/atualizar/<int:id>', methods=['PATCH'])
+def api_atualizar_agendamento(id):
+    try:
+        agendamento_data = request.json
+        response = requests.patch(f'{app.api}agendamentos/atualizar/{id}', json=agendamento_data)
+        if response.status_code == 200:
+            return jsonify({"message": "Agendamento atualizado com sucesso!"}), 200
+        else:
+            return jsonify({"message": "Erro ao atualizar agendamento"}), response.status_code
+    except Exception as e:
+        return jsonify({"message": "Erro desconhecido ao atualizar agendamento"}), 500
+
+# Rota para remover um agendamento existente
+@app.route('/api/agendamentos/remover/<int:id>', methods=['DELETE'])
+def api_deletar_agendamento(id):
+    try:
+        response = requests.delete(f'{app.api}agendamentos/remover/{id}')
+        if response.status_code == 200:
+            return jsonify({"message": "Agendamento removido com sucesso!"}), 200
+        else:
+            return jsonify({"message": "Erro ao remover agendamento"}), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"message": "Erro ao conectar com o servidor"}), 500
+
+
+@app.route('/api/agendamentos/horarios')
+def get_horarios():
+    clinica_id = request.args.get('clinicaId')
+    medico_id = request.args.get('medicoId')
+    dia = request.args.get('dia')
+
+    if clinica_id and medico_id and dia:
+        response = requests.get(f"{app.api}agendamentos/horarios?clinicaId={clinica_id}&medicoId={medico_id}&dia={dia}")
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return jsonify({'error': 'Erro ao buscar horários disponíveis'}), response.status_code
+    else:
+        return jsonify({'error': 'Parâmetros insuficientes'}), 400
+
+# ---------- CLINICAS CONTROLE -----------
+# Rota para obter especialidades de uma clínica
+@app.route('/api/clinicas/<int:clinica_id>/especialidades')
+@check_api_status
+
+def obter_especialidades(clinica_id):
+    try:
+        resposta = requests.get(app.api + f'clinicas/{clinica_id}/especialidades')
+        if resposta.status_code == 200:
+            dados = resposta.json()
+            return jsonify(dados)
+        else:
+            flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
+            return redirect(url_for('admin'))
+    except requests.exceptions.RequestException as e:
+        flash(f"{session['flash_text']['conn_error']} | Error: {e}", 'error')
+        return redirect(url_for('admin'))
+
+# Rota para obter médicos por especialidade de uma clínica
+@app.route('/api/clinicas/<int:clinica_id>/especialidades/<string:especialidade>/medicos')
+@check_api_status
+
+def obter_medicos_por_especialidade(clinica_id, especialidade):
+    try:
+        resposta = requests.get(app.api + f'clinicas/{clinica_id}/especialidades/{especialidade}/medicos')
+        if resposta.status_code == 200:
+            dados = resposta.json()
+            return jsonify(dados)
+        else:
+            flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
+            return redirect(url_for('admin'))
+    except requests.exceptions.RequestException as e:
+        flash(f"{session['flash_text']['conn_error']} | Error: {e}", 'error')
+        return redirect(url_for('admin'))
+
+# ------------AGENDAMENTO CONTROLE ------------
+@app.route('/api/agendamentos/')
+def dados_agendamentos():
+    try:
+        resposta = requests.get(app.api + 'agendamentos')
+        if resposta.status_code == 200:
+            dados = resposta.json()
+            return jsonify(dados)
+        else:
+            flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
+    except requests.exceptions.RequestException as e:
+        flash(f"{session['flash_text']['conn_error']} | Error: {e}", 'error')
+
+@app.route('/api/agendamentos/dias-disponiveis')
+def get_dias_disponiveis():
+    clinica_id = request.args.get('clinicaId')
+    medico_id = request.args.get('medicoId')
+    
+    response = requests.get(f'{app.api}agendamentos/dias-disponiveis?clinicaId={clinica_id}&medicoId={medico_id}')
+    if response.status_code == 200:
+        return jsonify(response.json())
+    else:
+        return jsonify({'error': 'Erro ao buscar dias disponíveis'}), response.status_code
+
+@app.route('/api/agendamentos/horarios-disponiveis')
+def get_horarios_disponiveis():
+    clinica_id = request.args.get('clinicaId')
+    medico_id = request.args.get('medicoId')
+    dia = request.args.get('dia')
+
+    if clinica_id and medico_id and dia:
+        response = requests.get(f"{app.api}agendamentos/horarios-disponiveis?clinicaId={clinica_id}&medicoId={medico_id}&dia={dia}")
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return jsonify({'error': 'Erro ao buscar horários disponíveis'}), response.status_code
+    else:
+        return jsonify({'error': 'Parâmetros insuficientes'}), 400
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.jinja_env.auto_reload = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.run(debug=True, host='0.0.0.0')

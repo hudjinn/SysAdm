@@ -44,23 +44,23 @@
     border-radius: 8px;
 }
 
-#user-table {
+#user-table, #doctor-table, #scheduling-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-#user-table th, #user-table td {
+th, td{
     padding: 10px;
     border-bottom: 1px solid #e1e1e1;
     text-align: center;
 }
 
-#user-table th {
+th {
     background-color: #31a2ac; /* Azul turquesa para cabeçalho da tabela */
     color: white;
 }
 
-#user-table tr:hover {
+tr:hover {
     background-color: #e1e1e1; /* Um leve cinza para quando passa o mouse por cima das linhas */
 }
 /* Torna os botões transparentes por padrão */
@@ -74,7 +74,7 @@ tr:hover .action-btn {
     opacity: 1;
 }
 
-.new-user-btn {
+.new-user-btn, .new-doctor-btn, .new-scheduling-btn {
     background-color: #007bff; /* Azul */
     color: white;
     padding: 10px 15px;
@@ -102,27 +102,6 @@ tr:hover .action-btn {
     border-radius: 5px;
     cursor: pointer;
 }
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
-}
-/* Estilos dos modais */
 .modal {
     display: none; /* Oculto por padrão */
     position: fixed; /* Ficar fixo */
@@ -157,4 +136,117 @@ tr:hover .action-btn {
     color: #000;
     text-decoration: none;
     cursor: pointer;
+}
+.flashes {
+    list-style-type: none;
+    padding: 0;
+}
+
+.flash-success {
+    color: green;
+    font-weight: bold;
+}
+
+.flash-error {
+    color: red;
+    font-weight: bold;
+}
+
+.flash-success strong {
+    color: blue;
+}
+.agendamento form, #editSchedulingForm {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.container h1 {
+    font-size: 26px;
+    color: #066a75;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-left, .form-right {
+    flex: 1;
+    margin: 20px;
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+label {
+    color: #405c60;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="date"],
+input[type="time"],
+select {
+    width: 100%;
+    padding-top: 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #b2b2b2;
+    border-radius: 3px;
+    box-shadow: 0px 1px 4px 0px rgba(168, 168, 168, 0.6) inset;
+    transition: all 0.2s linear;
+}
+
+input[type="submit"] {
+    width: 100%;
+    cursor: pointer;
+    background: #3d9db3;
+    padding: 8px 5px;
+    color: #fff;
+    font-size: 16px;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    transition: all 0.2s linear;
+}
+
+input[type="submit"]:hover {
+    background: #4ab3c6;
+}
+
+.horarios-disponiveis {
+    margin-top: 20px;
+}
+
+#horarios-container, #edit_horarios_container, #create_horarios_container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.horario-box {
+    padding: 10px;
+    border: 1px solid #b2b2b2;
+    border-radius: 3px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s linear;
+}
+
+.horario-box:hover {
+    background: #e1eaeb;
+}
+
+.horario-box.selected {
+    background: #4ab3c6;
+    color: #fff;
+}
+.horario-box.agendado  {
+    background: #ffcccc;
+    color: #a00;
+    cursor: not-allowed;
+}
+
+.horario-box.unselectable {
+    pointer-events: none;
 }

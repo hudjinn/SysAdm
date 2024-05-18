@@ -55,6 +55,12 @@
   "user_not_logged_in": "User not logged in",
   "dologin": "Log In",
   "create_new_user": "Create New User",
+  "create_new_doctor": "Create New Doctor",
+  "create_new_appointment": "Create New Appointment",
+  "clinic": "Clinic",
+  "specialty": "Specialty",
+  "doctor": "Doctor",
+  "schedule_panel": "Scheduling Page",
   "cpf": "CPF",
   "name": "Name",
   "email": "Email",
@@ -68,6 +74,8 @@
   "edit": "Edit",
   "delete": "Delete",
   "edit_user": "Editing User",
+  "edit_doctor": "Editing Doctor",
+  "edit_appointment": "Editing Appointment",
   "update_user_fail": "Failed to update user",
   "update_user_success": "User updated successfully",
   "update_user_error": "Error updating user",
@@ -80,5 +88,8 @@
   "active": "Active",
   "inactive": "Inactive",
   "delete_confirmation_title": "Are you sure?",
-  "delete_confirmation_text": "Once deleted, you will not be able to recover this user's data!"
+  "delete_confirmation_text": "Once deleted, you will not be able to recover this user's data!",
+  "user_management": "User Management",
+  "doctor_management": "Doctor Management",
+  "appointment_management": "Appointment Management"
 }

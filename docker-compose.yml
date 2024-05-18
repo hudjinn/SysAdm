@@ -11,6 +11,7 @@ services:
       - "5432:5432"
     networks:
       - network
+
   api:
     build: ./api
     container_name: sysadm-api
@@ -26,15 +27,34 @@ services:
       - postgres
     networks:
       - network
+
   site:
     container_name: sysadm-site
-    build: ./site
+    build:
+      context: ./site
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
+    volumes:
+      - ./site:/site
     networks:
       - network
     depends_on:
       - api
     restart: always
+
+  init-db:
+    build:
+      context: ./site
+      dockerfile: Dockerfile
+    container_name: sysadm-init-db
+    command: ["/site/wait-for-it.sh", "sysadm-api:8080", "--", "python", "insert_fake_data.py"]
+    depends_on:
+      - api
+    networks:
+      - network
+    environment:
+      WAIT_HOSTS: api:8080
+
 networks:
   network:

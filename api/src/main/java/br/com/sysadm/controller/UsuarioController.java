@@ -1,6 +1,8 @@
 package br.com.sysadm.controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +27,7 @@ import br.com.sysadm.repository.UsuarioRepository;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*") 
-@RequestMapping("/usuario")
+@RequestMapping("/usuarios")
 
 public class UsuarioController {
 
@@ -54,6 +56,34 @@ public class UsuarioController {
         Usuario novoUsuario = usuarioRepository.save(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
+    @PostMapping("/cadastrar/lote")
+    public ResponseEntity<?> cadastrarLoteUsuario(@RequestBody List<Usuario> usuarios) {
+        List<Usuario> usuariosCadastrados = new ArrayList<>();
+        List<String> erros = new ArrayList<>();
+
+        for (Usuario usuario : usuarios) {
+            // Verifica se o usuário já existe pela chave primária
+            Optional<Usuario> usuarioExistente = usuarioRepository.findByCpf(usuario.getCpf());
+            if (usuarioExistente.isPresent()) {
+                // Adiciona erro na lista de erros
+                erros.add("Usuário com CPF " + usuario.getCpf() + " já cadastrado.");
+                continue;  // Continua para o próximo usuário na lista
+            }
+            
+            // Se não existir, salva o novo usuário
+            Usuario novoUsuario = usuarioRepository.save(usuario);
+            usuariosCadastrados.add(novoUsuario);
+        }
+
+        // Cria um objeto de resposta contendo os usuários cadastrados e qualquer erro que tenha ocorrido
+        Map<String, Object> resposta = new HashMap<>();
+        resposta.put("usuariosCadastrados", usuariosCadastrados);
+        resposta.put("erros", erros);
+
+        // Retorna a lista de usuários cadastrados e os erros
+        return ResponseEntity.ok(resposta);
+    }
+
     @PatchMapping("/atualizar/{cpf}")
     public ResponseEntity<?> atualizarUsuario(@PathVariable String cpf, @RequestBody Map<String, Object> updates) {
         Optional<Usuario> usuarioOptional = usuarioRepository.findByCpf(cpf);

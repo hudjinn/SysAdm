@@ -1,0 +1,486 @@
+<div id="createSchedulingModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('createSchedulingModal')">&times;</span>
+        <h3>{{ text.create_new_scheduling }}</h3>
+        
+        <!-- FORMULÁRIO DE AGENDAMENTO -->
+        <div class="agendamento">
+            <form id="agendamento-form" method="post" onsubmit="submitScheduling(event, 'create')">
+                <div class="form-left">
+                    <p>
+                        <label for="create_nome">{{ text.name_label }}</label>
+                        <input id="create_nome" class="nome" name="nome" required="required" type="text" placeholder="{{ text.name_placeholder }}" />
+                    </p>
+                    <p>
+                        <label for="create_email">{{ text.email_label }}</label>
+                        <input id="create_email" class="email" name="email" required="required" type="email" placeholder="{{ text.email_placeholder }}"/>
+                    </p>
+                    <p>
+                        <label for="create_clinica">{{ text.clinic_name }}</label>
+                        <select id="create_clinica" class="clinica" name="clinica" required="required">
+                            <option value="" selected disabled>{{ text.clinic_select }}</option>
+                        </select>
+                    </p>
+                    <p id="create_endereco_clinica"></p>
+                    <p>
+                        <label for="create_especialidade">{{ text.doctor_spec }}</label>
+                        <select id="create_especialidade" class="especialidade" name="especialidade" required="required">
+                            <option value="" selected disabled>{{ text.spec_select }}</option>
+                        </select>
+                    </p>
+                    <p>
+                        <label for="create_medico"> {{ text.doctor.name }}</label>
+                        <select id="create_medico" class="medico" name="medico" required="required">
+                            <option value="" selected disabled>{{ text.doctor_select }}</option>
+                        </select>
+                    </p>
+                </div>
+                <div class="form-right">
+                    <p>
+                        <label for="create_data"> {{ text.sched_date }}</label>
+                        <input id="create_data" class="data" name="data" required="required" type="hidden"/>
+                    </p>
+                    <div id="create_horarios_disponiveis" class="horarios-disponiveis">
+                        <label>{{ text.select_time }}</label>
+                        <div id="create_horarios_container"></div>
+                    </div>
+                    <p>
+                        <input type="hidden" id="create_hora" class="hora" name="hora"/>
+                        <input type="submit" value="{{ text.sched_button }}"/>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="editSchedulingModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('editSchedulingModal')">&times;</span>
+        <h3>{{ text.edit_scheduling }}</h3>
+        <div class="agendamento">
+            <form id="editSchedulingForm" onsubmit="submitScheduling(event, 'edit')">
+                <input type="hidden" id="editSchedulingId" class="id" name="id">
+                <div class="form-left">
+                    <p>
+                        <label for="edit_nome">{{ text.patient_name }}</label>
+                        <input type="text" id="edit_nome" class="nome" name="nome" required>
+                    </p>
+                    <p>
+                        <label for="edit_email">{{ text.patient_email }}</label>
+                        <input type="email" id="edit_email" class="email" name="email" required>
+                    </p>
+                    <p>
+                        <label for="edit_clinica">{{ text.clinic_name }}</label>
+                        <select id="edit_clinica" class="clinica" name="clinica" required>
+                            <option value="" selected disabled>{{ text.clinic_select }}</option>
+                        </select>
+                    </p>
+                    <p id="edit_endereco_clinica"></p>
+                    <p>
+                        <label for="edit_medico">{{ text.doctor_name }}</label>
+                        <select id="edit_medico" class="medico" name="medico" required>
+                            <option value="" selected disabled>{{ text.doctor_select }}</option>
+                        </select>
+                    </p>
+                    <p>
+                        <label for="edit_especialidade">{{ text.doctor_spec }}</label>
+                        <select id="edit_especialidade" class="especialidade" name="especialidade" required>
+                            <option value="" selected disabled>{{ text.spec_select }}</option>
+                        </select>
+                    </p>
+                    <p>
+                        <label for="edit_status">{{ text.status }}</label>
+                        <select id="edit_status" class="status" name="status" required>
+                            <option value="AGENDADO">{{ text.status_scheduled }}</option>
+                            <option value="CANCELADO">{{ text.status_cancelled }}</option>
+                            <option value="REALIZADO">{{ text.status_completed }}</option>
+                        </select>
+                    </p>
+                </div>
+                <div class="form-right">
+                    <p>
+                        <label for="edit_data">{{ text.data_sched }}</label>
+                        <input id="edit_data" class="data" name="data" required="required" type="hidden"/>
+                    </p>
+                    <div id="edit_horarios_disponiveis" class="horarios-disponiveis">
+                        <label>{{ text.select_time }}</label>
+                        <div id="edit_horarios_container"></div>
+                    </div>
+                    <p>
+                        <input type="hidden" id="edit_hora" class="hora" name="hora"/>
+                        <input type="submit" value="{{ text.save_changes }}"/>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="admin-content">
+    <h2>{{ text.adm_panel }} - {{ text.scheduling_management }}</h2>
+    <button onclick="showCreateSchedulingModal()" class="new-scheduling-btn">{{ text.new_registration }}</button>
+
+    <table id="scheduling-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>{{ text.patient_name }}</th>
+                <th>{{ text.patient_email }}</th>
+                <th>{{ text.clinic }}</th>
+                <th>{{ text.specialty }}</th>
+                <th>{{ text.doctor }}</th>
+                <th>{{ text.date }}</th>
+                <th>{{ text.time }}</th>
+                <th>{{ text.status }}</th>
+                <th>{{ text.actions }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Os agendamentos serão carregados aqui via JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function showCreateSchedulingModal() {
+        document.getElementById('createSchedulingModal').style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function carregarClinicas(selectId, enderecoId, selectedClinicaId = null) {
+        fetch('/api/clinicas')
+            .then(response => response.json())
+            .then(data => {
+                const clinicaSelect = document.getElementById(selectId);
+                clinicaSelect.innerHTML = '<option value="" disabled selected>{{ text.clinic_select }}</option>';
+                data.forEach(clinica => {
+                    const option = document.createElement('option');
+                    option.value = clinica.id;
+                    option.setAttribute('data-endereco', clinica.endereco);
+                    option.textContent = clinica.nome;
+                    if (selectedClinicaId && clinica.id == selectedClinicaId) {
+                        option.selected = true;
+                    }
+                    clinicaSelect.appendChild(option);
+                });
+
+                if (enderecoId) {
+                    clinicaSelect.addEventListener('change', function () {
+                        const clinicaId = this.value;
+                        const enderecoClinica = this.options[this.selectedIndex].getAttribute('data-endereco');
+                        document.getElementById(enderecoId).textContent = `Endereço: ${enderecoClinica}`;
+                    });
+                }
+            })
+            .catch(error => console.error('Erro ao buscar clínicas:', error));
+    }
+
+    function carregarEspecialidades(clinicaId, selectId, selectedEspecialidade = null) {
+        fetch(`/api/clinicas/${clinicaId}/especialidades`)
+            .then(response => response.json())
+            .then(data => {
+                const especialidadeSelect = document.getElementById(selectId);
+                especialidadeSelect.innerHTML = '<option value="" disabled selected>{{ text.spec_select }}</option>';
+                data.forEach(especialidade => {
+                    const option = document.createElement('option');
+                    option.value = especialidade;
+                    option.textContent = especialidade;
+                    if (selectedEspecialidade && especialidade == selectedEspecialidade) {
+                        option.selected = true;
+                    }
+                    especialidadeSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Erro ao buscar especialidades:', error));
+    }
+
+    function carregarMedicos(clinicaId, especialidade, selectId, selectedMedicoId = null) {
+        fetch(`/api/clinicas/${clinicaId}/especialidades/${especialidade}/medicos`)
+            .then(response => response.json())
+            .then(data => {
+                const medicoSelect = document.getElementById(selectId);
+                medicoSelect.innerHTML = '<option value="" disabled selected>{{ text.doctor_select }}</option>';
+                data.forEach(medico => {
+                    const option = document.createElement('option');
+                    option.value = medico.id;
+                    option.textContent = medico.nome;
+                    if (selectedMedicoId && medico.id == selectedMedicoId) {
+                        option.selected = true;
+                    }
+                    medicoSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Erro ao buscar médicos:', error));
+    }
+
+    function carregarDiasDisponiveis(clinicaId, medicoId, inputId) {
+        fetch(`/api/agendamentos/dias-disponiveis?clinicaId=${clinicaId}&medicoId=${medicoId}`)
+            .then(response => response.json())
+            .then(data => {
+                const diasDisponiveis = data.map(dia => {
+                    switch(dia) {
+                        case 'MONDAY': return 1;
+                        case 'TUESDAY': return 2;
+                        case 'WEDNESDAY': return 3;
+                        case 'THURSDAY': return 4;
+                        case 'FRIDAY': return 5;
+                        case 'SATURDAY': return 6;
+                        case 'SUNDAY': return 0;
+                        default: return null;
+                    }
+                });
+
+                let localeConfig;
+                const lang = document.documentElement.lang;
+                switch (lang) {
+                    case 'pt_BR':
+                        localeConfig = flatpickr.l10ns.pt;
+                        break;
+                    case 'es':
+                        localeConfig = flatpickr.l10ns.es;
+                        break;
+                    case 'en-US':
+                    default:
+                        localeConfig = flatpickr.l10ns.default;
+                        break;
+                }
+
+                flatpickr(inputId, {
+                    enable: [
+                        function(date) {
+                            return diasDisponiveis.includes(date.getDay());
+                        }
+                    ],
+                    locale: localeConfig,
+                    dateFormat: localeConfig.dateFormat || "Y-m-d",
+                    altFormat: localeConfig.altFormat || "d-m-Y",
+                    altInput: true,
+                });
+            })
+            .catch(error => console.error('Erro ao buscar dias disponíveis:', error));
+    }
+
+    function carregarHorarios(clinicaId, medicoId, dia, containerId, inputId) {
+        fetch(`/api/agendamentos/horarios?clinicaId=${clinicaId}&medicoId=${medicoId}&dia=${dia}`)
+        .then(response => response.json())
+        .then(data => {
+            const horariosContainer = document.getElementById(containerId);
+            horariosContainer.innerHTML = ''; 
+
+            data.forEach(horario => {
+                const horarioBox = document.createElement('div');
+                horarioBox.classList.add('horario-box');
+                horarioBox.textContent = horario.horarioInicio.substring(0, 5);
+                horarioBox.setAttribute('data-horario', horario.horarioInicio);
+
+                if (horario.agendado) {
+                    horarioBox.classList.add('agendado');
+                    horarioBox.classList.add('unselectable');
+                } else {
+                    horarioBox.addEventListener('click', function() {
+                        document.querySelectorAll(`#${containerId} .horario-box`).forEach(box => box.classList.remove('selected'));
+                        horarioBox.classList.add('selected');
+                        document.getElementById(inputId).value = horario.horarioInicio;
+                    });
+                }
+
+                horariosContainer.appendChild(horarioBox);
+            });
+        })
+        .catch(error => console.error('Erro ao buscar horários disponíveis:', error));
+    }
+
+    document.querySelectorAll('.clinica').forEach(element => {
+        element.addEventListener('change', function () {
+            const clinicaId = this.value;
+            const enderecoClinica = this.options[this.selectedIndex].getAttribute('data-endereco');
+            const modalType = this.id.startsWith('create') ? 'create' : 'edit';
+            document.getElementById(`${modalType}_endereco_clinica`).textContent = `Endereço: ${enderecoClinica}`;
+            carregarEspecialidades(clinicaId, `${modalType}_especialidade`);
+        });
+    });
+
+    document.querySelectorAll('.especialidade').forEach(element => {
+        element.addEventListener('change', function () {
+            const clinicaId = document.querySelector(`#${this.id.startsWith('create') ? 'create' : 'edit'}_clinica`).value;
+            const especialidade = this.value;
+            carregarMedicos(clinicaId, especialidade, `${this.id.startsWith('create') ? 'create' : 'edit'}_medico`);
+        });
+    });
+
+    document.querySelectorAll('.medico').forEach(element => {
+        element.addEventListener('change', function () {
+            const clinicaId = document.querySelector(`#${this.id.startsWith('create') ? 'create' : 'edit'}_clinica`).value;
+            const medicoId = this.value;
+            carregarDiasDisponiveis(clinicaId, medicoId, `#${this.id.startsWith('create') ? 'create' : 'edit'}_data`);
+        });
+    });
+
+    document.querySelectorAll('.data').forEach(element => {
+        element.addEventListener('change', function () {
+            const modalType = this.id.startsWith('create') ? 'create' : 'edit';
+            const clinicaId = document.querySelector(`#${modalType}_clinica`).value;
+            const medicoId = document.querySelector(`#${modalType}_medico`).value;
+            const dia = this.value;
+            if (clinicaId && medicoId && dia) {
+                carregarHorarios(clinicaId, medicoId, dia, `${modalType}_horarios_container`, `${modalType}_hora`);
+            }
+        });
+    });
+
+    carregarClinicas('create_clinica', 'create_endereco_clinica');
+    carregarClinicas('edit_clinica', 'edit_endereco_clinica');
+
+    function submitScheduling(event, modalType) {
+        event.preventDefault();
+
+        const nome = document.querySelector(`#${modalType}_nome`).value;
+        const email = document.querySelector(`#${modalType}_email`).value;
+        const clinicaId = document.querySelector(`#${modalType}_clinica`).value;
+        const especialidade = document.querySelector(`#${modalType}_especialidade`).value;
+        const medicoId = document.querySelector(`#${modalType}_medico`).value;
+        const dataAgendamento = document.querySelector(`#${modalType}_data`).value;
+        const horaAgendamento = document.querySelector(`#${modalType}_hora`).value;
+        const status = modalType === 'edit' ? document.querySelector('#edit_status').value : 'AGENDADO';
+
+        const url = modalType === 'create' ? '/api/agendamentos' : `/api/agendamentos/atualizar/${document.querySelector(`#${modalType}SchedulingId`).value}`;
+        const method = modalType === 'create' ? 'POST' : 'PATCH';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                nomePaciente: nome,
+                emailPaciente: email,
+                clinica: clinicaId,
+                especialidade: especialidade,
+                medico: medicoId,
+                dataAgendamento: dataAgendamento,
+                horaAgendamento: horaAgendamento,
+                status: status
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            swal(data.message, "", "success").then(() => {
+                window.location.reload();
+            });
+        })
+        .catch(error => {
+            console.error(`Erro ao ${modalType === 'create' ? 'criar' : 'atualizar'} agendamento:`, error);
+            swal(`Erro ao ${modalType === 'create' ? 'criar' : 'atualizar'} agendamento`, error.message, "error");
+        });
+    }
+
+    function deleteScheduling(id) {
+        swal({
+            title: "{{ text.delete_confirmation_title }}",
+            text: "{{ text.delete_confirmation_text }}",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((willDelete) => {
+            if (willDelete) {
+                fetch('/api/agendamentos/remover/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        swal("Agendamento removido com sucesso!", "", "success").then(() => {
+                            window.location.reload();
+                        });
+                    } else if (response.status === 404) {
+                        swal("Agendamento não encontrado", "", "error");
+                    } else {
+                        return response.json().then(err => { throw err; });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao remover agendamento:', error);
+                    swal("Erro ao remover agendamento", error.message, "error");
+                });
+            }
+        });
+    }
+
+    function editScheduling(id) {
+        const schedulingRow = document.querySelector(`tr[data-agend-id="${id}"]`);
+        if (!schedulingRow) {
+            console.error('Linha do agendamento não encontrada.');
+            return;
+        }
+
+        const idScheduling = schedulingRow.querySelector('.id').textContent;
+        const nomePaciente = schedulingRow.querySelector('.nomePaciente').textContent;
+        const emailPaciente = schedulingRow.querySelector('.emailPaciente').textContent;
+        const clinicaId = schedulingRow.querySelector('.clinica').dataset.id;
+        const especialidade = schedulingRow.querySelector('.medico').dataset.especialidade;
+        const medicoId = schedulingRow.querySelector('.medico').dataset.id;
+        const dataAgendamento = schedulingRow.querySelector('.dataAgendamento').textContent;
+        const horaAgendamento = schedulingRow.querySelector('.horaAgendamento').textContent;
+        const status = schedulingRow.querySelector('.status').textContent;
+
+        document.getElementById('editSchedulingId').value = idScheduling;
+        document.getElementById('edit_nome').value = nomePaciente;
+        document.getElementById('edit_email').value = emailPaciente;
+        document.getElementById('edit_status').value = status;
+
+        carregarClinicas('edit_clinica', 'edit_endereco_clinica', clinicaId);
+        carregarMedicos(clinicaId, especialidade, 'edit_medico', medicoId);
+        carregarEspecialidades(clinicaId, 'edit_especialidade', especialidade);
+
+        document.getElementById('edit_data').value = dataAgendamento;
+        document.getElementById('edit_hora').value = horaAgendamento;
+
+        carregarDiasDisponiveis(clinicaId, medicoId, '#edit_data');
+        carregarHorarios(clinicaId, medicoId, dataAgendamento, 'edit_horarios_container', 'edit_hora');
+
+        document.getElementById('editSchedulingModal').style.display = 'block';
+    }
+
+    function loadSchedulings() {
+        fetch('/api/agendamentos')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector('#scheduling-table tbody');
+            tbody.innerHTML = ''; // Limpar o corpo da tabela existente
+            data.forEach(scheduling => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-agend-id', scheduling.id);
+                tr.innerHTML = `
+                    <td class="id">${scheduling.id}</td>
+                    <td class="nomePaciente">${scheduling.nomePaciente}</td>
+                    <td class="emailPaciente">${scheduling.emailPaciente}</td>
+                    <td class="clinica" data-id="${scheduling.clinica.id}">${scheduling.clinica.nome}</td>
+                    <td class="especialidade">${scheduling.medico.especialidade}</td>
+                    <td class="medico" data-id="${scheduling.medico.id}" data-especialidade="${scheduling.medico.especialidade}">${scheduling.medico.nome}</td>
+                    <td class="dataAgendamento">${scheduling.dataAgendamento}</td>
+                    <td class="horaAgendamento">${scheduling.horaAgendamento}</td>
+                    <td class="status">${scheduling.status}</td>
+                    <td class="actions">
+                        <button onclick="editScheduling('${scheduling.id}')" class="edit-btn action-btn">{{ text.edit }}</button>
+                        <button onclick="deleteScheduling('${scheduling.id}')" class="delete-btn action-btn">{{ text.delete }}</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(error => console.error('Erro ao buscar dados:', error));
+    }
+
+    loadSchedulings();
+</script>

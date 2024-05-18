@@ -86,15 +86,106 @@ Estrutura do código:
 * ApiSysadmApplication.java: Ponto de entrada da aplicação Spring Boot, configurando a inicialização.
 * CorsConfig.java: Configurações de CORS para permitir requisições cross-origin.
 * Model/Repository/Controller: Organização MVC tradicional, facilitando a separação de responsabilidades e manutenção do código.
-* Métodos Disponíveis no UsuarioController:
 
-listarTodos(): Retorna uma lista de todos os usuários cadastrados na base de dados. Utiliza o método GET.
+## Modelos de Dados
+### Medico
+#### Descrição: 
+Representa um médico com suas informações básicas e relacionamentos com clínicas.
+#### Atributos:
+* cpf (String): CPF do médico, utilizado como identificador único.
+* nome (String): Nome completo do médico.
+* especialidade (String): Área de especialização do médico.
+* clinicas (Set<Clinica>): Conjunto de clínicas onde o médico atende.
 
-cadastrarUsuario(Usuario usuario): Recebe um objeto Usuario via POST, verifica se o usuário já existe (pelo CPF), e, se não, salva o novo usuário na base de dados. Retorna um status CREATED se o usuário for cadastrado com sucesso, ou CONFLICT se já existir um usuário com o mesmo CPF.
+### Clinica
+#### Descrição: 
+Representa uma clínica com suas informações básicas e uma lista de médicos associados.
+#### Atributos:
+* id (Long): Identificador único da clínica.
+* nome (String): Nome da clínica.
+* endereco (String): Endereço da clínica.
 
-atualizarUsuario(String cpf, Usuario usuarioAtualizado): Atualiza os dados de um usuário existente, identificado pelo CPF. O método utiliza PUT e retorna o usuário atualizado se encontrado; caso contrário, retorna um status NOT FOUND.
+### Agendamento
+#### Descrição: 
+Gerencia os agendamentos dos pacientes, incluindo detalhes do horário, médico, paciente e status.
+#### Atributos:
+* id (Long): Identificador único do agendamento.
+* nomePaciente (String): Nome do paciente.
+* emailPaciente (String): Email do paciente.
+* telefonePaciente (String): Telefone do paciente.
+* horarioAtendimento (HorarioAtendimento): Horário específico de atendimento.
+* dataHoraAgendamento (LocalDateTime): Data e hora do agendamento.
+* status (StatusAgendamento): Estado do agendamento (por padrão, AGENDADO).
 
-deletarUsuario(String cpf): Remove um usuário da base de dados, identificado pelo CPF, usando o método DELETE. Retorna um status NO CONTENT se a operação for bem-sucedida ou NOT FOUND se o usuário especificado não existir.
+### HorarioAtendimento
+#### Descrição: 
+Define os horários específicos de atendimento para os médicos.
+#### Atributos:
+* id (Long): Identificador único do horário de atendimento.
+* medico (Medico): Médico que atende neste horário.
+* clinica (Clinica): Clínica onde o atendimento ocorre.
+* diaSemana (DayOfWeek): Dia da semana do atendimento.
+* horaInicio (LocalTime): Hora de início do atendimento.
+* horaFim (LocalTime): Hora de fim do atendimento.
+
+### Usuario
+#### Descrição: 
+Representa os dados de usuários administradores do sistema.
+#### Atributos:
+* cpf (String): CPF do usuário, usado como identificador único.
+* nome (String): Nome completo do usuário.
+* email (String): Email do usuário.
+* senha (String): Senha para acesso ao sistema.
+* dataNasc (LocalDateTime): Data de nascimento do usuário.
+* ativo (Boolean): Indica se o usuário está ativo no sistema.
+
+## Controladores
+### MedicoController
+#### Rota Base: 
+```/medicos```
+#### Endpoints:
+* GET /: Lista todos os médicos.
+* GET /{cpf}: Retorna detalhes de um médico.
+* POST /: Cadastra um novo médico.
+* PATCH /{cpf}: Atualiza dados de um médico.
+* DELETE /{cpf}: Remove um médico.
+
+### ClinicaController
+#### Rota Base:
+```/clinicas```
+#### Endpoints:
+* GET /: Lista todas as clínicas.
+* GET /{id}: Retorna detalhes de uma clínica.
+* POST /: Cadastra uma nova clínica.
+* PUT /{id}: Atualiza uma clínica.
+* DELETE /{id}: Remove uma clínica.
+* POST /{clinicaId}/medicos/{medicoCpf}: Adiciona um médico a uma clínica.
+* DELETE /{clinicaId}/medicos/{medicoCpf}: Remove um médico de uma clínica.
+
+### AgendamentoController
+#### Rota Base: 
+```/agendamentos```
+#### Endpoints:
+* GET /: Lista todos os agendamentos.
+* GET /{id}: Retorna detalhes de um agendamento.
+* POST /: Cria um novo agendamento.
+* PATCH /{id}: Atualiza um agendamento existente parcialmente.
+* DELETE /{id}: Remove um agendamento.
+* GET /nome/{nome}: Busca agendamentos pelo nome do paciente.
+* GET /email/{email}: Busca agendamentos pelo email do paciente.
+
+### UsuarioController
+#### Rota Base:
+``` /usuarios ```
+#### Endpoints:
+* GET /: Lista todos os usuários.
+* GET /{cpf}: Retorna detalhes de um usuário específico.
+* POST /cadastrar: Cadastra um novo usuário.
+* PATCH /atualizar/{cpf}: Atualiza dados de um usuário existente parcialmente.
+* DELETE /remover/{cpf}: Remove um usuário.
+* POST /login: Realiza o login do usuário.
+* POST /recuperar-senha: Inicia o processo de recuperação de senha para um usuário.
+
 
 * Anotações e Funcionalidades do Spring Boot:
 

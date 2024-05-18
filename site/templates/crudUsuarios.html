@@ -1,26 +1,3 @@
-{% import 'flash_msg.html' as flash_msgs %}
-<!DOCTYPE html>
-<html lang="{{ session['language'] }}" data-session-cpf="{{ session['user'].get('cpf', '') }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ text.adm_panel }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/admin.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/language.css') }}">
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-</head>
-<body>
-    {% include 'language.html' %}
-    <img src="/static/img/sysadm_logo.png" alt="sysadm_logo" class="logo">
-
-    <div class="user-info">
-
-        {% if session.get('user') %}
-            <span>{{ session['user'].get('nome', text.unknown_user) }} ({{ session['user'].get('email', text.email_not_available) }}) | </span><a href="/logout" class="btn-logout">{{ text.logout }}</a>
-        {% else %}
-            <span>{{ text.user_not_logged_in }}</span><a href="/" class="btn-login">{{ text.dologin }}</a>
-        {% endif %}
-    </div>
     <div id="createUserModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('createUserModal')">&times;</span>
@@ -58,13 +35,13 @@
                     <option value="true">{{ text.active }}</option>
                     <option value="false">{{ text.inactive }}</option>
                 </select>
-                <button type="button" onclick="submitEdit()">{{ text.save_changes }}</button>
+                <button type="button" onclick="submitUserEdit()">{{ text.save_changes }}</button>
             </form>
         </div>
     </div>
     
     <div id="admin-content">
-        <h2>{{ text.adm_panel }}</h2>
+        <h2>{{ text.adm_panel }} - {{ text.user_management }}</h2>
         <button onclick="showCreateUserModal()" class="new-user-btn">{{ text.new_registration }}</button>
 
         <table id="user-table">
@@ -113,48 +90,7 @@
             })
             .catch(error => console.error('Erro ao buscar dados:', error));
         });
-        // Adiciona eventos de clique a todos os cabeçalhos das colunas
-        document.querySelectorAll('th').forEach(th => {
-            th.addEventListener('click', () => {
-                const columnName = th.id.slice(4); // Remove "sort" do ID para obter o nome da coluna
-                const tableElement = document.querySelector('#user-table');
-                const headerIndex = Array.from(tableElement.querySelectorAll('thead th')).findIndex(header => header.id === `sort${columnName}`);
-                const currentIsAscending = th.getAttribute('data-sort') === 'asc';
-                sortTableByColumn(tableElement, headerIndex + 1, currentIsAscending);
-            });
-        });
-        function sortColumn(columnName) {
-            const tableElement = document.querySelector('#user-table');
-            const headerIndex = Array.from(tableElement.querySelectorAll('thead th')).findIndex(th => th.id === `sort${columnName.charAt(0).toUpperCase() + columnName.slice(1)}`);
-            const currentIsAscending = document.querySelector(`#sort${columnName}`).getAttribute('data-sort') === 'asc';
-            sortTableByColumn(tableElement, headerIndex + 1, currentIsAscending);
-        }
-        function sortTableByColumn(table, column, asc = true) {
-            const dirModifier = asc ? 1 : -1;
-            const tBody = table.tBodies[0];
-            const rows = Array.from(tBody.querySelectorAll('tr'));
-
-            // Ordenar cada linha
-            const sortedRows = rows.sort((a, b) => {
-                const aColText = a.querySelector(`td:nth-child(${column})`).textContent.trim();
-                const bColText = b.querySelector(`td:nth-child(${column})`).textContent.trim();
-
-                return aColText > bColText ? (1 * dirModifier) : (-1 * dirModifier);
-            });
-
-            // Remover todas as linhas existentes da tabela
-            while (tBody.firstChild) {
-                tBody.removeChild(tBody.firstChild);
-            }
-
-            // Re-adicionar as linhas já ordenadas na tabela
-            tBody.append(...sortedRows);
-
-            // Inverter a direção para a próxima ordenação
-            table.querySelectorAll('th').forEach(th => th.setAttribute('data-sort', 'asc'));
-            table.querySelector(`th:nth-child(${column})`).setAttribute('data-sort', asc ? 'desc' : 'asc');
-        }
-
+    
         function editUser(cpf) {
             const userRow = document.querySelector(`tr[data-cpf="${cpf}"]`);
             const nome = userRow.querySelector('.nome').textContent;
@@ -165,38 +101,42 @@
             document.getElementById('editNome').value = nome;
             document.getElementById('editEmail').value = email;
             document.getElementById('editDataNasc').value = dataNasc;
-            document.getElementById('editAtivo').value = ativo; 
+            document.getElementById('editAtivo').value = ativo ? "true" : "false"; 
             document.getElementById('editUserModal').style.display = 'block';
         }
-        function submitEdit() {
-            const cpf = document.getElementById('editCpf').value;
-            const nome = document.getElementById('editNome').value;
-            const email = document.getElementById('editEmail').value;
-            const dataNasc = document.getElementById('editDataNasc').value;
-            const ativo = document.getElementById('editAtivo').value === "true"; // Obtém o valor booleano da caixa de seleção
+    
+        function submitUserEdit() {
+        const cpf = document.getElementById('editCpf').value;
+        const nome = document.getElementById('editNome').value;
+        const email = document.getElementById('editEmail').value;
+        const dataNasc = document.getElementById('editDataNasc').value;
+        const ativo = document.getElementById('editAtivo').value === "true"; // Obtém o valor booleano da caixa de seleção
 
-            fetch('/api/atualizar/' + cpf, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ nome, email, dataNasc, ativo }) // Inclui o valor de ativo no corpo da requisição
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
+        fetch('/api/usuarios/atualizar/' + cpf, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ nome, email, dataNasc, ativo }) // Inclui o valor de ativo no corpo da requisição
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            swal(data.message, "", "success").then(() => {
                 window.location.reload();
-            })
-            .catch(error => {
-                console.error('Erro:', error);
             });
+        })
+        .catch(error => {
+            swal("Erro ao atualizar usuário", error.message, "error");
+        });
 
-            closeModal('editUserModal');
-        }
+        closeModal('editUserModal');
+    }
+
         function deleteUser(cpf) {
             swal({
                 title: "{{ text.delete_confirmation_title }}",
@@ -206,7 +146,7 @@
                 dangerMode: true,
             }).then((willDelete) => {
                 if (willDelete) {
-                    fetch('/api/remover/' + cpf, {
+                    fetch('/api/usuarios/remover/' + cpf, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
@@ -214,19 +154,22 @@
                     })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error(response.statusText);
+                            return response.json().then(err => { throw err; });
                         }
                         return response.json();
                     })
                     .then(data => {
-                        window.location.reload();
+                        swal(data.message, "", "success").then(() => {
+                            window.location.reload();
+                        });
                     })
                     .catch(error => {
-                        console.error('Erro:', error);
+                        swal("Erro ao remover usuário", error.message, "error");
                     });
                 }
             });
         }
+
         function submitNewUser() {
             const cpf = document.getElementById('newCpf').value;
             const nome = document.getElementById('newNome').value;
@@ -234,7 +177,7 @@
             const dataNasc = document.getElementById('newDataNasc').value;
             const senha = document.getElementById('newSenha').value;
             
-            fetch('/api/criar', {
+            fetch('/api/usuarios/criar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -243,15 +186,17 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(response.statusText);
+                    return response.json().then(err => { throw err; });
                 }
                 return response.json();
             })
             .then(data => {
-                window.location.reload();
+                swal(data.message, "", "success").then(() => {
+                    window.location.reload();
+                });
             })
             .catch(error => {
-                console.error('Erro:', error);
+                swal("Falha ao criar usuário", error.message, "error");
             });
 
             closeModal('createUserModal');
@@ -260,11 +205,8 @@
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
+
         function showCreateUserModal() {
             document.getElementById('createUserModal').style.display = 'block';
         }
-
     </script>
-    
-</body>
-</html>

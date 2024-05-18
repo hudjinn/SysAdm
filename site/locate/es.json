@@ -55,6 +55,12 @@
   "user_not_logged_in": "Usuario no ha iniciado sesión",
   "dologin": "Iniciar sesión",
   "create_new_user": "Crear nuevo usuario",
+  "create_new_doctor": "Crear nuevo médico",
+  "create_new_appointment": "Crear nueva cita",
+  "schedule_panel": "Página de Programación",
+  "clinic": "Clínica",
+  "specialty": "Especialidad",
+  "doctor": "Médico",
   "cpf": "CPF",
   "name": "Nombre",
   "email": "Correo electrónico",
@@ -68,6 +74,8 @@
   "edit": "Editar",
   "delete": "Eliminar",
   "edit_user": "Editar usuario",
+  "edit_doctor": "Editar médico",
+  "edit_appointment": "Editar cita",
   "update_user_fail": "Error al actualizar usuario",
   "update_user_success": "Usuario actualizado correctamente",
   "update_user_error": "Error al actualizar usuario",
@@ -80,5 +88,8 @@
   "active": "Activo",
   "inactive": "Inactivo",
   "delete_confirmation_title": "¿Estás seguro?",
-  "delete_confirmation_text": "Una vez eliminado, no podrás recuperar los datos de este usuario."
+  "delete_confirmation_text": "Una vez eliminado, no podrás recuperar los datos de este usuario.",
+  "user_management": "Gestión de usuarios",
+  "doctor_management": "Gestión de médicos",
+  "appointment_management": "Gestión de citas"
 }

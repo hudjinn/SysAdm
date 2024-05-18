@@ -31,7 +31,7 @@ def insert_agendamentos(endpoint, agendamentos):
             "emailPaciente": agendamento["emailPaciente"]
         }
         response = requests.post(endpoint, json=agendamento_data)
-        if response.status_code == '201':
+        if response.status_code == 201:
             print(f"Sucesso ao inserir agendamento: {agendamento_data}")
         else:
             print(f"Erro ao inserir agendamento: {agendamento_data}: {response.text}")
@@ -74,7 +74,7 @@ def main():
             }
             url = f'{API_URL}clinicas/{clinica_id}/medicos/cpf/{medico_cpf}/horarios'
             response = requests.post(url, json=data)
-            if response.ok:
+            if response.status_code == 201:
                 print(f"Sucesso ao inserir horário para médico {medico_cpf} na clínica {clinica_id}")
             else:
                 print(f"Erro ao inserir horário para médico {medico_cpf} na clínica {clinica_id}: {response.text}")

@@ -36,20 +36,20 @@
                             <input id="email_agen" name="email_agen" required="required" type="email" placeholder="{{ text.email_placeholder }}"/>
                         </p>
                         <p>
-                            <label for="clinica_agen">Clínica</label>
+                            <label for="clinica_agen">{{ text.clinic }}</label>
                             <select id="clinica_agen" name="clinica_agen" required="required">
                                 <option value="" selected disabled>{{ text.clinic_select }}</option>
                             </select>
                         </p>
                         <p id="endereco_clinica"></p>
                         <p>
-                            <label for="especia_agen">Especialidade</label>
+                            <label for="especia_agen">{{ text.specialty }}</label>
                             <select id="especia_agen" name="especia_agen" required="required">
                                 <option value="" selected disabled>{{ text.spec_select }}</option>
                             </select>
                         </p>
                         <p>
-                            <label for="medico_agen">Médico</label>
+                            <label for="medico_agen">{{ text.doctor }}</label>
                             <select id="medico_agen" name="medico_agen" required="required">
                                 <option value="" selected disabled>{{ text.doctor_select }}</option>
                             </select>

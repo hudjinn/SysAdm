@@ -17,7 +17,7 @@ public class MailConfig {
         mailSender.setPort(465);
 
         mailSender.setUsername("sysadm.api@gmail.com");
-        mailSender.setPassword("essevalenota20");
+        mailSender.setPassword("***");
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");

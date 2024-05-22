@@ -527,7 +527,7 @@ def api_criar_agendamento():
     }
     response = requests.post(app.api + 'agendamentos', json=agendamento_data)
 
-    if response.status_code == 201:
+    if response.status_code == 201 or response.status_code == 200:
         response_data = response.json()  # Extrair os dados da resposta JSON
         protocolo_id = response_data.get('id')
         flash(Markup(f"Agendamento criado com sucesso! Protocolo: {protocolo_id}")), 201

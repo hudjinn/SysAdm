@@ -393,5 +393,22 @@
           "nomePaciente": "André Oliveira",
           "emailPaciente": "andre@teste.com"
       }
+    ],
+    "pacientes": [
+        {
+            "cpf": "12345678901",
+            "sexo": "M",
+            "dataNasc": "1990-01-01",
+            "nome": "João Silva"
+        }
+    ],
+    "consultas": [
+    {
+        "queixaPrincipal": "Dor de cabeça",
+        "diagnostico": "Enxaqueca",
+        "dataConsulta": "2024-05-30",
+        "pacienteId": 1,
+        "agendamentoId": 1
+    }
   ]
 }

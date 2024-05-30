@@ -44,6 +44,8 @@ def main():
     medicos = data['medicos']
     clinica_medico = data['clinica_medico']
     agendamentos = data['agendamentos']
+    pacientes = data['pacientes']
+    consultas = data['consultas']
     # Inserir usuários em lote
     insert_data(API_URL + 'usuarios/cadastrar/lote', usuarios)
 
@@ -80,6 +82,12 @@ def main():
                 print(f"Erro ao inserir horário para médico {medico_cpf} na clínica {clinica_id}: {response.text}")
     
     insert_agendamentos(API_URL + 'agendamentos', agendamentos)
+    print(pacientes)
+    print(consultas)
+    for paciente in pacientes:
+        insert_data(API_URL + 'pacientes/cadastrar', paciente)
+    for consulta in consultas:
+        insert_data(API_URL + 'consultas/cadastrar', consulta)
 
 if __name__ == '__main__':
     main()

@@ -41,9 +41,6 @@ public class AgendamentoController {
 
     @Autowired
     private HorarioRepository horarioRepository;
-
-    @Autowired
-    private EmailController emailController;
     
     @PostMapping
     public ResponseEntity<Map<String, String>> criarAgendamento(@RequestBody Agendamento agendamento) {
@@ -73,23 +70,7 @@ public class AgendamentoController {
     
         agendamento.setStatus(StatusAgendamento.AGENDADO); // Define o status padrão
         Agendamento novoAgendamento = agendamentoRepository.save(agendamento);
-        // Enviando e-mail de Confirmação
-        String email = agendamento.getEmailPaciente();
-        String subject = "Confirmação de Agendamento";
-        String text = "Seu agendamento foi criado com sucesso. Detalhes: " +
-                      "\nPROTOCOLO DE AGENDAMENTO: " + agendamento.getId() +
-                      "\nData: " + agendamento.getDataAgendamento() +
-                      "\nHora: " + agendamento.getHoraAgendamento() +
-                      "\nClínica: " + agendamento.getClinica().getNome() +
-                      "\nMédico: " + agendamento.getMedico().getNome();
-        if (novoAgendamento.getId() < 15) {
-            try {
-                emailController.enviarEmail(email, subject, text);
-            } catch (Exception e) {
-                // Logar o erro, mas não interromper a execução
-                System.err.println("Erro ao enviar e-mail: " + e.getMessage());
-            }
-        }
+
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(Map.of("id", novoAgendamento.getId().toString(), "message", "Agendamento criado com sucesso!"));
     }
@@ -171,23 +152,7 @@ public class AgendamentoController {
             });
     
             Agendamento agendamentoAtualizado = agendamentoRepository.save(agendamentoExistente);
-            String email = agendamentoAtualizado.getEmailPaciente();
-            String subject = "[Importante]Atualização de Agendamento";
-            String text = "Seu agendamento foi ALTERADO! Detalhes: " +
-                          "\nStatus: " + agendamentoAtualizado.getStatus() +
-                          "\nData: " + agendamentoAtualizado.getDataAgendamento() +
-                          "\nHora: " + agendamentoAtualizado.getHoraAgendamento() +
-                          "\nClínica: " + agendamentoAtualizado.getClinica().getNome() +
-                          "\nMédico: " + agendamentoAtualizado.getMedico().getNome();
-            
-            if (agendamentoAtualizado.getId() < 15) {
-                try {
-                    emailController.enviarEmail(email, subject, text);
-                } catch (Exception e) {
-                    // Logar o erro, mas não interromper a execução
-                    System.err.println("Erro ao enviar e-mail: " + e.getMessage());
-                }
-            }
+
             return ResponseEntity.ok(agendamentoAtualizado);
         } else {
             return ResponseEntity.notFound().build();

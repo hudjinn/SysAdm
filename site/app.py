@@ -650,7 +650,7 @@ def get_horarios_disponiveis():
         return jsonify({'error': 'Parâmetros insuficientes'}), 400
 
 # --------------- PACIENTE CRUD--------------------
-# Rota para obter todos os pacientes
+# Rota para obter todos os pacientes cadastrados
 @app.route('/api/pacientes')
 @check_api_status
 @login_required

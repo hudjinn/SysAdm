@@ -64,6 +64,7 @@
   "cpf": "CPF",
   "name": "Name",
   "email": "Email",
+  "sexo": "Gender",
   "date_of_birth": "Date of Birth",
   "password": "Password",
   "create": "Create",

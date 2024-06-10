@@ -649,6 +649,23 @@ def get_horarios_disponiveis():
     else:
         return jsonify({'error': 'Parâmetros insuficientes'}), 400
 
+# --------------- PACIENTE CRUD--------------------
+# Rota para obter todos os pacientes
+@app.route('/api/pacientes')
+@check_api_status
+@login_required
+def dados_pacientes():
+    try:
+        resposta = requests.get(app.api + 'pacientes')
+        if resposta.status_code == 200:
+            dados = resposta.json()
+            return jsonify(dados)
+        else:
+            flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
+            return redirect(url_for('admin'))
+    except requests.exceptions.RequestException as e:
+        flash(f"{session['flash_text']['conn_error']} | Error: {e}", 'error')
+        return redirect(url_for('admin'))
 
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True

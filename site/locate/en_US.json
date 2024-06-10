@@ -91,5 +91,6 @@
   "delete_confirmation_text": "Once deleted, you will not be able to recover this user's data!",
   "user_management": "User Management",
   "doctor_management": "Doctor Management",
-  "appointment_management": "Appointment Management"
+  "appointment_management": "Appointment Management",
+  "patient_management": "Patient Management"
 }

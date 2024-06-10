@@ -91,6 +91,7 @@
     "user_management": "Gerenciamento de Administrador",
     "doctor_management": "Gerenciamento de Médicos",
     "appointment_management": "Gerenciamento de Agendamentos",
+    "patient_management": "Gerenciamento de Pacientes",
     "back_to_sched_screen": "Voltar para a tela de Agendamento de Consulta",
     "login_adm": "Acessar Área de Administração",
     "patient_data": "Dados do Paciente",

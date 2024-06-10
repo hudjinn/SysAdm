@@ -91,5 +91,6 @@
   "delete_confirmation_text": "Una vez eliminado, no podrás recuperar los datos de este usuario.",
   "user_management": "Gestión de usuarios",
   "doctor_management": "Gestión de médicos",
-  "appointment_management": "Gestión de citas"
+  "appointment_management": "Gestión de citas",
+  "patient_management": "Gestión de pacientes"
 }

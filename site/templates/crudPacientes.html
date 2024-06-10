@@ -1,0 +1,242 @@
+<div id="createDoctorModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('createDoctorModal')">&times;</span>
+        <h3>{{ text.create_new_doctor }}</h3>
+        <form id="createDoctorForm">
+            <label for="newDoctorCpf">{{ text.cpf }}</label>
+            <input type="text" id="newDoctorCpf" name="cpf">
+            <label for="newDoctorNome">{{ text.name }}</label>
+            <input type="text" id="newDoctorNome" name="nome">
+            <label for="newDoctorEspecialidade">{{ text.speciality }}</label>
+            <select id="newDoctorEspecialidade" name="especialidade">
+                <option value="Cardiologia">Cardiologia</option>
+                <option value="Dermatologia">Dermatologia</option>
+                <option value="Endocrinologia">Endocrinologia</option>
+                <option value="Gastroenterologia">Gastroenterologia</option>
+                <option value="Geriatria">Geriatria</option>
+                <option value="Ginecologia">Ginecologia</option>
+                <option value="Hematologia">Hematologia</option>
+                <option value="Infectologia">Infectologia</option>
+                <option value="Nefrologia">Nefrologia</option>
+                <option value="Neurologia">Neurologia</option>
+                <option value="Obstetricia">Obstetrícia</option>
+                <option value="Oftalmologia">Oftalmologia</option>
+                <option value="Oncologia">Oncologia</option>
+                <option value="Ortopedia">Ortopedia</option>
+                <option value="Otorrinolaringologia">Otorrinolaringologia</option>
+                <option value="Pediatria">Pediatria</option>
+                <option value="Psiquiatria">Psiquiatria</option>
+                <option value="Reumatologia">Reumatologia</option>
+                <option value="Urologia">Urologia</option>
+            </select>
+            <button type="button" onclick="submitNewDoctor()">{{ text.create }}</button>
+        </form>
+    </div>
+</div>
+
+<div id="editDoctorModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('editDoctorModal')">&times;</span>
+        <h3>{{ text.edit_doctor }}</h3>
+        <form id="editDoctorForm">
+            <input type="hidden" id="editDoctorId" name="id">
+            <label for="editDoctorCpf">{{ text.cpf }}</label>
+            <input type="text" id="editDoctorCpf" name="cpf" readonly>
+            <label for="editDoctorNome">{{ text.name }}</label>
+            <input type="text" id="editDoctorNome" name="nome">
+            <label for="editDoctorEspecialidade">{{ text.speciality }}</label>
+            <select id="editDoctorEspecialidade" name="especialidade">
+                <option value="Cardiologia">Cardiologia</option>
+                <option value="Dermatologia">Dermatologia</option>
+                <option value="Endocrinologia">Endocrinologia</option>
+                <option value="Gastroenterologia">Gastroenterologia</option>
+                <option value="Geriatria">Geriatria</option>
+                <option value="Ginecologia">Ginecologia</option>
+                <option value="Hematologia">Hematologia</option>
+                <option value="Infectologia">Infectologia</option>
+                <option value="Nefrologia">Nefrologia</option>
+                <option value="Neurologia">Neurologia</option>
+                <option value="Obstetricia">Obstetrícia</option>
+                <option value="Oftalmologia">Oftalmologia</option>
+                <option value="Oncologia">Oncologia</option>
+                <option value="Ortopedia">Ortopedia</option>
+                <option value="Otorrinolaringologia">Otorrinolaringologia</option>
+                <option value="Pediatria">Pediatria</option>
+                <option value="Psiquiatria">Psiquiatria</option>
+                <option value="Reumatologia">Reumatologia</option>
+                <option value="Urologia">Urologia</option>
+            </select>
+            <button type="button" onclick="submitMedicEdit()">{{ text.save_changes }}</button>
+        </form>
+    </div>
+</div>
+
+<div id="admin-content">
+    <h2>{{ text.adm_panel }} - {{ text.doctor_management }}</h2>
+    <button onclick="showCreateDoctorModal()" class="new-user-btn">{{ text.new_registration }}</button>
+
+    <table id="doctor-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>{{ text.cpf }}</th>
+                <th>{{ text.name }}</th>
+                <th>{{ text.speciality }}</th>
+                <th>{{ text.actions }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Os pacientes serão carregados aqui via JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        fetch('/api/medicos')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector('#doctor-table tbody');
+            tbody.innerHTML = ''; // Limpar o corpo da tabela existente
+            data.forEach(doctor => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', doctor.id);
+                tr.innerHTML = `
+                    <td class="id">${doctor.id}</td>
+                    <td class="cpf">${doctor.cpf}</td>
+                    <td class="nome">${doctor.nome}</td>
+                    <td class="especialidade">${doctor.especialidade}</td>
+                    <td class="actions">
+                        <button onclick="editDoctor('${doctor.id}')" class="edit-btn action-btn">{{ text.edit }}</button>
+                        <button onclick="deleteDoctor('${doctor.id}')" class="delete-btn action-btn">{{ text.delete }}</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(error => console.error('Erro ao buscar dados:', error));
+    });
+
+    function editDoctor(id) {
+        const doctorRow = document.querySelector(`tr[data-id="${id}"]`);
+        if (!doctorRow) {
+            console.error('Linha do médico não encontrada.');
+            return;
+        }
+
+        const id_medico = doctorRow.querySelector('.id').textContent;
+        const cpf = doctorRow.querySelector('.cpf').textContent;
+        const nome = doctorRow.querySelector('.nome').textContent;
+        const especialidade = doctorRow.querySelector('.especialidade').textContent;
+
+        document.getElementById('editDoctorId').value = id_medico;
+        document.getElementById('editDoctorCpf').value = cpf;
+        document.getElementById('editDoctorNome').value = nome;
+        document.getElementById('editDoctorEspecialidade').value = especialidade;
+
+        document.getElementById('editDoctorModal').style.display = 'block';
+    }
+
+    function submitMedicEdit() {
+        const id = document.getElementById('editDoctorId').value;
+        const nome = document.getElementById('editDoctorNome').value;
+        const especialidade = document.getElementById('editDoctorEspecialidade').value;
+
+        fetch('/api/medicos/atualizar/' + id, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ nome, especialidade })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            swal(data.message, "", "success").then(() => {
+                window.location.reload();
+            });
+        })
+        .catch(error => {
+            swal("Erro ao remover médico", error.message, "error");
+        });
+
+        closeModal('editDoctorModal');
+    }
+
+    function deleteDoctor(id) {
+        swal({
+            title: "{{ text.delete_confirmation_title }}",
+            text: "{{ text.delete_confirmation_text }}",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((willDelete) => {
+            if (willDelete) {
+                fetch('/api/medicos/remover/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        swal("Médico removido com sucesso!", "", "success").then(() => {
+                            window.location.reload();
+                        });
+                    } else if (response.status === 404) {
+                        swal("Médico não encontrado", "", "error");
+                    } else {
+                        return response.json().then(err => { throw err; });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    swal("Erro ao remover médico", error.message, "error");
+                });
+            }
+        });
+    }
+
+    function submitNewDoctor() {
+        const cpf = document.getElementById('newDoctorCpf').value;
+        const nome = document.getElementById('newDoctorNome').value;
+        const especialidade = document.getElementById('newDoctorEspecialidade').value;
+
+        fetch('/api/medicos/cadastrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cpf, nome, especialidade })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            swal(data.message, "", "success").then(() => {
+                window.location.reload();
+            });
+        })
+        .catch(error => {
+            swal("Falha ao criar médico", error.message, "error");
+        });
+
+        closeModal('createDoctorModal');
+    }
+
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function showCreateDoctorModal() {
+        document.getElementById('createDoctorModal').style.display = 'block';
+    }
+</script>

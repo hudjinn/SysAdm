@@ -667,6 +667,53 @@ def dados_pacientes():
         flash(f"{session['flash_text']['conn_error']} | Error: {e}", 'error')
         return redirect(url_for('admin'))
 
+@app.route('/api/pacientes/cadastrar', methods=['POST'])
+@check_api_status
+@login_required
+def api_criar_paciente():
+    data = request.json
+    paciente_data = {
+        "cpf": data['cpf'],
+        "nome": data['nome'],
+        "dataNasc": datetime.strptime(data['dataNasc'], "%Y-%m-%d").strftime("%Y-%m-%d"),
+        "sexo": data['sexo'],
+    }
+
+    response = requests.post(app.api + 'pacientes/cadastrar', json=paciente_data)
+    if response.status_code == 201:
+        return jsonify({"message": session['flash_text']['create_user_success']}), 201
+    elif response.status_code == 409:
+        return jsonify({"message": "CPF já cadastrado"}), 409
+    else:
+        return jsonify({"message": session['flash_text']['create_user_fail']}), response.status_code
+
+@app.route('/api/pacientes/atualizar/<id>', methods=['PATCH'])
+@check_api_status
+@login_required
+def api_atualizar_paciente(id):
+    try:
+        medico_data = request.json
+        response = requests.patch(f'{app.api}pacientes/atualizar/{id}', json=medico_data)
+        if response.status_code == 200:
+            return jsonify({"message": session['flash_text']['update_user_success']}), 200
+        else:
+            return jsonify({"message": session['flash_text']['update_user_fail']}), response.status_code
+    except Exception as e:
+        return jsonify({"message": session['flash_text']['unknown_error']}), 500
+
+@app.route('/api/pacientes/remover/<id>', methods=['DELETE'])
+@check_api_status
+@login_required
+def api_deletar_paciente(id):
+    try:
+        response = requests.delete(f'{app.api}pacientes/deletar/{id}')
+        if response.status_code == 200:
+            return jsonify({"message": session['flash_text']['delete_user_success']}), 200
+        else:
+            return jsonify({"message": session['flash_text']['delete_user_fail']}), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"message": session['flash_text']['conn_error']}), 500
+
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True
     app.config['TEMPLATES_AUTO_RELOAD'] = True

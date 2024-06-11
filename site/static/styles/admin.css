@@ -44,7 +44,7 @@
     border-radius: 8px;
 }
 
-#user-table, #doctor-table, #scheduling-table {
+#user-table, #doctor-table, #scheduling-table, #paciente-table {
     width: 100%;
     border-collapse: collapse;
 }

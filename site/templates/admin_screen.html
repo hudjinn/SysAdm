@@ -49,7 +49,7 @@
         <button onclick="showCrud('medicos')">{{ text.doctor_management }}</button>
         <button onclick="showCrud('agendamentos')">{{ text.appointment_management }}</button>
         <button onclick="showCrud('pacientes')">{{ text.patient_management }}</button>
-
+        <button onclick="showCrud('imcs')">IMCS</button>
     </div>
 
     <div id="admin-content">
@@ -64,6 +64,9 @@
         </div>
         <div id="pacientes" class="crud-section" style="display: none;">
             {% include 'crudPacientes.html' %}
+        </div>
+        <div id="imcs" class="crud-section" style="display: none;">
+            {% include 'crudImcs.html' %}
         </div>
     </div>
 

@@ -1,0 +1,223 @@
+<div id="createImcModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('createImcModal')">&times;</span>
+        <h3>{{ text.create_new_paciente }}</h3>
+        <form id="createImcForm">
+            <label for="newImcPeso">PESO</label>
+            <input type="text" id="newImcPeso" name="peso">
+            <label for="newImcAltura">ALTURA</label>
+            <input type="text" id="newImcAltura" name="altura">
+            <label for="newImcPaciente">{{ text.paciente }}</label>
+            <select id="newImcPaciente" name="paciente">
+                <option value="" disabled selected>{{ text.select_patient }}</option>
+            </select>
+            <button type="button" onclick="submitNewImc()">{{ text.create }}</button>
+        </form>
+    </div>
+</div>
+
+<div id="editImcModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('editImcModal')">&times;</span>
+        <h3>{{ text.edit_paciente }}</h3>
+        <form id="editImcForm">
+            <input type="hidden" id="editImcId" name="id">
+            <label for="editImcPeso">PESO</label>
+            <input type="text" id="editImcPeso" name="peso">
+            <label for="editImcAltura">ALTURA</label>
+            <input type="text" id="editImcAltura" name="altura">
+            <label for="editImcPaciente">{{ text.paciente }}</label>
+            <select id="editImcPaciente" name="paciente">
+                <option value="" disabled selected>{{ text.select_patient }}</option>
+            </select>
+            <button type="button" onclick="submitImcEdit()">{{ text.save_changes }}</button>
+        </form>
+    </div>
+</div>
+
+<div id="admin-content">
+    <h2>{{ text.adm_panel }} - {{ text.patient_management }}</h2>
+    <button onclick="showCreateImcModal()" class="new-user-btn">{{ text.new_registration }}</button>
+
+    <table id="imc-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>{{ text.peso }}</th>
+                <th>{{ text.altura }}</th>
+                <th>{{ text.classificacao }}</th>
+                <th>{{ text.actions }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Os imcs serão carregados aqui via JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        fetch('/api/imcs')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector('#imc-table tbody');
+            tbody.innerHTML = ''; // Limpar o corpo da tabela existente
+            data.forEach(imc => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', imc.id);
+                tr.innerHTML = `
+                    <td class="id">${imc.id}</td>
+                    <td class="peso">${imc.peso}</td>
+                    <td class="altura">${imc.altura}</td>
+                    <td class="classificacao">${imc.classificacao}</td>
+                    <td class="actions">
+                        <button onclick="editImc('${imc.id}')" class="edit-btn action-btn">{{ text.edit }}</button>
+                        <button onclick="deleteImc('${imc.id}')" class="delete-btn action-btn">{{ text.delete }}</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(error => console.error('Erro ao buscar dados:', error));
+    });
+
+    function editImc(id) {
+        const imcRow = document.querySelector(`#imc-table tr[data-id="${id}"]`);
+        if (!imcRow) {
+            console.error('Linha do imc não encontrada.');
+            return;
+        }
+
+        const id_imc = imcRow.querySelector('.id').textContent;
+        const peso = imcRow.querySelector('.peso').textContent;
+        const altura = imcRow.querySelector('.altura').textContent;
+
+        document.getElementById('editImcId').value = id_imc;
+        document.getElementById('editImcPeso').value = peso;
+        document.getElementById('editImcAltura').value = altura;
+        document.getElementById('editImcClassificacao').value = classificacao;
+        carregarPacientes(true);
+
+        document.getElementById('editImcModal').style.display = 'block';
+    }
+
+    function submitImcEdit() {
+        const id = document.getElementById('editImcId').value;
+        const peso = document.getElementById('editImcPeso').value;
+        const altura = document.getElementById('editImcAltura').value;
+
+        fetch('/api/imcs/atualizar/' + id, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ peso, altura })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            swal(data.message, "", "success").then(() => {
+                window.location.reload();
+            });
+        })
+        .catch(error => {
+            swal("Erro ao editar imc", error.message, "error");
+        });
+
+        closeModal('editImcModal');
+    }
+
+    function deleteImc(id) {
+        swal({
+            title: "{{ text.delete_confirmation_title }}",
+            text: "{{ text.delete_confirmation_text }}",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((willDelete) => {
+            if (willDelete) {
+                fetch('/api/imcs/remover/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        swal("imc removido com sucesso!", "", "success").then(() => {
+                            window.location.reload();
+                        });
+                    } else if (response.status === 404) {
+                        swal("imc não encontrado", "", "error");
+                    } else {
+                        return response.json().then(err => { throw err; });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    swal("Erro ao deletar imc", error.message, "error");
+                });
+            }
+        });
+    }
+
+    function submitNewImc() {
+        const peso = document.getElementById('newImcPeso').value;
+        const altura = document.getElementById('newImcAltura').value;
+        const paciente = document.getElementById('newImcPaciente').value;
+
+        fetch('/api/imcs/cadastrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ peso, altura, paciente })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            swal(data.message, "", "success").then(() => {
+                window.location.reload();
+            });
+        })
+        .catch(error => {
+            swal("Falha ao criar imc", error.message, "error");
+        });
+
+        closeModal('createImcModal');
+    }
+
+    function carregarPacientes(edit = false) {
+        fetch(`/api/pacientes`)
+            .then(response => response.json())
+            .then(data => {
+                const pacienteSelect = document.getElementById(edit ? 'editImcPaciente' : 'newImcPaciente')
+                pacienteSelect.innerHTML = '<option value="" disabled selected>{{ text.select_patient }}</option>';
+                data.forEach(paciente => {
+                    const option = document.createElement('option');
+                    option.value = paciente.id;
+                    option.textContent = paciente.nome;
+                    pacienteSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Erro ao buscar pacientes:', error));
+    }
+
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function showCreateImcModal() {
+        carregarPacientes();
+        document.getElementById('createImcModal').style.display = 'block';
+    }
+</script>

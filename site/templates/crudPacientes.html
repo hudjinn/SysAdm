@@ -1,7 +1,7 @@
 <div id="createPacienteModal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeModal('createPacienteModal')">&times;</span>
-        <h3>{{ text.create_new_paciente }}</h3>
+        <h3>{{ text.create_new_patient }}</h3>
         <form id="createPacienteForm">
             <label for="newPacienteCpf">{{ text.cpf }}</label>
             <input type="text" id="newPacienteCpf" name="cpf">
@@ -22,7 +22,7 @@
 <div id="editPacienteModal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeModal('editPacienteModal')">&times;</span>
-        <h3>{{ text.edit_paciente }}</h3>
+        <h3>{{ text.edit_patient }}</h3>
         <form id="editPacienteForm">
             <input type="hidden" id="editPacienteId" name="id">
             <label for="editPacienteCpf">{{ text.cpf }}</label>
@@ -90,7 +90,6 @@
     });
 
     function editPaciente(id) {
-        console.log('Editando paciente', id);
         const pacienteRow = document.querySelector(`#paciente-table tr[data-id="${id}"]`);
         if (!pacienteRow) {
             console.error('Linha do paciente não encontrada.');

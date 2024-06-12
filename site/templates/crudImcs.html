@@ -3,11 +3,11 @@
         <span class="close-button" onclick="closeModal('createImcModal')">&times;</span>
         <h3>{{ text.create_new_paciente }}</h3>
         <form id="createImcForm">
-            <label for="newImcPeso">PESO</label>
+            <label for="newImcPeso">{{ text.weight }}</label>
             <input type="text" id="newImcPeso" name="peso">
-            <label for="newImcAltura">ALTURA</label>
+            <label for="newImcAltura">{{ text.height }}</label>
             <input type="text" id="newImcAltura" name="altura">
-            <label for="newImcPaciente">{{ text.paciente }}</label>
+            <label for="newImcPaciente">{{ text.patient }}</label>
             <select id="newImcPaciente" name="paciente">
                 <option value="" disabled selected>{{ text.select_patient }}</option>
             </select>

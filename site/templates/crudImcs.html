@@ -43,6 +43,7 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>{{ text.paciente_nome }}</th>
                 <th>{{ text.peso }}</th>
                 <th>{{ text.altura }}</th>
                 <th>{{ text.classificacao }}</th>
@@ -67,6 +68,7 @@
                 tr.setAttribute('data-id', imc.id);
                 tr.innerHTML = `
                     <td class="id">${imc.id}</td>
+                    <td class="paciente">${imc.paciente['nome']}</td>
                     <td class="peso">${imc.peso}</td>
                     <td class="altura">${imc.altura}</td>
                     <td class="classificacao">${imc.classificacao}</td>

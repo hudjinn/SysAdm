@@ -5,25 +5,24 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import br.com.sysadm.model.Imc;
+import br.com.sysadm.model.Paciente;
 import br.com.sysadm.repository.ImcRepository;
+import br.com.sysadm.repository.PacienteRepository;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/imcs")
+@Validated
 public class ImcController {
 
     @Autowired
     private ImcRepository imcRepository;
+
+    @Autowired 
+    private PacienteRepository pacienteRepository;
 
     @GetMapping
     public List<Imc> listarTodos() {
@@ -50,11 +49,42 @@ public class ImcController {
         }
     }
 
-    @PostMapping("/cadastrar")
-    public ResponseEntity<?> cadastrarImc(@RequestBody Imc imc) {
+    @PostMapping("/cadastrar/{pacienteId}")
+    public ResponseEntity<?> cadastrarImc(@PathVariable Long pacienteId, @RequestBody Imc imc) {
+        if (pacienteId == null) {
+            return ResponseEntity.badRequest().body("Paciente ID é obrigatório");
+        }
+        Optional<Paciente> pacienteOptional = pacienteRepository.findById(pacienteId);
+        if (!pacienteOptional.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente não encontrado");
+        }
+        if (imc.getPeso() == null || imc.getAltura() == null) {
+            return ResponseEntity.badRequest().body("Peso e altura são obrigatórios");
+        }
+        imc.setPaciente(pacienteOptional.get());
+        imc.calcularImc(); // Certificar que o cálculo do IMC é feito
         imcRepository.save(imc);
         return ResponseEntity.status(HttpStatus.CREATED).body(imc);
     }
+
+    @PostMapping("/cadastrar/cpf/{cpf}")
+    public ResponseEntity<?> cadastrarImcPorCpf(@PathVariable String cpf, @RequestBody Imc imc) {
+        if (cpf == null || cpf.isEmpty()) {
+            return ResponseEntity.badRequest().body("Paciente CPF é obrigatório");
+        }
+        Optional<Paciente> pacienteOptional = pacienteRepository.findByCpf(cpf);
+        if (!pacienteOptional.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente não encontrado");
+        }
+        if (imc.getPeso() == null || imc.getAltura() == null) {
+            return ResponseEntity.badRequest().body("Peso e altura são obrigatórios");
+        }
+        imc.setPaciente(pacienteOptional.get());
+        imc.calcularImc(); // Certificar que o cálculo do IMC é feito
+        imcRepository.save(imc);
+        return ResponseEntity.status(HttpStatus.CREATED).body(imc);
+    }
+
     @PatchMapping("/atualizar/{id}")
     public ResponseEntity<?> atualizarParcial(@PathVariable Long id, @RequestBody Imc imcAtualizado) {
         Optional<Imc> imcExistente = imcRepository.findById(id);
@@ -70,6 +100,7 @@ public class ImcController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("IMC não encontrado!");
         }
     }
+
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<?> deletarImc(@PathVariable Long id) {
         Optional<Imc> imc = imcRepository.findById(id);

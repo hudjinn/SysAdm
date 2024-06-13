@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 
 @Entity
 public class Imc {
@@ -45,7 +46,7 @@ public class Imc {
     }
 
     public void calcularImc() {
-        this.resultado = peso / (altura * altura);
+        this.resultado = this.peso / (this.altura * this.altura);
         this.classificacao = classificarImc(this.resultado);
     }
 
@@ -65,6 +66,12 @@ public class Imc {
         }
     }
 
+    @PrePersist
+    protected void onCreate() {
+        dataImc = LocalDate.now();
+        calcularImc();
+    }
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -80,7 +87,6 @@ public class Imc {
 
     public void setPeso(Double peso) {
         this.peso = peso;
-        calcularImc();
     }
 
     public Double getAltura() {
@@ -89,7 +95,6 @@ public class Imc {
 
     public void setAltura(Double altura) {
         this.altura = altura;
-        calcularImc();
     }
 
     public LocalDate getDataImc() {

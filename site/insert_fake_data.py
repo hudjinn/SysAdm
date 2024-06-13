@@ -46,6 +46,8 @@ def main():
     agendamentos = data['agendamentos']
     pacientes = data['pacientes']
     consultas = data['consultas']
+    imcs = data['imcs']
+
     # Inserir usuários em lote
     insert_data(API_URL + 'usuarios/cadastrar/lote', usuarios)
 
@@ -88,6 +90,9 @@ def main():
         insert_data(API_URL + 'pacientes/cadastrar', paciente)
     for consulta in consultas:
         insert_data(API_URL + 'consultas/cadastrar', consulta)
+    for imc in imcs:
+        paciente_cpf = imc.pop("pacienteCpf")
+        insert_data(API_URL + 'imcs/cadastrar/cpf/' + paciente_cpf , imc)
 
 if __name__ == '__main__':
     main()

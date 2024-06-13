@@ -1,414 +1,562 @@
 {
-  "usuarios": [
-      {
-          "nome": "Fulano de Tal",
-          "email": "adm@teste.com",
-          "dataNasc": "2222-01-01",
-          "cpf": "12345678900",
-          "senha": "123456",
-          "ativo": true
-      },
-      {
-          "nome": "Ana Beatriz",
-          "email": "ana@teste.com",
-          "dataNasc": "1995-04-22",
-          "cpf": "98765432109",
-          "senha": "senhaSegura",
-          "ativo": true
-      },
-      {
-          "nome": "Roberto Silva",
-          "email": "roberto@teste.com",
-          "dataNasc": "1988-12-15",
-          "cpf": "12312312399",
-          "senha": "outraSenha123",
-          "ativo": true
-      },
-      {
-          "nome": "Carla dos Santos",
-          "email": "carla@teste.com",
-          "dataNasc": "2000-07-03",
-          "cpf": "45645645666",
-          "senha": "carlaSenha",
-          "ativo": true
-      },
-      {
-          "nome": "Pedro Oliveira",
-          "email": "pedro@teste.com",
-          "dataNasc": "1992-02-28",
-          "cpf": "78978978911",
-          "senha": "pedro1234",
-          "ativo": false
-      },
-      {
-          "nome": "Juliana Moraes",
-          "email": "juliana@teste.com",
-          "dataNasc": "1998-11-20",
-          "cpf": "32132132177",
-          "senha": "julianaSenha",
-          "ativo": true
-      }
-  ],
-  "clinicas": [
-      {
-          "nome": "Clínica Saúde",
-          "endereco": "Rua da Saúde, 123"
-      },
-      {
-          "nome": "Clínica Bem-Estar",
-          "endereco": "Avenida do Bem, 321"
-      },
-      {
-          "nome": "Clínica Vida",
-          "endereco": "Rua da Vida, 456"
-      },
-      {
-          "nome": "Clínica Esperança",
-          "endereco": "Avenida da Esperança, 789"
-      },
-      {
-          "nome": "Clínica Alegria",
-          "endereco": "Rua da Alegria, 101"
-      },
-      {
-          "nome": "Clínica Harmonia",
-          "endereco": "Avenida da Harmonia, 202"
-      },
-      {
-          "nome": "Clínica Paz",
-          "endereco": "Rua da Paz, 303"
-      },
-      {
-          "nome": "Clínica Luz",
-          "endereco": "Avenida da Luz, 404"
-      },
-      {
-          "nome": "Clínica Bem Viver",
-          "endereco": "Rua do Bem Viver, 505"
-      },
-      {
-          "nome": "Clínica Bem Cuidar",
-          "endereco": "Avenida do Bem Cuidar, 606"
-      }
-  ],
-  "medicos": [
-      {
-          "cpf": "12345678901",
-          "nome": "Dr. João Silva",
-          "especialidade": "Cardiologia"
-      },
-      {
-          "cpf": "98765432109",
-          "nome": "Dra. Maria Oliveira",
-          "especialidade": "Endocrinologia"
-      },
-      {
-          "cpf": "19283746501",
-          "nome": "Dr. Carlos Prado",
-          "especialidade": "Dermatologia"
-      },
-      {
-          "cpf": "12312312312",
-          "nome": "Dra. Ana Souza",
-          "especialidade": "Neurologia"
-      },
-      {
-          "cpf": "45645645645",
-          "nome": "Dr. Pedro Costa",
-          "especialidade": "Ortopedia"
-      },
-      {
-          "cpf": "78978978978",
-          "nome": "Dra. Laura Mendes",
-          "especialidade": "Pediatria"
-      },
-      {
-          "cpf": "32132132132",
-          "nome": "Dr. Paulo Silva",
-          "especialidade": "Gastroenterologia"
-      },
-      {
-          "cpf": "65465465465",
-          "nome": "Dra. Clara Pereira",
-          "especialidade": "Ginecologia"
-      },
-      {
-          "cpf": "98798798798",
-          "nome": "Dr. Ricardo Almeida",
-          "especialidade": "Urologia"
-      },
-      {
-          "cpf": "11111111111",
-          "nome": "Dra. Mariana Martins",
-          "especialidade": "Psiquiatria"
-      }
-  ],
-  "clinica_medico": [
-      {
-          "clinicaId": 1,
-          "medicoCpf": "12345678901",
-          "horarios": {
-              "MONDAY": ["08:00", "12:00"],
-              "WEDNESDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 1,
-          "medicoCpf": "98765432109",
-          "horarios": {
-              "TUESDAY": ["08:00", "12:00"],
-              "THURSDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 2,
-          "medicoCpf": "19283746501",
-          "horarios": {
-              "MONDAY": ["08:00", "12:00"],
-              "FRIDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 2,
-          "medicoCpf": "12312312312",
-          "horarios": {
-              "WEDNESDAY": ["08:00", "12:00"],
-              "FRIDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 3,
-          "medicoCpf": "45645645645",
-          "horarios": {
-              "TUESDAY": ["08:00", "12:00"],
-              "THURSDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 3,
-          "medicoCpf": "78978978978",
-          "horarios": {
-              "MONDAY": ["08:00", "12:00"],
-              "FRIDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 4,
-          "medicoCpf": "32132132132",
-          "horarios": {
-              "WEDNESDAY": ["08:00", "12:00"],
-              "FRIDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 5,
-          "medicoCpf": "65465465465",
-          "horarios": {
-              "MONDAY": ["08:00", "12:00"],
-              "THURSDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 6,
-          "medicoCpf": "98798798798",
-          "horarios": {
-              "TUESDAY": ["08:00", "12:00"],
-              "FRIDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 7,
-          "medicoCpf": "11111111111",
-          "horarios": {
-              "MONDAY": ["08:00", "12:00"],
-              "WEDNESDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 8,
-          "medicoCpf": "12345678901",
-          "horarios": {
-              "TUESDAY": ["08:00", "12:00"],
-              "THURSDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 8,
-          "medicoCpf": "98765432109",
-          "horarios": {
-              "WEDNESDAY": ["08:00", "12:00"],
-              "FRIDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 9,
-          "medicoCpf": "19283746501",
-          "horarios": {
-              "MONDAY": ["08:00", "12:00"],
-              "FRIDAY": ["14:00", "18:00"]
-          }
-      },
-      {
-          "clinicaId": 10,
-          "medicoCpf": "12312312312",
-          "horarios": {
-              "WEDNESDAY": ["08:00", "12:00"],
-              "FRIDAY": ["14:00", "18:00"]
-          }
-      }
-  ],
-  "agendamentos": [
-      {
-          "clinicaId": 1,
-          "medicoId": 1,
-          "dataAgendamento": "2024-05-13",
-          "horaAgendamento": "08:00:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Fulano de Tal",
-          "emailPaciente": "fulano@teste.com"
-      },
-      {
-          "clinicaId": 1,
-          "medicoId": 1,
-          "dataAgendamento": "2024-05-13",
-          "horaAgendamento": "08:30:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Ana Beatriz",
-          "emailPaciente": "ana@teste.com"
-      },
-      {
-          "clinicaId": 1,
-          "medicoId": 2,
-          "dataAgendamento": "2024-05-14",
-          "horaAgendamento": "09:00:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Roberto Silva",
-          "emailPaciente": "roberto@teste.com"
-      },
-      {
-          "clinicaId": 2,
-          "medicoId": 2,
-          "dataAgendamento": "2024-05-16",
-          "horaAgendamento": "14:00:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Carla dos Santos",
-          "emailPaciente": "carla@teste.com"
-      },
-      {
-          "clinicaId": 2,
-          "medicoId": 3,
-          "dataAgendamento": "2024-05-17",
-          "horaAgendamento": "14:30:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Pedro Oliveira",
-          "emailPaciente": "pedro@teste.com"
-      },
-      {
-          "clinicaId": 2,
-          "medicoId": 3,
-          "dataAgendamento": "2024-05-17",
-          "horaAgendamento": "15:00:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Juliana Moraes",
-          "emailPaciente": "juliana@teste.com"
-      },
-      {
-          "clinicaId": 3,
-          "medicoId": 4,
-          "dataAgendamento": "2024-05-15",
-          "horaAgendamento": "08:00:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Ricardo Alves",
-          "emailPaciente": "ricardo@teste.com"
-      },
-      {
-          "clinicaId": 3,
-          "medicoId": 4,
-          "dataAgendamento": "2024-05-15",
-          "horaAgendamento": "08:30:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Mariana Costa",
-          "emailPaciente": "mariana@teste.com"
-      },
-      {
-          "clinicaId": 3,
-          "medicoId": 5,
-          "dataAgendamento": "2024-05-16",
-          "horaAgendamento": "08:00:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Fernando Lima",
-          "emailPaciente": "fernando@teste.com"
-      },
-      {
-          "clinicaId": 4,
-          "medicoId": 5,
-          "dataAgendamento": "2024-05-18",
-          "horaAgendamento": "14:00:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Alice Ferreira",
-          "emailPaciente": "alice@teste.com"
-      },
-      {
-          "clinicaId": 4,
-          "medicoId": 6,
-          "dataAgendamento": "2024-05-17",
-          "horaAgendamento": "14:30:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Gabriel Souza",
-          "emailPaciente": "gabriel@teste.com"
-      },
-      {
-          "clinicaId": 4,
-          "medicoId": 6,
-          "dataAgendamento": "2024-05-17",
-          "horaAgendamento": "15:00:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Isabela Rocha",
-          "emailPaciente": "isabela@teste.com"
-      },
-      {
-          "clinicaId": 5,
-          "medicoId": 7,
-          "dataAgendamento": "2024-05-13",
-          "horaAgendamento": "08:00:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Lucas Martins",
-          "emailPaciente": "lucas@teste.com"
-      },
-      {
-          "clinicaId": 5,
-          "medicoId": 7,
-          "dataAgendamento": "2024-05-13",
-          "horaAgendamento": "08:30:00",
-          "status": "AGENDADO",
-          "nomePaciente": "Beatriz Ramos",
-          "emailPaciente": "beatriz@teste.com"
-      },
-      {
-          "clinicaId": 5,
-          "medicoId": 8,
-          "dataAgendamento": "2024-05-15",
-          "horaAgendamento": "14:00:00",
-          "status": "AGENDADO",
-          "nomePaciente": "André Oliveira",
-          "emailPaciente": "andre@teste.com"
-      }
+    "usuarios": [
+        {
+            "nome": "Fulano de Tal",
+            "email": "adm@teste.com",
+            "dataNasc": "2222-01-01",
+            "cpf": "12345678900",
+            "senha": "123456",
+            "ativo": true
+        },
+        {
+            "nome": "Ana Beatriz",
+            "email": "ana@teste.com",
+            "dataNasc": "1995-04-22",
+            "cpf": "98765432109",
+            "senha": "senhaSegura",
+            "ativo": true
+        },
+        {
+            "nome": "Roberto Silva",
+            "email": "roberto@teste.com",
+            "dataNasc": "1988-12-15",
+            "cpf": "12312312399",
+            "senha": "outraSenha123",
+            "ativo": true
+        },
+        {
+            "nome": "Carla dos Santos",
+            "email": "carla@teste.com",
+            "dataNasc": "2000-07-03",
+            "cpf": "45645645666",
+            "senha": "carlaSenha",
+            "ativo": true
+        },
+        {
+            "nome": "Pedro Oliveira",
+            "email": "pedro@teste.com",
+            "dataNasc": "1992-02-28",
+            "cpf": "78978978911",
+            "senha": "pedro1234",
+            "ativo": false
+        },
+        {
+            "nome": "Juliana Moraes",
+            "email": "juliana@teste.com",
+            "dataNasc": "1998-11-20",
+            "cpf": "32132132177",
+            "senha": "julianaSenha",
+            "ativo": true
+        }
     ],
-    "pacientes": [
+    "clinicas": [
+        {
+            "nome": "Clínica Saúde",
+            "endereco": "Rua da Saúde, 123"
+        },
+        {
+            "nome": "Clínica Bem-Estar",
+            "endereco": "Avenida do Bem, 321"
+        },
+        {
+            "nome": "Clínica Vida",
+            "endereco": "Rua da Vida, 456"
+        },
+        {
+            "nome": "Clínica Esperança",
+            "endereco": "Avenida da Esperança, 789"
+        },
+        {
+            "nome": "Clínica Alegria",
+            "endereco": "Rua da Alegria, 101"
+        },
+        {
+            "nome": "Clínica Harmonia",
+            "endereco": "Avenida da Harmonia, 202"
+        },
+        {
+            "nome": "Clínica Paz",
+            "endereco": "Rua da Paz, 303"
+        },
+        {
+            "nome": "Clínica Luz",
+            "endereco": "Avenida da Luz, 404"
+        },
+        {
+            "nome": "Clínica Bem Viver",
+            "endereco": "Rua do Bem Viver, 505"
+        },
+        {
+            "nome": "Clínica Bem Cuidar",
+            "endereco": "Avenida do Bem Cuidar, 606"
+        }
+    ],
+    "medicos": [
+        {
+            "cpf": "12345678901",
+            "nome": "Dr. João Silva",
+            "especialidade": "Cardiologia"
+        },
+        {
+            "cpf": "98765432109",
+            "nome": "Dra. Maria Oliveira",
+            "especialidade": "Endocrinologia"
+        },
+        {
+            "cpf": "19283746501",
+            "nome": "Dr. Carlos Prado",
+            "especialidade": "Dermatologia"
+        },
+        {
+            "cpf": "12312312312",
+            "nome": "Dra. Ana Souza",
+            "especialidade": "Neurologia"
+        },
+        {
+            "cpf": "45645645645",
+            "nome": "Dr. Pedro Costa",
+            "especialidade": "Ortopedia"
+        },
+        {
+            "cpf": "78978978978",
+            "nome": "Dra. Laura Mendes",
+            "especialidade": "Pediatria"
+        },
+        {
+            "cpf": "32132132132",
+            "nome": "Dr. Paulo Silva",
+            "especialidade": "Gastroenterologia"
+        },
+        {
+            "cpf": "65465465465",
+            "nome": "Dra. Clara Pereira",
+            "especialidade": "Ginecologia"
+        },
+        {
+            "cpf": "98798798798",
+            "nome": "Dr. Ricardo Almeida",
+            "especialidade": "Urologia"
+        },
+        {
+            "cpf": "11111111111",
+            "nome": "Dra. Mariana Martins",
+            "especialidade": "Psiquiatria"
+        }
+    ],
+    "clinica_medico": [
+        {
+            "clinicaId": 1,
+            "medicoCpf": "12345678901",
+            "horarios": {
+                "MONDAY": ["08:00", "12:00"],
+                "WEDNESDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 1,
+            "medicoCpf": "98765432109",
+            "horarios": {
+                "TUESDAY": ["08:00", "12:00"],
+                "THURSDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 2,
+            "medicoCpf": "19283746501",
+            "horarios": {
+                "MONDAY": ["08:00", "12:00"],
+                "FRIDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 2,
+            "medicoCpf": "12312312312",
+            "horarios": {
+                "WEDNESDAY": ["08:00", "12:00"],
+                "FRIDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 3,
+            "medicoCpf": "45645645645",
+            "horarios": {
+                "TUESDAY": ["08:00", "12:00"],
+                "THURSDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 3,
+            "medicoCpf": "78978978978",
+            "horarios": {
+                "MONDAY": ["08:00", "12:00"],
+                "FRIDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 4,
+            "medicoCpf": "32132132132",
+            "horarios": {
+                "WEDNESDAY": ["08:00", "12:00"],
+                "FRIDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 5,
+            "medicoCpf": "65465465465",
+            "horarios": {
+                "MONDAY": ["08:00", "12:00"],
+                "THURSDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 6,
+            "medicoCpf": "98798798798",
+            "horarios": {
+                "TUESDAY": ["08:00", "12:00"],
+                "FRIDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 7,
+            "medicoCpf": "11111111111",
+            "horarios": {
+                "MONDAY": ["08:00", "12:00"],
+                "WEDNESDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 8,
+            "medicoCpf": "12345678901",
+            "horarios": {
+                "TUESDAY": ["08:00", "12:00"],
+                "THURSDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 8,
+            "medicoCpf": "98765432109",
+            "horarios": {
+                "WEDNESDAY": ["08:00", "12:00"],
+                "FRIDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 9,
+            "medicoCpf": "19283746501",
+            "horarios": {
+                "MONDAY": ["08:00", "12:00"],
+                "FRIDAY": ["14:00", "18:00"]
+            }
+        },
+        {
+            "clinicaId": 10,
+            "medicoCpf": "12312312312",
+            "horarios": {
+                "WEDNESDAY": ["08:00", "12:00"],
+                "FRIDAY": ["14:00", "18:00"]
+            }
+        }
+    ],
+    "agendamentos": [
+        {
+            "clinicaId": 1,
+            "medicoId": 1,
+            "dataAgendamento": "2024-05-13",
+            "horaAgendamento": "08:00:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Fulano de Tal",
+            "emailPaciente": "fulano@teste.com"
+        },
+        {
+            "clinicaId": 1,
+            "medicoId": 1,
+            "dataAgendamento": "2024-05-13",
+            "horaAgendamento": "08:30:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Ana Beatriz",
+            "emailPaciente": "ana@teste.com"
+        },
+        {
+            "clinicaId": 1,
+            "medicoId": 2,
+            "dataAgendamento": "2024-05-14",
+            "horaAgendamento": "09:00:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Roberto Silva",
+            "emailPaciente": "roberto@teste.com"
+        },
+        {
+            "clinicaId": 2,
+            "medicoId": 2,
+            "dataAgendamento": "2024-05-16",
+            "horaAgendamento": "14:00:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Carla dos Santos",
+            "emailPaciente": "carla@teste.com"
+        },
+        {
+            "clinicaId": 2,
+            "medicoId": 3,
+            "dataAgendamento": "2024-05-17",
+            "horaAgendamento": "14:30:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Pedro Oliveira",
+            "emailPaciente": "pedro@teste.com"
+        },
+        {
+            "clinicaId": 2,
+            "medicoId": 3,
+            "dataAgendamento": "2024-05-17",
+            "horaAgendamento": "15:00:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Juliana Moraes",
+            "emailPaciente": "juliana@teste.com"
+        },
+        {
+            "clinicaId": 3,
+            "medicoId": 4,
+            "dataAgendamento": "2024-05-15",
+            "horaAgendamento": "08:00:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Ricardo Alves",
+            "emailPaciente": "ricardo@teste.com"
+        },
+        {
+            "clinicaId": 3,
+            "medicoId": 4,
+            "dataAgendamento": "2024-05-15",
+            "horaAgendamento": "08:30:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Mariana Costa",
+            "emailPaciente": "mariana@teste.com"
+        },
+        {
+            "clinicaId": 3,
+            "medicoId": 5,
+            "dataAgendamento": "2024-05-16",
+            "horaAgendamento": "08:00:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Fernando Lima",
+            "emailPaciente": "fernando@teste.com"
+        },
+        {
+            "clinicaId": 4,
+            "medicoId": 5,
+            "dataAgendamento": "2024-05-18",
+            "horaAgendamento": "14:00:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Alice Ferreira",
+            "emailPaciente": "alice@teste.com"
+        },
+        {
+            "clinicaId": 4,
+            "medicoId": 6,
+            "dataAgendamento": "2024-05-17",
+            "horaAgendamento": "14:30:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Gabriel Souza",
+            "emailPaciente": "gabriel@teste.com"
+        },
+        {
+            "clinicaId": 4,
+            "medicoId": 6,
+            "dataAgendamento": "2024-05-17",
+            "horaAgendamento": "15:00:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Isabela Rocha",
+            "emailPaciente": "isabela@teste.com"
+        },
+        {
+            "clinicaId": 5,
+            "medicoId": 7,
+            "dataAgendamento": "2024-05-13",
+            "horaAgendamento": "08:00:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Lucas Martins",
+            "emailPaciente": "lucas@teste.com"
+        },
+        {
+            "clinicaId": 5,
+            "medicoId": 7,
+            "dataAgendamento": "2024-05-13",
+            "horaAgendamento": "08:30:00",
+            "status": "AGENDADO",
+            "nomePaciente": "Beatriz Ramos",
+            "emailPaciente": "beatriz@teste.com"
+        },
+        {
+            "clinicaId": 5,
+            "medicoId": 8,
+            "dataAgendamento": "2024-05-15",
+            "horaAgendamento": "14:00:00",
+            "status": "AGENDADO",
+            "nomePaciente": "André Oliveira",
+            "emailPaciente": "andre@teste.com"
+        }
+      ],
+      "pacientes": [
         {
             "cpf": "12345678901",
             "sexo": "M",
-            "dataNasc": "1990-01-01",
+            "dataNasc": "1991-01-01",
             "nome": "João Silva"
+        },
+        {
+            "cpf": "12345678902",
+            "sexo": "F",
+            "dataNasc": "1992-02-02",
+            "nome": "Maria Silva"
+        },
+        {
+            "cpf": "12345678903",
+            "sexo": "M",
+            "dataNasc": "1993-03-03",
+            "nome": "Pedro Silva"
+        },
+        {
+            "cpf": "12345678904",
+            "sexo": "F",
+            "dataNasc": "1994-04-04",
+            "nome": "Ana Paula"
+        },
+        {
+            "cpf": "12345678905",
+            "sexo": "M",
+            "dataNasc": "1995-05-05",
+            "nome": "Carlos Eduardo"
+        },
+        {
+            "cpf": "12345678906",
+            "sexo": "F",
+            "dataNasc": "1996-06-06",
+            "nome": "Fernanda Lopes"
+        },
+        {
+            "cpf": "12345678907",
+            "sexo": "M",
+            "dataNasc": "1997-07-07",
+            "nome": "Gabriel Almeida"
+        },
+        {
+            "cpf": "12345678908",
+            "sexo": "F",
+            "dataNasc": "1998-08-08",
+            "nome": "Julia Marques"
+        }
+    ],
+    "imcs": [
+        {
+            "peso": 70.0,
+            "altura": 1.75,
+            "dataImc": "2024-01-01",
+            "pacienteCpf": "12345678901"
+        },
+        {
+            "peso": 72.0,
+            "altura": 1.75,
+            "dataImc": "2024-03-01",
+            "pacienteCpf": "12345678901"
+        },
+        {
+            "peso": 65.0,
+            "altura": 1.65,
+            "dataImc": "2024-01-01",
+            "pacienteCpf": "12345678902"
+        },
+        {
+            "peso": 66.5,
+            "altura": 1.65,
+            "dataImc": "2024-03-01",
+            "pacienteCpf": "12345678902"
+        },
+        {
+            "peso": 85.0,
+            "altura": 1.85,
+            "dataImc": "2024-01-01",
+            "pacienteCpf": "12345678903"
+        },
+        {
+            "peso": 86.0,
+            "altura": 1.85,
+            "dataImc": "2024-03-01",
+            "pacienteCpf": "12345678903"
+        },
+        {
+            "peso": 55.0,
+            "altura": 1.60,
+            "dataImc": "2024-01-01",
+            "pacienteCpf": "12345678904"
+        },
+        {
+            "peso": 57.0,
+            "altura": 1.60,
+            "dataImc": "2024-03-01",
+            "pacienteCpf": "12345678904"
+        },
+        {
+            "peso": 75.0,
+            "altura": 1.70,
+            "dataImc": "2024-01-01",
+            "pacienteCpf": "12345678905"
+        },
+        {
+            "peso": 77.0,
+            "altura": 1.70,
+            "dataImc": "2024-03-01",
+            "pacienteCpf": "12345678905"
+        },
+        {
+            "peso": 60.0,
+            "altura": 1.68,
+            "dataImc": "2024-01-01",
+            "pacienteCpf": "12345678906"
+        },
+        {
+            "peso": 62.0,
+            "altura": 1.68,
+            "dataImc": "2024-03-01",
+            "pacienteCpf": "12345678906"
+        },
+        {
+            "peso": 90.0,
+            "altura": 1.90,
+            "dataImc": "2024-01-01",
+            "pacienteCpf": "12345678907"
+        },
+        {
+            "peso": 92.0,
+            "altura": 1.90,
+            "dataImc": "2024-03-01",
+            "pacienteCpf": "12345678907"
+        },
+        {
+            "peso": 50.0,
+            "altura": 1.55,
+            "dataImc": "2024-01-01",
+            "pacienteCpf": "12345678908"
+        },
+        {
+            "peso": 52.0,
+            "altura": 1.55,
+            "dataImc": "2024-03-01",
+            "pacienteCpf": "12345678908"
         }
     ],
     "consultas": [
-    {
-        "queixaPrincipal": "Dor de cabeça",
-        "diagnostico": "Enxaqueca",
-        "dataConsulta": "2024-05-30",
-        "pacienteId": 1,
-        "agendamentoId": 1
-    }
-  ]
+        {
+            "queixaPrincipal": "Dor de cabeça",
+            "diagnostico": "Enxaqueca",
+            "dataConsulta": "2024-05-30",
+            "pacienteId": 1,
+            "agendamentoId": 1
+        },
+        {
+            "queixaPrincipal": "Dor de garganta",
+            "diagnostico": "Gripe",
+            "dataConsulta": "2024-05-31",
+            "pacienteId": 2,
+            "agendamentoId": 2
+        }
+    ]
 }
+  

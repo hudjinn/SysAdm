@@ -398,8 +398,20 @@
         {
             "cpf": "12345678901",
             "sexo": "M",
-            "dataNasc": "1990-01-01",
+            "dataNasc": "1991-01-01",
             "nome": "João Silva"
+        },
+        {
+            "cpf": "12345678902",
+            "sexo": "F",
+            "dataNasc": "1992-02-02",
+            "nome": "Maria Silva"
+        },
+        {
+            "cpf": "12345678903",
+            "sexo": "M",
+            "dataNasc": "1993-03-03",
+            "nome": "Pedro Silva"
         }
     ],
     "consultas": [
@@ -409,6 +421,13 @@
         "dataConsulta": "2024-05-30",
         "pacienteId": 1,
         "agendamentoId": 1
+    },
+    {
+        "queixaPrincipal": "Dor de garganta",
+        "diagnostico": "Gripe",
+        "dataConsulta": "2024-05-31",
+        "pacienteId": 2,
+        "agendamentoId": 2
     }
-  ]
+    ]
 }

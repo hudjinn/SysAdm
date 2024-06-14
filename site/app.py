@@ -732,18 +732,17 @@ def dados_imcs():
         flash(f"{session['flash_text']['conn_error']} | Error: {e}", 'error')
         return redirect(url_for('admin'))
 
-@app.route('/api/imcs/cadastrar', methods=['POST'])
+@app.route('/api/imcs/cadastrar/<id>', methods=['POST'])
 @check_api_status
 @login_required
-def api_criar_imc():
+def api_criar_imc(id):
     data = request.json
     imc_data = {
         "peso": data['peso'],
-        "altura": data['altura'],
-        "paciente": {"id": data['paciente']}
+        "altura": data['altura']
     }
 
-    response = requests.post(app.api + 'imcs/cadastrar', json=imc_data)
+    response = requests.post(app.api + 'imcs/cadastrar/{id}', json=imc_data)
     if response.status_code == 201:
         return jsonify({"message": session['flash_text']['create_user_success']}), 201
     else:

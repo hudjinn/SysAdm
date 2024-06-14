@@ -93,11 +93,12 @@
         const id_imc = imcRow.querySelector('.id').textContent;
         const peso = imcRow.querySelector('.peso').textContent;
         const altura = imcRow.querySelector('.altura').textContent;
+        const paciente = imcRow.querySelector('.paciente').textContent;
 
         document.getElementById('editImcId').value = id_imc;
         document.getElementById('editImcPeso').value = peso;
         document.getElementById('editImcAltura').value = altura;
-        document.getElementById('editImcClassificacao').value = classificacao;
+        document.getElementById('editImcPaciente').value = paciente;
         carregarPacientes(true);
 
         document.getElementById('editImcModal').style.display = 'block';
@@ -113,7 +114,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ peso: parseFloat(peso), altura: parseFloat(altura) })
+            body: JSON.stringify({ peso, altura })
         })
         .then(response => {
             if (!response.ok) {
@@ -142,7 +143,7 @@
             dangerMode: true,
         }).then((willDelete) => {
             if (willDelete) {
-                fetch('/api/imcs/remover/' + id, {
+                fetch('/api/imcs/deletar/' + id, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -177,7 +178,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ peso: parseFloat(peso), altura: parseFloat(altura) })
+            body: JSON.stringify({ peso, altura })
         })
         .then(response => {
             if (!response.ok) {

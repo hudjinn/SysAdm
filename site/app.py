@@ -738,8 +738,8 @@ def dados_imcs():
 def api_criar_imc(id):
     data = request.json
     imc_data = {
-        "peso": data['peso'],
-        "altura": data['altura']
+        "peso": float(data['peso']),
+        "altura": float(data['altura'])
     }
 
     response = requests.post(app.api + 'imcs/cadastrar/{id}', json=imc_data)
@@ -753,7 +753,12 @@ def api_criar_imc(id):
 @login_required
 def api_atualizar_imc(id):
     try:
-        imc_data = request.json
+        data = request.json
+
+        imc_data = {
+            "peso": float(data['peso']),
+            "altura": float(data['altura'])
+        }
         response = requests.patch(f'{app.api}imcs/atualizar/{id}', json=imc_data)
         if response.status_code == 200:
             return jsonify({"message": session['flash_text']['update_user_success']}), 200

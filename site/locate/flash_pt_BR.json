@@ -24,5 +24,11 @@
   "update_imc_success": "IMC atualizado com sucesso!",
   "update_imc_fail": "Falha ao atualizar IMC!",
   "delete_imc_success": "IMC removido com sucesso!",
-  "delete_imc_fail": "Falha ao remover IMC!"
+  "delete_imc_fail": "Falha ao remover IMC!",
+  "create_appointment_success": "Consulta criada com sucesso!",
+  "create_appointment_fail": "Falha ao criar consulta!",
+  "update_appointment_success": "Consulta atualizada com sucesso!",
+  "update_appointment_fail": "Falha ao atualizar consulta!",
+  "delete_appointment_success": "Consulta removida com sucesso!",
+  "delete_appointment_fail": "Falha ao remover consulta!"
 }

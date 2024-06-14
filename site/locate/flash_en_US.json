@@ -24,5 +24,11 @@
   "update_imc_success": "IMC updated successfully!",
   "update_imc_fail": "Failed to update IMC!",
   "delete_imc_success": "IMC deleted successfully!",
-  "delete_imc_fail": "Failed to delete IMC!"
+  "delete_imc_fail": "Failed to delete IMC!",
+  "create_appointment_success": "Appointment created successfully!",
+  "create_appointment_fail": "Failed to create appointment!",
+  "update_appointment_success": "Appointment updated successfully!",
+  "update_appointment_fail": "Failed to update appointment!",
+  "delete_appointment_success": "Appointment deleted successfully!",
+  "delete_appointment_fail": "Failed to delete appointment!"
 }

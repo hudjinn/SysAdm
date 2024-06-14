@@ -22,11 +22,11 @@
         <h3>{{ text.edit_imc }}</h3>
         <form id="editImcForm">
             <input type="hidden" id="editImcId" name="id">
-            <label for="editImcPeso">PESO</label>
+            <label for="editImcPeso">{{ text.weight }}</label>
             <input type="text" id="editImcPeso" name="peso">
-            <label for="editImcAltura">ALTURA</label>
+            <label for="editImcAltura">{{ text.height }}</label>
             <input type="text" id="editImcAltura" name="altura">
-            <label for="editImcPaciente">{{ text.paciente }}</label>
+            <label for="editImcPaciente">{{ text.patient }}</label>
             <select id="editImcPaciente" name="paciente">
                 <option value="" disabled selected>{{ text.select_patient }}</option>
             </select>
@@ -57,12 +57,16 @@
 </div>
 
 <script>
+    let imcs = [];
+
+
     window.addEventListener('DOMContentLoaded', (event) => {
         fetch('/api/imcs')
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#imc-table tbody');
             tbody.innerHTML = ''; // Limpar o corpo da tabela existente
+            imcs = data;
             data.forEach(imc => {
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-id', imc.id);
@@ -93,15 +97,17 @@
         const id_imc = imcRow.querySelector('.id').textContent;
         const peso = imcRow.querySelector('.peso').textContent;
         const altura = imcRow.querySelector('.altura').textContent;
-        const paciente = imcRow.querySelector('.paciente').textContent;
-
+        const pacienteId = imcs.find(imc => imc.id == id_imc).paciente.id;
+        
+        carregarPacientes(true);
+        document.getElementById('editImcModal').style.display = 'block';
         document.getElementById('editImcId').value = id_imc;
         document.getElementById('editImcPeso').value = peso;
         document.getElementById('editImcAltura').value = altura;
-        document.getElementById('editImcPaciente').value = paciente;
-        carregarPacientes(true);
-
-        document.getElementById('editImcModal').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('editImcPaciente').value = pacienteId;
+            document.getElementById('editImcPaciente').disabled = true;
+        }, 100);
     }
 
     function submitImcEdit() {

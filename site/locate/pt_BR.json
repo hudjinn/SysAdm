@@ -98,6 +98,7 @@
     "user_management": "Gerenciamento de Administrador",
     "doctor_management": "Gerenciamento de Médicos",
     "appointment_management": "Gerenciamento de Agendamentos",
+    "medical_appointment_management": "Gerenciamento de Consultas",
     "patient_management": "Gerenciamento de Pacientes",
     "imc_management": "Gerenciamento de IMC",
     
@@ -129,6 +130,7 @@
     "doctor": "Médico",
     "create_new_imc": "Cadastrar Novo IMC",
     "edit_imc": "Editando IMC",
+    "select_patient": "Selecione um paciente",
     "date": "Data",
     "time": "Hora"
 }

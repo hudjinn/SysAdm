@@ -24,5 +24,11 @@
     "update_imc_success": "¡IMC actualizado con éxito!",
     "update_imc_fail": "¡Error al actualizar IMC!",
     "delete_imc_success": "¡IMC eliminado con éxito!",
-    "delete_imc_fail": "¡Error al eliminar IMC!"
+    "delete_imc_fail": "¡Error al eliminar IMC!",
+    "create_appointment_success": "¡Cita creada con éxito!",
+    "create_appointment_fail": "¡Error al crear cita!",
+    "update_appointment_success": "¡Cita actualizada con éxito!",
+    "update_appointment_fail": "¡Error al actualizar cita!",
+    "delete_appointment_success": "¡Cita eliminada con éxito!",
+    "delete_appointment_fail": "¡Error al eliminar cita!"
 }

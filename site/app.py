@@ -742,11 +742,11 @@ def api_criar_imc(id):
         "altura": float(data['altura'])
     }
 
-    response = requests.post(app.api + 'imcs/cadastrar/{id}', json=imc_data)
+    response = requests.post(f'{app.api}imcs/cadastrar/{id}', json=imc_data)
     if response.status_code == 201:
-        return jsonify({"message": session['flash_text']['create_user_success']}), 201
+        return jsonify({"message": session['flash_text']['create_imc_success']}), 201
     else:
-        return jsonify({"message": session['flash_text']['create_user_fail']}), response.status_code
+        return jsonify({"message": session['flash_text']['create_imc_fail']}), response.status_code
 
 @app.route('/api/imcs/atualizar/<id>', methods=['PATCH'])
 @check_api_status
@@ -761,9 +761,9 @@ def api_atualizar_imc(id):
         }
         response = requests.patch(f'{app.api}imcs/atualizar/{id}', json=imc_data)
         if response.status_code == 200:
-            return jsonify({"message": session['flash_text']['update_user_success']}), 200
+            return jsonify({"message": session['flash_text']['update_imc_success']}), 200
         else:
-            return jsonify({"message": session['flash_text']['update_user_fail']}), response.status_code
+            return jsonify({"message": session['flash_text']['update_imc_fail']}), response.status_code
     except Exception as e:
         return jsonify({"message": session['flash_text']['unknown_error']}), 500
 
@@ -774,9 +774,9 @@ def api_deletar_imc(id):
     try:
         response = requests.delete(f'{app.api}imcs/deletar/{id}')
         if response.status_code == 200:
-            return jsonify({"message": session['flash_text']['delete_user_success']}), 200
+            return jsonify({"message": session['flash_text']['delete_imc_success']}), 200
         else:
-            return jsonify({"message": session['flash_text']['delete_user_fail']}), response.status_code
+            return jsonify({"message": session['flash_text']['delete_imc_fail']}), response.status_code
     except requests.exceptions.RequestException as e:
         return jsonify({"message": session['flash_text']['conn_error']}), 500
 

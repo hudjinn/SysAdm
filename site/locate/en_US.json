@@ -98,5 +98,10 @@
   "user_management": "User Management",
   "doctor_management": "Doctor Management",
   "appointment_management": "Appointment Management",
-  "patient_management": "Patient Management"
+  "patient_management": "Patient Management",
+  "imc_management": "IMC Management",
+  "create_new_imc": "Create New IMC",
+  "classification": "Classification",
+  "patient_name": "Patient Name",
+  "edit_imc": "Edit IMC"
 }

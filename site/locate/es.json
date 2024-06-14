@@ -62,6 +62,8 @@
   "clinic": "Clínica",
   "specialty": "Especialidad",
   "doctor": "Médico",
+  "patient_name": "Nombre del paciente",
+  "classification": "Clasificación",
   "cpf": "CPF",
   "name": "Nombre",
   "weight":"Peso",
@@ -98,5 +100,8 @@
   "user_management": "Gestión de usuarios",
   "doctor_management": "Gestión de médicos",
   "appointment_management": "Gestión de citas",
-  "patient_management": "Gestión de pacientes"
+  "patient_management": "Gestión de pacientes",
+  "imc_management": "Gestión de IMC",
+  "create_new_imc": "Crear nuevo IMC",
+  "edit_imc": "Editar IMC"
 }

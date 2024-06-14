@@ -92,12 +92,15 @@
     "inactive": "Inativa",
     "weight":"Peso",
     "height": "Altura",
+    "classification": "Classificação",
     "delete_confirmation_title": "Tem certeza?",
     "delete_confirmation_text": "Uma vez removido, você não poderá recuperar os dados deste usuário!",
     "user_management": "Gerenciamento de Administrador",
     "doctor_management": "Gerenciamento de Médicos",
     "appointment_management": "Gerenciamento de Agendamentos",
     "patient_management": "Gerenciamento de Pacientes",
+    "imc_management": "Gerenciamento de IMC",
+    
     "back_to_sched_screen": "Voltar para a tela de Agendamento de Consulta",
     "login_adm": "Acessar Área de Administração",
     "patient_data": "Dados do Paciente",
@@ -124,6 +127,8 @@
     "scheduling_management": "Gerenciamento de Agendamentos",
     "specialty": "Especialidade",
     "doctor": "Médico",
+    "create_new_imc": "Cadastrar Novo IMC",
+    "edit_imc": "Editando IMC",
     "date": "Data",
     "time": "Hora"
 }

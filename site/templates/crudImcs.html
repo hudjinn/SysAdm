@@ -1,7 +1,7 @@
 <div id="createImcModal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeModal('createImcModal')">&times;</span>
-        <h3>{{ text.create_new_paciente }}</h3>
+        <h3>{{ text.create_new_imc }}</h3>
         <form id="createImcForm">
             <label for="newImcPeso">{{ text.weight }}</label>
             <input type="text" id="newImcPeso" name="peso">
@@ -19,7 +19,7 @@
 <div id="editImcModal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeModal('editImcModal')">&times;</span>
-        <h3>{{ text.edit_paciente }}</h3>
+        <h3>{{ text.edit_imc }}</h3>
         <form id="editImcForm">
             <input type="hidden" id="editImcId" name="id">
             <label for="editImcPeso">PESO</label>
@@ -36,17 +36,17 @@
 </div>
 
 <div id="admin-content">
-    <h2>{{ text.adm_panel }} - {{ text.patient_management }}</h2>
+    <h2>{{ text.adm_panel }} - {{ text.imc_management }}</h2>
     <button onclick="showCreateImcModal()" class="new-user-btn">{{ text.new_registration }}</button>
 
     <table id="imc-table">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>{{ text.paciente_nome }}</th>
-                <th>{{ text.peso }}</th>
-                <th>{{ text.altura }}</th>
-                <th>{{ text.classificacao }}</th>
+                <th>{{ text.patient_name }}</th>
+                <th>{{ text.weight }}</th>
+                <th>{{ text.height }}</th>
+                <th>{{ text.classification }}</th>
                 <th>{{ text.actions }}</th>
             </tr>
         </thead>

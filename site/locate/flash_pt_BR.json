@@ -18,5 +18,11 @@
   "update_user_success": "Usuário atualizado com sucesso!",
   "update_user_fail": "Falha ao atualizar usuário!",
   "delete_user_success": "Usuário removido com sucesso!",
-  "delete_user_fail": "Falha ao remover usuário!"
+  "delete_user_fail": "Falha ao remover usuário!",
+  "create_imc_success": "IMC criado com sucesso!",
+  "create_imc_fail": "Falha ao criar IMC!",
+  "update_imc_success": "IMC atualizado com sucesso!",
+  "update_imc_fail": "Falha ao atualizar IMC!",
+  "delete_imc_success": "IMC removido com sucesso!",
+  "delete_imc_fail": "Falha ao remover IMC!"
 }

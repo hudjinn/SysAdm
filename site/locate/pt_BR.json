@@ -101,7 +101,8 @@
     "medical_appointment_management": "Gerenciamento de Consultas",
     "patient_management": "Gerenciamento de Pacientes",
     "imc_management": "Gerenciamento de IMC",
-    
+    "create_new_medical_appointment": "Cadastrar Nova Consulta",
+    "edit_medical_appointment": "Editando Consulta",
     "back_to_sched_screen": "Voltar para a tela de Agendamento de Consulta",
     "login_adm": "Acessar Área de Administração",
     "patient_data": "Dados do Paciente",

@@ -784,3 +784,64 @@ if __name__ == '__main__':
     app.jinja_env.auto_reload = True
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.run(debug=True, host='0.0.0.0')
+
+# --------------- CONSULTAS CRUD--------------------
+# Rota para obter todos as consultas cadastrados
+@app.route('/api/consultas')
+@check_api_status
+@login_required
+def dados_consultas():
+    try:
+        resposta = requests.get(app.api + 'consultas')
+        if resposta.status_code == 200:
+            dados = resposta.json()
+            return jsonify(dados)
+        else:
+            flash(f"{session['flash_text']['conn_error']} | Response Code: {resposta.status_code}", 'error')
+            return redirect(url_for('admin'))
+    except requests.exceptions.RequestException as e:
+        flash(f"{session['flash_text']['conn_error']} | Error: {e}", 'error')
+        return redirect(url_for('admin'))
+
+@app.route('/api/consultas/cadastrar', methods=['POST'])
+@check_api_status
+@login_required
+def api_criar_consulta():
+    data = request.json
+    response = requests.post(f'{app.api}consultas/cadastrar', json=data)
+    if response.status_code == 201:
+        return jsonify({"message": session['flash_text']['create_appoitment_success']}), 201
+    else:
+        return jsonify({"message": session['flash_text']['create_appoitment_fail']}), response.status_code
+
+@app.route('/api/consultas/atualizar/<id>', methods=['PATCH'])
+@check_api_status
+@login_required
+def api_atualizar_consulta(id):
+    try:
+        data = request.json
+        response = requests.patch(f'{app.api}consultas/atualizar/{id}', json=data)
+        if response.status_code == 200:
+            return jsonify({"message": session['flash_text']['update_appoitment_success']}), 200
+        else:
+            return jsonify({"message": session['flash_text']['update_appoitment_fail']}), response.status_code
+    except Exception as e:
+        return jsonify({"message": session['flash_text']['unknown_error']}), 500
+
+@app.route('/api/consultas/deletar/<id>', methods=['DELETE'])
+@check_api_status
+@login_required
+def api_deletar_consulta(id):
+    try:
+        response = requests.delete(f'{app.api}consultas/deletar/{id}')
+        if response.status_code == 200:
+            return jsonify({"message": session['flash_text']['delete_appoitment_success']}), 200
+        else:
+            return jsonify({"message": session['flash_text']['delete_appoitment_fail']}), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"message": session['flash_text']['conn_error']}), 500
+
+if __name__ == '__main__':
+    app.jinja_env.auto_reload = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.run(debug=True, host='0.0.0.0')

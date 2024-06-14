@@ -96,6 +96,8 @@
   "activity": "Estado del Registro",
   "active": "Activo",
   "inactive": "Inactivo",
+  "create_new_medical_appointment": "Crear nueva cita médica",
+  "edit_medical_appointment": "Editar cita médica",
   "delete_confirmation_title": "¿Estás seguro?",
   "delete_confirmation_text": "Una vez eliminado, no podrás recuperar los datos de este usuario.",
   "user_management": "Gestión de usuarios",

@@ -347,7 +347,7 @@
         const horaAgendamento = document.querySelector(`#${modalType}_hora`).value;
         const status = modalType === 'edit' ? document.querySelector('#edit_status').value : 'AGENDADO';
 
-        const url = modalType === 'create' ? '/api/agendamentos' : `/api/agendamentos/atualizar/${document.querySelector(`#${modalType}SchedulingId`).value}`;
+        const url = modalType === 'create' ? '/api/agendamentos/' : `/api/agendamentos/atualizar/${document.querySelector(`#${modalType}SchedulingId`).value}`;
         const method = modalType === 'create' ? 'POST' : 'PATCH';
 
         fetch(url, {
@@ -453,7 +453,7 @@
     }
 
     function loadSchedulings() {
-        fetch('/api/agendamentos')
+        fetch('/api/agendamentos/')
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#scheduling-table tbody');

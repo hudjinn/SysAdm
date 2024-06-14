@@ -1,0 +1,231 @@
+<div id="createConsultaModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('createConsultaModal')">&times;</span>
+        <h3>{{ text.create_new_medical_appointment }}</h3>
+        <form id="createConsultaForm">
+            <label for="newConsultaPeso">{{ text.weight }}</label>
+            <input type="text" id="newConsultaPeso" name="peso">
+            <label for="newConsultaAltura">{{ text.height }}</label>
+            <input type="text" id="newConsultaAltura" name="altura">
+            <label for="newConsultaPaciente">{{ text.patient }}</label>
+            <select id="newConsultaPaciente" name="paciente">
+                <option value="" disabled selected>{{ text.select_patient }}</option>
+            </select>
+            <button type="button" onclick="submitNewConsulta()">{{ text.create }}</button>
+        </form>
+    </div>
+</div>
+
+<div id="editConsultaModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('editConsultaModal')">&times;</span>
+        <h3>{{ text.edit_medical_appointment }}</h3>
+        <form id="editConsultaForm">
+            <input type="hidden" id="editConsultaId" name="id">
+            <label for="editConsultaPeso">{{ text.weight }}</label>
+            <input type="text" id="editConsultaPeso" name="peso">
+            <label for="editConsultaAltura">{{ text.height }}</label>
+            <input type="text" id="editConsultaAltura" name="altura">
+            <label for="editConsultaPaciente">{{ text.patient }}</label>
+            <select id="editConsultaPaciente" name="paciente">
+                <option value="" disabled selected>{{ text.select_patient }}</option>
+            </select>
+            <button type="button" onclick="submitConsultaEdit()">{{ text.save_changes }}</button>
+        </form>
+    </div>
+</div>
+
+<div id="admin-content">
+    <h2>{{ text.adm_panel }} - {{ text.medical_appointment_management }}</h2>
+    <button onclick="showCreateConsultaModal()" class="new-user-btn">{{ text.new_registration }}</button>
+
+    <table id="appointment-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>{{ text.patient_name }}</th>
+                <th>{{ text.weight }}</th>
+                <th>{{ text.height }}</th>
+                <th>{{ text.classification }}</th>
+                <th>{{ text.actions }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- as Consultas serão carregados aqui via JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    let consultas = [];
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+        fetch('/api/consultas')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector('#appointment-table tbody');
+            tbody.innerHTML = ''; // Limpar o corpo da tabela existente
+            consultas = data;
+            data.forEach(consulta => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', consulta.id);
+                tr.innerHTML = `
+                    <td class="id">${consulta.id}</td>
+                    <td class="paciente">${consulta.peso}</td>
+                    <td class="peso">${consulta.peso}</td>
+                    <td class="altura">${consulta.altura}</td>
+                    <td class="classificacao">${consulta.classificacao}</td>
+                    <td class="actions">
+                        <button onclick="editConsulta('${consulta.id}')" class="edit-btn action-btn">{{ text.edit }}</button>
+                        <button onclick="deleteConsulta('${consulta.id}')" class="delete-btn action-btn">{{ text.delete }}</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(error => console.error('Erro ao buscar dados:', error));
+    });
+
+    function editConsulta(id) {
+        const consultaRow = document.querySelector(`#appointment-table tr[data-id="${id}"]`);
+        if (!consultaRow) {
+            console.error('Linha do consulta não encontrada.');
+            return;
+        }
+
+        const id_consulta = consultaRow.querySelector('.id').textContent;
+        const peso = consultaRow.querySelector('.peso').textContent;
+        const altura = consultaRow.querySelector('.altura').textContent;
+        const pacienteId = consultas.find(consulta => consulta.id == id_consulta).paciente.id;
+        
+        carregarPacientes(true);
+        document.getElementById('editConsultaModal').style.display = 'block';
+        document.getElementById('editConsultaId').value = id_consulta;
+        document.getElementById('editConsultaPeso').value = peso;
+        document.getElementById('editConsultaAltura').value = altura;
+        setTimeout(() => {
+            document.getElementById('editConsultaPaciente').value = pacienteId;
+            document.getElementById('editConsultaPaciente').disabled = true;
+        }, 100);
+    }
+
+    function submitConsultaEdit() {
+        const id = document.getElementById('editConsultaId').value;
+        const peso = document.getElementById('editConsultaPeso').value;
+        const altura = document.getElementById('editConsultaAltura').value;
+
+        fetch('/api/consultas/atualizar/' + id, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ peso, altura })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            swal(data.message, "", "success").then(() => {
+                window.location.reload();
+            });
+        })
+        .catch(error => {
+            swal("Erro ao editar consulta", error.message, "error");
+        });
+
+        closeModal('editConsultaModal');
+    }
+
+    function deleteConsulta(id) {
+        swal({
+            title: "{{ text.delete_confirmation_title }}",
+            text: "{{ text.delete_confirmation_text }}",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((willDelete) => {
+            if (willDelete) {
+                fetch('/api/consultas/deletar/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        swal("consulta removida com sucesso!", "", "success").then(() => {
+                            window.location.reload();
+                        });
+                    } else if (response.status === 404) {
+                        swal("consulta não encontrada", "", "error");
+                    } else {
+                        return response.json().then(err => { throw err; });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    swal("Erro ao deletar consulta", error.message, "error");
+                });
+            }
+        });
+    }
+
+    function submitNewConsulta() {
+        const peso = document.getElementById('newConsultaPeso').value;
+        const altura = document.getElementById('newConsultaAltura').value;
+        const paciente = document.getElementById('newConsultaPaciente').value;
+
+        fetch('/api/consultas/cadastrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ peso, altura })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            swal(data.message, "", "success").then(() => {
+                window.location.reload();
+            });
+        })
+        .catch(error => {
+            swal("Falha ao criar consulta", error.message, "error");
+        });
+
+        closeModal('createConsultaModal');
+    }
+
+    function carregarPacientes(edit = false) {
+        fetch(`/api/pacientes`)
+            .then(response => response.json())
+            .then(data => {
+                const pacienteSelect = document.getElementById(edit ? 'editConsultaPaciente' : 'newConsultaPaciente')
+                pacienteSelect.innerHTML = '<option value="" disabled selected>{{ text.select_patient }}</option>';
+                data.forEach(paciente => {
+                    const option = document.createElement('option');
+                    option.value = paciente.id;
+                    option.textContent = paciente.nome;
+                    pacienteSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Erro ao buscar pacientes:', error));
+    }
+
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function showCreateConsultaModal() {
+        carregarPacientes();
+        document.getElementById('createConsultaModal').style.display = 'block';
+    }
+</script>

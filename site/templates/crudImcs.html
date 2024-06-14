@@ -99,7 +99,7 @@
         const altura = imcRow.querySelector('.altura').textContent;
         const pacienteId = imcs.find(imc => imc.id == id_imc).paciente.id;
         
-        carregarPacientes(true);
+        carregarImcPacientes(true);
         document.getElementById('editImcModal').style.display = 'block';
         document.getElementById('editImcId').value = id_imc;
         document.getElementById('editImcPeso').value = peso;
@@ -204,7 +204,7 @@
         closeModal('createImcModal');
     }
 
-    function carregarPacientes(edit = false) {
+    function carregarImcPacientes(edit = false) {
         fetch(`/api/pacientes`)
             .then(response => response.json())
             .then(data => {
@@ -226,7 +226,7 @@
     }
 
     function showCreateImcModal() {
-        carregarPacientes();
+        carregarImcPacientes();
         document.getElementById('createImcModal').style.display = 'block';
     }
 </script>

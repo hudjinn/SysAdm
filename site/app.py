@@ -808,7 +808,9 @@ def dados_consultas():
 @login_required
 def api_criar_consulta():
     data = request.json
-    response = requests.post(f'{app.api}consultas/cadastrar', json=data)
+    agendamento_id = data['agendamento']['id']
+    paciente_id = data['paciente']['id']
+    response = requests.post(f'{app.api}consultas/cadastrar?agendamentoId={agendamento_id}&pacienteId={paciente_id}', json=data)
     if response.status_code == 201:
         return jsonify({"message": session['flash_text']['create_appointment_success']}), 201
     else:

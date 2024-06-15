@@ -84,12 +84,11 @@ def main():
                 print(f"Erro ao inserir horário para médico {medico_cpf} na clínica {clinica_id}: {response.text}")
     
     insert_agendamentos(API_URL + 'agendamentos', agendamentos)
-    print(pacientes)
-    print(consultas)
+
     for paciente in pacientes:
         insert_data(API_URL + 'pacientes/cadastrar', paciente)
     for consulta in consultas:
-        insert_data(API_URL + 'consultas/cadastrar', consulta)
+        insert_data(API_URL + f"consultas/cadastrar?agendamentoId={consulta['agendamentoId']}&pacienteId={consulta['pacienteId']}", consulta)
     for imc in imcs:
         paciente_cpf = imc.pop("pacienteCpf")
         insert_data(API_URL + 'imcs/cadastrar/cpf/' + paciente_cpf , imc)

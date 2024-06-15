@@ -78,6 +78,8 @@
   "weight":"Weight",
   "height": "Height",
   "patient": "Patient",
+  "select_schedule":"Seleccionar horario",
+  "schedule":"Planificación",
   "complaint": "Complaint",
   "diagnosis": "Diagnosis",
   "edit_user": "Editing User",

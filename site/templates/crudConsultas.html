@@ -44,9 +44,9 @@
             <tr>
                 <th>ID</th>
                 <th>{{ text.patient_name }}</th>
-                <th>{{ text.weight }}</th>
-                <th>{{ text.height }}</th>
-                <th>{{ text.classification }}</th>
+                <th>{{ text.complaint }}</th>
+                <th>{{ text.diagnosis }}</th>
+                <th>{{ text.doctor }}</th>
                 <th>{{ text.actions }}</th>
             </tr>
         </thead>
@@ -71,10 +71,10 @@
                 tr.setAttribute('data-id', consulta.id);
                 tr.innerHTML = `
                     <td class="id">${consulta.id}</td>
-                    <td class="paciente">${consulta.peso}</td>
-                    <td class="peso">${consulta.peso}</td>
-                    <td class="altura">${consulta.altura}</td>
-                    <td class="classificacao">${consulta.classificacao}</td>
+                    <td class="paciente">${consulta.paciente.nome}</td>
+                    <td class="peso">${consulta.queixaPrincipal}</td>
+                    <td class="altura">${consulta.diagnostico}</td>
+                    <td class="classificacao">${consulta.agendamento.medico.nome}</td>
                     <td class="actions">
                         <button onclick="editConsulta('${consulta.id}')" class="edit-btn action-btn">{{ text.edit }}</button>
                         <button onclick="deleteConsulta('${consulta.id}')" class="delete-btn action-btn">{{ text.delete }}</button>

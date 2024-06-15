@@ -810,9 +810,9 @@ def api_criar_consulta():
     data = request.json
     response = requests.post(f'{app.api}consultas/cadastrar', json=data)
     if response.status_code == 201:
-        return jsonify({"message": session['flash_text']['create_appoitment_success']}), 201
+        return jsonify({"message": session['flash_text']['create_appointment_success']}), 201
     else:
-        return jsonify({"message": session['flash_text']['create_appoitment_fail']}), response.status_code
+        return jsonify({"message": session['flash_text']['create_appointment_fail']}), response.status_code
 
 @app.route('/api/consultas/atualizar/<id>', methods=['PATCH'])
 @check_api_status
@@ -822,9 +822,9 @@ def api_atualizar_consulta(id):
         data = request.json
         response = requests.patch(f'{app.api}consultas/atualizar/{id}', json=data)
         if response.status_code == 200:
-            return jsonify({"message": session['flash_text']['update_appoitment_success']}), 200
+            return jsonify({"message": session['flash_text']['update_appointment_success']}), 200
         else:
-            return jsonify({"message": session['flash_text']['update_appoitment_fail']}), response.status_code
+            return jsonify({"message": session['flash_text']['update_appointment_fail']}), response.status_code
     except Exception as e:
         return jsonify({"message": session['flash_text']['unknown_error']}), 500
 
@@ -835,9 +835,9 @@ def api_deletar_consulta(id):
     try:
         response = requests.delete(f'{app.api}consultas/deletar/{id}')
         if response.status_code == 200:
-            return jsonify({"message": session['flash_text']['delete_appoitment_success']}), 200
+            return jsonify({"message": session['flash_text']['delete_appointment_success']}), 200
         else:
-            return jsonify({"message": session['flash_text']['delete_appoitment_fail']}), response.status_code
+            return jsonify({"message": session['flash_text']['delete_appointment_fail']}), response.status_code
     except requests.exceptions.RequestException as e:
         return jsonify({"message": session['flash_text']['conn_error']}), 500
 

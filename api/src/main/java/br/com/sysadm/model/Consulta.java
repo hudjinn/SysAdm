@@ -1,7 +1,7 @@
 package br.com.sysadm.model;
 
 import java.time.LocalDate;
-import jakarta.persistence.CascadeType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,10 +24,10 @@ public class Consulta {
     @Column(nullable = false)
     private LocalDate dataConsulta;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Paciente paciente;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Agendamento agendamento;
 
     // Getters and Setters

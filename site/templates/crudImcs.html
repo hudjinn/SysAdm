@@ -47,6 +47,7 @@
                 <th>{{ text.weight }}</th>
                 <th>{{ text.height }}</th>
                 <th>{{ text.classification }}</th>
+                <th>{{ text.dataimc }}</th>
                 <th>{{ text.actions }}</th>
             </tr>
         </thead>
@@ -76,6 +77,7 @@
                     <td class="peso">${imc.peso}</td>
                     <td class="altura">${imc.altura}</td>
                     <td class="classificacao">${imc.classificacao}</td>
+                    <td class="dataImc">${imc.dataImc}</td>
                     <td class="actions">
                         <button onclick="editImc('${imc.id}')" class="edit-btn action-btn">{{ text.edit }}</button>
                         <button onclick="deleteImc('${imc.id}')" class="delete-btn action-btn">{{ text.delete }}</button>

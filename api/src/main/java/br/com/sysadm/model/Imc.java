@@ -37,11 +37,11 @@ public class Imc {
     public Imc() {
     }
 
-    public Imc(Double peso, Double altura, Paciente paciente) {
+    public Imc(Double peso, Double altura, LocalDate dataImc, Paciente paciente) {
         this.peso = peso;
         this.altura = altura;
         this.paciente = paciente;
-        this.dataImc = LocalDate.now();
+        this.dataImc = (dataImc != null) ? dataImc : LocalDate.now();
         calcularImc();
     }
 
@@ -68,7 +68,9 @@ public class Imc {
 
     @PrePersist
     protected void onCreate() {
-        dataImc = LocalDate.now();
+        if (this.dataImc == null) {
+            this.dataImc = LocalDate.now();
+        }
         calcularImc();
     }
 

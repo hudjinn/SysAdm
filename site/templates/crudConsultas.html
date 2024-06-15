@@ -257,8 +257,10 @@
                 agendamentoSelect.innerHTML = '<option value="" disabled selected>{{ text.select_schedule }}</option>';
                 data.forEach(agendamento => {
                     const option = document.createElement('option');
+                    let agendamentoText = agendamento.clinica.nome + ' - ' + agendamento.medico.nome;
+                    agendamentoText += ' - (' + agendamento.dataAgendamento + ' - ' + agendamento.horaAgendamento + ')';
                     option.value = agendamento.id;
-                    option.textContent = agendamento.horario; // Assumindo que há um campo 'horario' no agendamento
+                    option.textContent = agendamentoText; // Assumindo que há um campo 'horario' no agendamento
                     agendamentoSelect.appendChild(option);
                 });
             })

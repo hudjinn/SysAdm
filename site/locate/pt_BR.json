@@ -65,6 +65,8 @@
     "complaint": "Reclamação",
     "diagnosis": "Diagnóstico",
     "cpf": "CPF",
+    "select_schedule":"Selecione o agendamento",
+    "schedule":"Agendamento",
     "name": "Nome",
     "email": "Email",
     "sexo": "Sexo",

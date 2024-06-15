@@ -78,6 +78,8 @@
   "weight":"Weight",
   "height": "Height",
   "patient": "Patient",
+  "complaint": "Complaint",
+  "diagnosis": "Diagnosis",
   "edit_user": "Editing User",
   "edit_doctor": "Editing Doctor",
   "edit_patient": "Edit Patient",

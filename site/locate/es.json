@@ -66,6 +66,8 @@
   "classification": "Clasificación",
   "cpf": "CPF",
   "name": "Nombre",
+  "complaint": "Queja",
+  "diagnosis": "Diagnóstico",
   "weight":"Peso",
   "patient": "Paciente",
   "height": "Altura",

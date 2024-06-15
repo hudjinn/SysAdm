@@ -84,6 +84,7 @@
   "diagnosis": "Diagnosis",
   "edit_user": "Editing User",
   "edit_doctor": "Editing Doctor",
+  "date": "Date",
   "edit_patient": "Edit Patient",
   "edit_appointment": "Editing Appointment",
   "update_user_fail": "Failed to update user",

@@ -98,6 +98,7 @@
   "create_user_fail": "Error al crear usuario",
   "create_user_error": "Error al crear usuario",
   "activity": "Estado del Registro",
+  "date": "Fecha",
   "active": "Activo",
   "inactive": "Inactivo",
   "create_new_medical_appointment": "Crear nueva cita médica",

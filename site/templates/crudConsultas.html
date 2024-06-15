@@ -3,13 +3,19 @@
         <span class="close-button" onclick="closeModal('createConsultaModal')">&times;</span>
         <h3>{{ text.create_new_medical_appointment }}</h3>
         <form id="createConsultaForm">
-            <label for="newConsultaPeso">{{ text.weight }}</label>
-            <input type="text" id="newConsultaPeso" name="peso">
-            <label for="newConsultaAltura">{{ text.height }}</label>
-            <input type="text" id="newConsultaAltura" name="altura">
+            <label for="newConsultaQueixa">{{ text.complaint }}</label>
+            <input type="text" id="newConsultaQueixa" name="queixaPrincipal">
+            <label for="newConsultaDiagnostico">{{ text.diagnosis }}</label>
+            <input type="text" id="newConsultaDiagnostico" name="diagnostico">
+            <label for="newConsultaData">{{ text.date }}</label>
+            <input type="date" id="newConsultaData" name="dataConsulta">
             <label for="newConsultaPaciente">{{ text.patient }}</label>
             <select id="newConsultaPaciente" name="paciente">
                 <option value="" disabled selected>{{ text.select_patient }}</option>
+            </select>
+            <label for="newConsultaAgendamento">{{ text.schedule }}</label>
+            <select id="newConsultaAgendamento" name="agendamento">
+                <option value="" disabled selected>{{ text.select_schedule }}</option>
             </select>
             <button type="button" onclick="submitNewConsulta()">{{ text.create }}</button>
         </form>
@@ -22,13 +28,19 @@
         <h3>{{ text.edit_medical_appointment }}</h3>
         <form id="editConsultaForm">
             <input type="hidden" id="editConsultaId" name="id">
-            <label for="editConsultaPeso">{{ text.weight }}</label>
-            <input type="text" id="editConsultaPeso" name="peso">
-            <label for="editConsultaAltura">{{ text.height }}</label>
-            <input type="text" id="editConsultaAltura" name="altura">
+            <label for="editConsultaQueixa">{{ text.complaint }}</label>
+            <input type="text" id="editConsultaQueixa" name="queixaPrincipal">
+            <label for="editConsultaDiagnostico">{{ text.diagnosis }}</label>
+            <input type="text" id="editConsultaDiagnostico" name="diagnostico">
+            <label for="editConsultaData">{{ text.date }}</label>
+            <input type="date" id="editConsultaData" name="dataConsulta">
             <label for="editConsultaPaciente">{{ text.patient }}</label>
             <select id="editConsultaPaciente" name="paciente">
                 <option value="" disabled selected>{{ text.select_patient }}</option>
+            </select>
+            <label for="editConsultaAgendamento">{{ text.schedule }}</label>
+            <select id="editConsultaAgendamento" name="agendamento">
+                <option value="" disabled selected>{{ text.select_schedule }}</option>
             </select>
             <button type="button" onclick="submitConsultaEdit()">{{ text.save_changes }}</button>
         </form>
@@ -44,17 +56,18 @@
             <tr>
                 <th>ID</th>
                 <th>{{ text.patient_name }}</th>
-                <th>{{ text.weight }}</th>
-                <th>{{ text.height }}</th>
-                <th>{{ text.classification }}</th>
+                <th>{{ text.complaint }}</th>
+                <th>{{ text.diagnosis }}</th>
+                <th>{{ text.date }}</th>
                 <th>{{ text.actions }}</th>
             </tr>
         </thead>
         <tbody>
-            <!-- as Consultas serão carregados aqui via JavaScript -->
+            <!-- as Consultas serão carregadas aqui via JavaScript -->
         </tbody>
     </table>
 </div>
+
 
 <script>
     let consultas = [];
@@ -71,10 +84,10 @@
                 tr.setAttribute('data-id', consulta.id);
                 tr.innerHTML = `
                     <td class="id">${consulta.id}</td>
-                    <td class="paciente">${consulta.peso}</td>
-                    <td class="peso">${consulta.peso}</td>
-                    <td class="altura">${consulta.altura}</td>
-                    <td class="classificacao">${consulta.classificacao}</td>
+                    <td class="paciente">${consulta.paciente.nome}</td>
+                    <td class="queixa">${consulta.queixaPrincipal}</td>
+                    <td class="diagnostico">${consulta.diagnostico}</td>
+                    <td class="data">${consulta.dataConsulta}</td>
                     <td class="actions">
                         <button onclick="editConsulta('${consulta.id}')" class="edit-btn action-btn">{{ text.edit }}</button>
                         <button onclick="deleteConsulta('${consulta.id}')" class="delete-btn action-btn">{{ text.delete }}</button>
@@ -94,32 +107,41 @@
         }
 
         const id_consulta = consultaRow.querySelector('.id').textContent;
-        const peso = consultaRow.querySelector('.peso').textContent;
-        const altura = consultaRow.querySelector('.altura').textContent;
+        const queixaPrincipal = consultaRow.querySelector('.queixa').textContent;
+        const diagnostico = consultaRow.querySelector('.diagnostico').textContent;
+        const dataConsulta = consultaRow.querySelector('.data').textContent;
         const pacienteId = consultas.find(consulta => consulta.id == id_consulta).paciente.id;
+        const agendamentoId = consultas.find(consulta => consulta.id == id_consulta).agendamento.id;
         
         carregarPacientes(true);
+        carregarAgendamentos(true);
+
         document.getElementById('editConsultaModal').style.display = 'block';
         document.getElementById('editConsultaId').value = id_consulta;
-        document.getElementById('editConsultaPeso').value = peso;
-        document.getElementById('editConsultaAltura').value = altura;
+        document.getElementById('editConsultaQueixa').value = queixaPrincipal;
+        document.getElementById('editConsultaDiagnostico').value = diagnostico;
+        document.getElementById('editConsultaData').value = dataConsulta;
+
         setTimeout(() => {
             document.getElementById('editConsultaPaciente').value = pacienteId;
             document.getElementById('editConsultaPaciente').disabled = true;
+            document.getElementById('editConsultaAgendamento').value = agendamentoId;
+            document.getElementById('editConsultaAgendamento').disabled = true;
         }, 100);
     }
 
     function submitConsultaEdit() {
         const id = document.getElementById('editConsultaId').value;
-        const peso = document.getElementById('editConsultaPeso').value;
-        const altura = document.getElementById('editConsultaAltura').value;
+        const queixaPrincipal = document.getElementById('editConsultaQueixa').value;
+        const diagnostico = document.getElementById('editConsultaDiagnostico').value;
+        const dataConsulta = document.getElementById('editConsultaData').value;
 
         fetch('/api/consultas/atualizar/' + id, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ peso, altura })
+            body: JSON.stringify({ queixaPrincipal, diagnostico, dataConsulta })
         })
         .then(response => {
             if (!response.ok) {
@@ -174,16 +196,24 @@
     }
 
     function submitNewConsulta() {
-        const peso = document.getElementById('newConsultaPeso').value;
-        const altura = document.getElementById('newConsultaAltura').value;
-        const paciente = document.getElementById('newConsultaPaciente').value;
+        const queixaPrincipal = document.getElementById('newConsultaQueixa').value;
+        const diagnostico = document.getElementById('newConsultaDiagnostico').value;
+        const dataConsulta = document.getElementById('newConsultaData').value;
+        const pacienteId = document.getElementById('newConsultaPaciente').value;
+        const agendamentoId = document.getElementById('newConsultaAgendamento').value;
 
         fetch('/api/consultas/cadastrar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ peso, altura })
+            body: JSON.stringify({
+                queixaPrincipal,
+                diagnostico,
+                dataConsulta,
+                paciente: { id: pacienteId },
+                agendamento: { id: agendamentoId }
+            })
         })
         .then(response => {
             if (!response.ok) {
@@ -219,6 +249,21 @@
             .catch(error => console.error('Erro ao buscar pacientes:', error));
     }
 
+    function carregarAgendamentos(edit = false) {
+        fetch(`/api/agendamentos`)
+            .then(response => response.json())
+            .then(data => {
+                const agendamentoSelect = document.getElementById(edit ? 'editConsultaAgendamento' : 'newConsultaAgendamento')
+                agendamentoSelect.innerHTML = '<option value="" disabled selected>{{ text.select_schedule }}</option>';
+                data.forEach(agendamento => {
+                    const option = document.createElement('option');
+                    option.value = agendamento.id;
+                    option.textContent = agendamento.horario; // Assumindo que há um campo 'horario' no agendamento
+                    agendamentoSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Erro ao buscar agendamentos:', error));
+    }
 
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
@@ -226,6 +271,7 @@
 
     function showCreateConsultaModal() {
         carregarPacientes();
+        carregarAgendamentos();
         document.getElementById('createConsultaModal').style.display = 'block';
     }
 </script>
